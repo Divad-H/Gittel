@@ -23,14 +23,11 @@ namespace Gittel.Main
     /// </summary>
     public sealed partial class MainWindow : Window
     {
-        public MainWindow()
+        public MainWindow(string spaUri)
         {
             this.InitializeComponent();
-        }
 
-        private void myButton_Click(object sender, RoutedEventArgs e)
-        {
-            myButton.Content = "Clicked";
+            this.MainWebView.Source = new(spaUri);
         }
     }
 }
