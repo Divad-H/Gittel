@@ -14,5 +14,5 @@ public interface IMessaging
   /// Post a message (json) that will be sent
   /// </summary>
   /// <param name="message">The (json) message to be sent</param>
-  void PostMessage(string message);
+  Task PostMessage(string message);
 }

@@ -1,4 +1,6 @@
-﻿using CommandLine;
+﻿using ApiGenerator.WebView2;
+using CommandLine;
+using Gittel.Controllers;
 using Microsoft.UI.Xaml;
 using System;
 
@@ -21,8 +23,13 @@ public partial class App : Application
     var commandLineArgs = Parser.Default.ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs());
 
     m_window = new MainWindow(commandLineArgs.Value.SpaUri);
+
+
+    WebView2Messaging webView2Messaging = new(m_window.WebView);
+    RequestDispatcher requestDispatcher = new(webView2Messaging, new SampleController());
+
     m_window.Activate();
   }
 
-  private Window m_window;
+  private MainWindow m_window;
 }

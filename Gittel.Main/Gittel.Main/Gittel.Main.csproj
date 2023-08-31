@@ -18,4 +18,9 @@
     <PackageReference Include="Microsoft.WindowsAppSDK.InteractiveExperiences" Version="1.0.0-experimental1" />
     <Manifest Include="$(ApplicationManifest)" />
   </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\ApiGenerator.WebView2\ApiGenerator.WebView2.csproj" />
+    <ProjectReference Include="..\..\Gittel.Controllers\Gittel.Controllers.csproj" />
+  </ItemGroup>
 </Project>
