@@ -1,7 +1,11 @@
 import { Component } from '@angular/core';
 import { SampleRequestDto } from '../generated-client/sample-request-dto';
 import { SampleResultDto } from '../generated-client/sample-result-dto';
-import { Observable } from 'rxjs';
+import { Observable, Subject, filter, map, take } from 'rxjs';
+import { ResponseDto } from '../generated-client/response-dto';
+import { RequestDto } from '../generated-client/request-dto';
+import { RequestType } from '../generated-client/request-type';
+import { makeid } from '../utilities/makeid';
 
 @Component({
   selector: 'app-root',
@@ -9,26 +13,41 @@ import { Observable } from 'rxjs';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'Gittel.Ui';
+
+  private readonly receivedMessage = new Subject<ResponseDto>();
 
   constructor() {
     (window as any).chrome.webview.addEventListener('message', (arg: any) => {
-      console.log(arg);
+      this.receivedMessage.next(arg.data);
     })
   }
 
-  //callSampleFunction(data: SampleRequestDto): Observable<SampleResultDto> {
-  //
-  //}
+  callSampleFunction(data: SampleRequestDto): Observable<SampleResultDto> {
 
-  public foo() {
-    (window as any).chrome.webview.postMessage({
+    const requestData: RequestDto = {
       controller: "sample",
       function: "sampleFunction",
-      requestId: "asdf-1234",
-      data: JSON.stringify({
-        text: "TestString"
-      })
+      requestId: makeid(22),
+      requestType: RequestType.FunctionCall,
+      data: JSON.stringify(data)
+    };
+
+    (window as any).chrome.webview.postMessage(requestData);
+
+    return this.receivedMessage.pipe(
+      filter(data => data.requestId === requestData.requestId),
+      map(data => JSON.parse(data.data!)),
+      take(1)
+    );
+  }
+
+  public foo() {
+
+    this.callSampleFunction({
+      text: "TestString"
+    }).subscribe(res => {
+      console.log(res);
     })
+
   }
 }

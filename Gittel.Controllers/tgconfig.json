@@ -3,6 +3,7 @@
   "tabLength": 2,
   "exportTypesAsInterfacesByDefault": true,
   "explicitPublicAccessor": true,
+  "csNullableTranslation": "undefined",
   "defaultValuesForTypes": {
     "number": "-1",
     "Date | null": "null",

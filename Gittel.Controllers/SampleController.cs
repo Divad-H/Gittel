@@ -3,13 +3,13 @@ using TypeGen.Core.TypeAnnotations;
 
 namespace Gittel.Controllers;
 
-[ExportTsClass]
+[ExportTsInterface]
 public record SampleResultDto
 {
   public required string Text { get; init; }
 }
 
-[ExportTsClass]
+[ExportTsInterface]
 public record SampleRequestDto
 {
   public required string Text { get; init; }

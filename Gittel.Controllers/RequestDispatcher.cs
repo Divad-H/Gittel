@@ -5,19 +5,6 @@ using System.Text.Json;
 
 namespace Gittel.Controllers
 {
-  internal record Request
-  {
-    public required string Controller { get; init; }
-    public required string Function { get; init; }
-    public required string RequestId { get; init; }
-    public string? Data { get; init; }
-  }
-
-  internal record Response
-  {
-    public required string RequestId { get; init; }
-    public string? Data { get; init; }
-  }
 
   public class RequestDispatcher : IDisposable
   {
@@ -33,6 +20,7 @@ namespace Gittel.Controllers
       var serializerOptions = new JsonSerializerOptions()
       {
         PropertyNameCaseInsensitive = true,
+        PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
       };
 
       _disposables.Add(
@@ -41,7 +29,17 @@ namespace Gittel.Controllers
           {
             try
             {
-              var deserialized = JsonSerializer.Deserialize<Request>(message, serializerOptions);
+              var deserialized = JsonSerializer.Deserialize<RequestDto>(message, serializerOptions);
+              if (deserialized is null)
+              {
+                return Observable.Return(JsonSerializer.Serialize(new ResponseDto()
+                {
+                  RequestId = "",
+                  Success = false,
+                  Data = "Could not parse request data."
+                }));
+              }
+
               return (deserialized.Controller switch
               {
                 "sample" => deserialized.Function switch
@@ -53,17 +51,32 @@ namespace Gittel.Controllers
                   _ => Observable.Throw<string>(new InvalidOperationException("Function not found."))
                 },
                 _ => Observable.Throw<string>(new InvalidOperationException("Controller not found."))
-              }).Select(res => JsonSerializer.Serialize(new Response()
+              }).Select(res => JsonSerializer.Serialize(new ResponseDto()
               {
                 RequestId = deserialized.RequestId,
+                Success = true,
                 Data = res
-              }))
-              .Catch(Observable.Empty<string>()); // TODO return error an log
+              }, serializerOptions))
+              .Catch((Exception err) => Observable
+                .Return(JsonSerializer.Serialize(new ResponseDto()
+                {
+                  RequestId = deserialized.RequestId,
+                  Success = false,
+                  Data = err.Message
+                }))
+                .Catch(Observable.Empty<string>())
+              );
             }
             catch (Exception ex)
             {
-              // TODO return error and log
-              return Observable.Empty<string>();
+              return Observable
+                .Return(JsonSerializer.Serialize(new ResponseDto()
+                {
+                  RequestId = "",
+                  Success = false,
+                  Data = ex.Message
+                }))
+                .Catch(Observable.Empty<string>());
             }
           })
           .SelectMany(res => Observable.FromAsync(() => _messaging.PostMessage(res)))
