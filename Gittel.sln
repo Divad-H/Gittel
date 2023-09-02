@@ -9,13 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gittel.Main", "Gittel.Main\
 EndProject
 Project("{54A90642-561A-4BB1-A94E-469ADEE60C69}") = "Gittel.Ui", "Gittel.Ui\Gittel.Ui.esproj", "{4F4C1EA0-9EB0-4312-A2F8-865CD2918389}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gittel.Controllers", "Gittel.Controllers\Gittel.Controllers.csproj", "{43E22A1E-A391-4AFD-AC6C-678149ABD8FC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gittel.Controllers", "Gittel.Controllers\Gittel.Controllers.csproj", "{43E22A1E-A391-4AFD-AC6C-678149ABD8FC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGenerator", "TsClientGenerator\ApiGenerator.csproj", "{FAAB6237-D4AE-4263-B37B-5EDF33CC49CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator", "TsClientGenerator\ApiGenerator.csproj", "{FAAB6237-D4AE-4263-B37B-5EDF33CC49CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGenerator.WebView2", "ApiGenerator.WebView2\ApiGenerator.WebView2.csproj", "{9F5413CC-208C-4899-831A-82F811FBE283}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator.WebView2", "ApiGenerator.WebView2\ApiGenerator.WebView2.csproj", "{9F5413CC-208C-4899-831A-82F811FBE283}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGenerator.Generator", "ApiGenerator.Generator\ApiGenerator.Generator.csproj", "{27183063-78C0-4848-800D-92D35608284C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator.Generator", "ApiGenerator.Generator\ApiGenerator.Generator.csproj", "{27183063-78C0-4848-800D-92D35608284C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGenerator.Attributes", "ApiGenerator.Attributes\ApiGenerator.Attributes.csproj", "{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -157,6 +159,22 @@ Global
 		{27183063-78C0-4848-800D-92D35608284C}.Release|x64.Build.0 = Release|Any CPU
 		{27183063-78C0-4848-800D-92D35608284C}.Release|x86.ActiveCfg = Release|Any CPU
 		{27183063-78C0-4848-800D-92D35608284C}.Release|x86.Build.0 = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|arm64.Build.0 = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|x64.Build.0 = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Debug|x86.Build.0 = Debug|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|arm64.ActiveCfg = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|arm64.Build.0 = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x64.ActiveCfg = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x64.Build.0 = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x86.ActiveCfg = Release|Any CPU
+		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
