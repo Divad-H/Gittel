@@ -12,7 +12,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\ApiGenerator.Attributes\ApiGenerator.Attributes.csproj" />
     <ProjectReference Include="..\TsClientGenerator\ApiGenerator.csproj" />
+    <ProjectReference
+			Include="..\ApiGenerator.Generator\ApiGenerator.Generator.csproj"
+			OutputItemType="Analyzer"
+			ReferenceOutputAssembly="false" />
   </ItemGroup>
 
   <Target Name="GenerateTypeGen" AfterTargets="Build">
