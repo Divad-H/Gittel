@@ -1,4 +1,5 @@
 {
+  "generationSpecs": [ "DtosGenerationSpec" ],
   "outputPath": "../Gittel.Ui/src/generated-client",
   "tabLength": 2,
   "exportTypesAsInterfacesByDefault": true,

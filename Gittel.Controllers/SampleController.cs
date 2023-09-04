@@ -4,7 +4,6 @@ using TypeGen.Core.TypeAnnotations;
 
 namespace Gittel.Controllers;
 
-[ExportTsInterface]
 public record SampleResultDto
 {
   public required string Text { get; init; }
