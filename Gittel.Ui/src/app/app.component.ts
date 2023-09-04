@@ -25,8 +25,8 @@ export class AppComponent {
   callSampleFunction(data: SampleRequestDto): Observable<SampleResultDto> {
 
     const requestData: RequestDto = {
-      controller: "sample",
-      function: "sampleFunction",
+      controller: "Sample",
+      function: "SampleFunction",
       requestId: makeid(22),
       requestType: RequestType.FunctionCall,
       data: JSON.stringify(data)

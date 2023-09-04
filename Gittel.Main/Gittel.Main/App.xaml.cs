@@ -1,4 +1,5 @@
-﻿using ApiGenerator.WebView2;
+﻿using ApiGenerator;
+using ApiGenerator.WebView2;
 using CommandLine;
 using Gittel.Controllers;
 using Microsoft.UI.Xaml;
@@ -26,7 +27,7 @@ public partial class App : Application
 
 
     WebView2Messaging webView2Messaging = new(m_window.WebView);
-    RequestDispatcher requestDispatcher = new(webView2Messaging, new SampleController());
+    RequestDispatcher requestDispatcher = new(webView2Messaging, new ApiGeneration.Generated.RequestDispatcherImpl(new SampleController()));
 
     m_window.Activate();
   }
