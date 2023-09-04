@@ -3,7 +3,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text.Json;
 
-namespace Gittel.Controllers
+namespace ApiGenerator
 {
 
   public class RequestDispatcher : IDisposable
@@ -11,11 +11,11 @@ namespace Gittel.Controllers
     private readonly CompositeDisposable _disposables = new ();
 
     private readonly IMessaging _messaging;
-    private readonly SampleController _sampleController;
-    public RequestDispatcher(IMessaging messaging, SampleController sampleController)
+    private readonly IRequestDispatcherImpl _dispatcherImpl;
+    public RequestDispatcher(IMessaging messaging, IRequestDispatcherImpl dispatcherImpl)
     {
       _messaging = messaging;
-      _sampleController = sampleController;
+      _dispatcherImpl = dispatcherImpl;
 
       var serializerOptions = new JsonSerializerOptions()
       {
@@ -40,32 +40,23 @@ namespace Gittel.Controllers
                 }));
               }
 
-              return (deserialized.Controller switch
-              {
-                "sample" => deserialized.Function switch
-                {
-                  "sampleFunction" => Observable
-                    .FromAsync((ct) => sampleController
-                      .SampleFunction(JsonSerializer.Deserialize<SampleRequestDto>(deserialized.Data, serializerOptions), ct))
-                    .Select(res => JsonSerializer.Serialize(res, serializerOptions)),
-                  _ => Observable.Throw<string>(new InvalidOperationException("Function not found."))
-                },
-                _ => Observable.Throw<string>(new InvalidOperationException("Controller not found."))
-              }).Select(res => JsonSerializer.Serialize(new ResponseDto()
-              {
-                RequestId = deserialized.RequestId,
-                Success = true,
-                Data = res
-              }, serializerOptions))
-              .Catch((Exception err) => Observable
-                .Return(JsonSerializer.Serialize(new ResponseDto()
+              return Observable
+                .FromAsync(ct => dispatcherImpl.DispatchRequest(deserialized, serializerOptions, ct))
+                .Select(res => JsonSerializer.Serialize(new ResponseDto()
                 {
                   RequestId = deserialized.RequestId,
-                  Success = false,
-                  Data = err.Message
-                }))
-                .Catch(Observable.Empty<string>())
-              );
+                  Success = true,
+                  Data = res
+                }, serializerOptions))
+                .Catch((Exception err) => Observable
+                  .Return(JsonSerializer.Serialize(new ResponseDto()
+                  {
+                    RequestId = deserialized.RequestId,
+                    Success = false,
+                    Data = err.Message
+                  }))
+                  .Catch(Observable.Empty<string>())
+                );
             }
             catch (Exception ex)
             {

@@ -52,12 +52,12 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
       })
       .Where(static c => c.classDeclarationSyntax is not null && c.SemanticModel is not null);
 
-    var methodDeclarations = controllerDeclarations.SelectMany((o, ct) =>
+    var methodDeclarations = controllerDeclarations.SelectMany(static (o, ct) =>
     {
       return o.classDeclarationSyntax.DescendantNodes()
         .OfType<MethodDeclarationSyntax>()
         .Where(m => m.Modifiers.Where(mod => mod.IsKind(SyntaxKind.PublicKeyword)).Any())
-        .Select(methodDeclaration => (methodDeclaration, o.SemanticModel));
+        .Select(methodDeclaration => (methodDeclaration, o.SemanticModel, o.classDeclarationSyntax));
     });
 
     var responseDtoDeclarations = methodDeclarations
@@ -73,17 +73,17 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
         {
           if (typeParams?.FirstOrDefault() is TypeSyntax dtoTypeSyntax)
           {
-            var ti = o.SemanticModel.GetTypeInfo(dtoTypeSyntax);
+            var ti = o.SemanticModel.GetTypeInfo(dtoTypeSyntax, ct);
             return $"{ti.Type?.ContainingNamespace}.{ti.Type?.Name}";
           }
         }
         return null;
       })
-      .Where(s => s is not null)
+      .Where(static s => s is not null)
       .Collect();
 
     var requestDtoDeclarations = methodDeclarations
-      .SelectMany((o, ct) =>
+      .SelectMany(static (o, ct) =>
       {
         var parameters = o.methodDeclaration.ParameterList.Parameters;
 
@@ -114,12 +114,12 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
       .Select((o, ct) => o.Left.Concat(o.Right).Distinct().ToImmutableArray());
 
     context.RegisterSourceOutput(dtos,
-      (ctx, dtoTypeNames) =>
+      static (ctx, dtoTypeNames) =>
       {
-        ctx.AddSource($"DtosGenerationSpec.cs", $@"
+        ctx.AddSource("DtosGenerationSpec.cs", $@"
 using TypeGen.Core.SpecGeneration;
 
-namespace ApiGeneratrion.Generated;
+namespace ApiGeneration.Generated;
 
 public partial class DtosGenerationSpec : GenerationSpec
 {{
@@ -130,6 +130,87 @@ public partial class DtosGenerationSpec : GenerationSpec
     { string.Join( "\n", dtoTypeNames.Select(n => $"AddInterface<{ n }>();")) }
   }}
 }}");
+      });
+
+    var endPoints = methodDeclarations
+      .Select(static (o, ct) =>
+      {
+        var controllerSymbol = o.SemanticModel.GetDeclaredSymbol(o.classDeclarationSyntax, ct);
+        var controllerName = controllerSymbol?.Name;
+        var controllerFullName = controllerSymbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
+        var methodName = o.SemanticModel.GetDeclaredSymbol(o.methodDeclaration, ct)?.Name;
+
+        var parameters = o.methodDeclaration.ParameterList.Parameters
+          .Select(p =>
+          {
+            if (p.Type is null)
+            {
+              return null;
+            }
+            var typeInfo = o.SemanticModel.GetTypeInfo(p.Type, ct);
+
+            return $"{typeInfo.Type?.ContainingNamespace}.{typeInfo.Type?.Name}";
+          })
+          .Where(p => p is not null)
+          .ToImmutableArray();
+
+        var hasReturnType = (o.methodDeclaration.ReturnType as GenericNameSyntax)?.TypeArgumentList.Arguments.Any() ?? false;
+
+        return (controllerName, controllerFullName, methodName, parameters, hasReturnType);
+      })
+      .Where(static o => o.controllerName is not null && o.methodName is not null)
+      .Collect()
+      .Select(static (os, ct) => os.GroupBy(static o => o.controllerName).ToImmutableArray());
+
+    context.RegisterSourceOutput(endPoints,
+      (ctx, eps) =>
+      {
+        string getControllerWireName(string controllerName)
+        {
+          if (controllerName.EndsWith("Controller"))
+            return controllerName.Substring(0, controllerName.Length - "Controller".Length);
+          return controllerName;
+        }
+
+        string getControllerArgName(string controllerName)
+        {
+          return char.ToLowerInvariant(controllerName![0]) + controllerName.Substring(1);
+        }
+
+        string getControllerMemberName(string controllerName)
+        {
+          return "_" + getControllerArgName(controllerName);
+        }
+
+        ctx.AddSource("RequestDispatchImpl.cs", $@"namespace ApiGeneration.Generated;
+
+public partial class RequestDispatcherImpl : ApiGenerator.IRequestDispatcherImpl
+{{
+  { string.Join("\n", eps.Select(g => @$"private readonly { g.First().controllerFullName } { getControllerMemberName(g.Key!) };")) }
+
+  public RequestDispatcherImpl({string.Join(",", eps.Select(g => @$"{ g.First().controllerFullName } { getControllerArgName(g.Key!) }"))})
+  {{
+    { string.Join("\n", eps.Select(g => @$"{getControllerMemberName(g.Key!)} = {getControllerArgName(g.Key!)};")) }
+  }}
+
+  async Task<string?> ApiGenerator.IRequestDispatcherImpl.DispatchRequest(ApiGenerator.RequestDto request, System.Text.Json.JsonSerializerOptions jsonSerializerOptions, CancellationToken ct)
+  {{
+    return request.Controller switch
+    {{
+      { string.Join("\n", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
+      {{
+        { string.Join("\n", g.Select(o => @$"""{ o.methodName }"" => { (o.hasReturnType 
+          ? $"System.Text.Json.JsonSerializer.Serialize(await { getControllerMemberName(g.Key!) }.{ o.methodName }( {
+              string.Join(", ", o.parameters.Select(p => p == "System.Threading.CancellationToken" ? "ct" : $"System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data ?? throw new System.ArgumentNullException(), jsonSerializerOptions) ?? throw new System.InvalidOperationException()"))
+            }), jsonSerializerOptions)" 
+          : "TODO (Return type is Task)") } ,")) }
+        _ => throw new InvalidOperationException(""Function not found."")
+      }},"))}
+      _ => throw new InvalidOperationException(""Controller not found."")
+    }};
+  }}
+}}
+          ");
       });
   }
 }
