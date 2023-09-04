@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Collections.Immutable;
 using System.Diagnostics;
 
 namespace ApiGenerator.Generator;
@@ -60,11 +61,10 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
     });
 
     var responseDtoDeclarations = methodDeclarations
-      .Combine(taskTypes)
-      .Select((o, ct) =>
+      .Select(static (o, ct) =>
       {
-        var returnType = o.Left.methodDeclaration.ReturnType;
-        var typeInfo = o.Left.SemanticModel.GetTypeInfo(returnType, ct);
+        var returnType = o.methodDeclaration.ReturnType;
+        var typeInfo = o.SemanticModel.GetTypeInfo(returnType, ct);
         
         var typeParams = (returnType as GenericNameSyntax)?.TypeArgumentList.Arguments;
         var name = (typeInfo.Type as INamedTypeSymbol)?.Name;
@@ -73,7 +73,7 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
         {
           if (typeParams?.FirstOrDefault() is TypeSyntax dtoTypeSyntax)
           {
-            var ti = o.Left.SemanticModel.GetTypeInfo(dtoTypeSyntax);
+            var ti = o.SemanticModel.GetTypeInfo(dtoTypeSyntax);
             return $"{ti.Type?.ContainingNamespace}.{ti.Type?.Name}";
           }
         }
@@ -82,7 +82,38 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
       .Where(s => s is not null)
       .Collect();
 
-    context.RegisterSourceOutput(responseDtoDeclarations,
+    var requestDtoDeclarations = methodDeclarations
+      .SelectMany((o, ct) =>
+      {
+        var parameters = o.methodDeclaration.ParameterList.Parameters;
+
+        return parameters
+          .Select(p =>
+          {
+            if (p.Type is null)
+            {
+              return null;
+            }
+            var typeInfo = o.SemanticModel.GetTypeInfo(p.Type, ct);
+
+            var name = $"{typeInfo.Type?.ContainingNamespace}.{typeInfo.Type?.Name}";
+                        
+            if (name == "System.Threading.CancellationToken")
+            {
+              return null;
+            }
+
+            return name;
+          });
+      })
+      .Where(s => s is not null)
+      .Collect();
+
+    var dtos = responseDtoDeclarations
+      .Combine(requestDtoDeclarations)
+      .Select((o, ct) => o.Left.Concat(o.Right).Distinct().ToImmutableArray());
+
+    context.RegisterSourceOutput(dtos,
       (ctx, dtoTypeNames) =>
       {
         ctx.AddSource($"DtosGenerationSpec.cs", $@"
@@ -94,6 +125,8 @@ public partial class DtosGenerationSpec : GenerationSpec
 {{
   public DtosGenerationSpec()
   {{
+    AddInterface<ApiGenerator.RequestDto>();
+    AddInterface<ApiGenerator.ResponseDto>();
     { string.Join( "\n", dtoTypeNames.Select(n => $"AddInterface<{ n }>();")) }
   }}
 }}");

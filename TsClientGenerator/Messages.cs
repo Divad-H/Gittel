@@ -1,6 +1,6 @@
 ﻿using TypeGen.Core.TypeAnnotations;
 
-namespace Gittel.Controllers;
+namespace ApiGenerator;
 
 public enum RequestType
 {
@@ -9,8 +9,6 @@ public enum RequestType
   Unsubscription,
 }
 
-
-[ExportTsInterface]
 public class RequestDto
 {
   public required string Controller { get; init; }
@@ -20,7 +18,6 @@ public class RequestDto
   public string? Data { get; init; }
 }
 
-[ExportTsInterface]
 public record ResponseDto
 {
   public required string RequestId { get; init; }
