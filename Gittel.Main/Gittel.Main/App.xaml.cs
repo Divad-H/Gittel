@@ -11,7 +11,7 @@ namespace Gittel.Main;
 public partial class App : Application
 {
   private ServiceProvider _serviceProvider;
-
+  
   public App()
   {
     this.InitializeComponent();
@@ -32,12 +32,11 @@ public partial class App : Application
     services.AddSingleton(commandLineArgs.Value);
     services.AddSingleton(sp => sp.GetRequiredService<MainWindow>().WebView);
     services.AddSingleton<IMessaging, WebView2Messaging>();
-    services.AddSingleton<SampleController>();
+    services.AddScoped<SampleController>();
     services.AddSingleton<IRequestDispatcherImpl, ApiGeneration.Generated.RequestDispatcherImpl>();
     services.AddSingleton<RequestDispatcher>();
 
     _serviceProvider = services.BuildServiceProvider();
-
     _window = _serviceProvider.GetRequiredService<MainWindow>();
     _window.Closed += WindowClosed;
 

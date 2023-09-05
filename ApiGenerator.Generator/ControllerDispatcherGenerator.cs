@@ -172,26 +172,23 @@ public partial class DtosGenerationSpec : GenerationSpec
           return controllerName;
         }
 
-        string getControllerArgName(string controllerName)
-        {
-          return char.ToLowerInvariant(controllerName![0]) + controllerName.Substring(1);
-        }
-
-        string getControllerMemberName(string controllerName)
-        {
-          return "_" + getControllerArgName(controllerName);
-        }
-
         ctx.AddSource("RequestDispatchImpl.cs", $@"namespace ApiGeneration.Generated;
 
 public partial class RequestDispatcherImpl : ApiGenerator.IRequestDispatcherImpl
 {{
-  { string.Join("\n", eps.Select(g => @$"private readonly { g.First().controllerFullName } { getControllerMemberName(g.Key!) };")) }
+  private readonly global::System.IServiceProvider _serviceProvider;
 
-  public RequestDispatcherImpl({string.Join(",", eps.Select(g => @$"{ g.First().controllerFullName } { getControllerArgName(g.Key!) }"))})
+  public RequestDispatcherImpl(global::System.IServiceProvider serviceProvider)
   {{
-    { string.Join("\n", eps.Select(g => @$"{getControllerMemberName(g.Key!)} = {getControllerArgName(g.Key!)};")) }
+    _serviceProvider = serviceProvider;
   }}
+
+  { string.Join("\n\n", eps.Select(g => $@"private Task<string?> ExecuteOn{ g.Key }(global::System.Func<{ g.First().controllerFullName }, Task<string?>> f)
+  {{
+    using var scope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_serviceProvider);
+    var controller = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<{g.First().controllerFullName}>(scope.ServiceProvider);
+    return f(controller);
+  }}")) }
 
   async Task<string?> ApiGenerator.IRequestDispatcherImpl.DispatchRequest(ApiGenerator.RequestDto request, System.Text.Json.JsonSerializerOptions jsonSerializerOptions, CancellationToken ct)
   {{
@@ -199,11 +196,11 @@ public partial class RequestDispatcherImpl : ApiGenerator.IRequestDispatcherImpl
     {{
       { string.Join("\n", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
       {{
-        { string.Join("\n", g.Select(o => @$"""{ o.methodName }"" => { (o.hasReturnType 
-          ? $"System.Text.Json.JsonSerializer.Serialize(await { getControllerMemberName(g.Key!) }.{ o.methodName }( {
+        { string.Join("\n", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
+          ? $"System.Text.Json.JsonSerializer.Serialize(await controller.{ o.methodName }( {
               string.Join(", ", o.parameters.Select(p => p == "System.Threading.CancellationToken" ? "ct" : $"System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data ?? throw new System.ArgumentNullException(), jsonSerializerOptions) ?? throw new System.InvalidOperationException()"))
             }), jsonSerializerOptions)" 
-          : "TODO (Return type is Task)") } ,")) }
+          : "TODO (Return type is Task)") }) ,")) }
         _ => throw new InvalidOperationException(""Function not found."")
       }},"))}
       _ => throw new InvalidOperationException(""Controller not found."")
