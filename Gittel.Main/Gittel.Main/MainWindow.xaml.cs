@@ -9,13 +9,13 @@ namespace Gittel.Main;
 /// <summary>
 /// An empty window that can be used on its own or navigated to within a Frame.
 /// </summary>
-public sealed partial class MainWindow : Window
+internal sealed partial class MainWindow : Window
 {
-  public MainWindow(string spaUri)
+  public MainWindow(CommandLineOptions commandLineOptions)
   {
     this.InitializeComponent();
 
-    this.MainWebView.Source = new(spaUri);
+    this.MainWebView.Source = new(commandLineOptions.SpaUri);
   }
 
   public WebView2 WebView => MainWebView;

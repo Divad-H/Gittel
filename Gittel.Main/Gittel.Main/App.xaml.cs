@@ -2,6 +2,7 @@
 using ApiGenerator.WebView2;
 using CommandLine;
 using Gittel.Controllers;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
 
@@ -9,6 +10,8 @@ namespace Gittel.Main;
 
 public partial class App : Application
 {
+  private ServiceProvider _serviceProvider;
+
   public App()
   {
     this.InitializeComponent();
@@ -23,14 +26,30 @@ public partial class App : Application
   {
     var commandLineArgs = Parser.Default.ParseArguments<CommandLineOptions>(Environment.GetCommandLineArgs());
 
-    m_window = new MainWindow(commandLineArgs.Value.SpaUri);
+    var services = new ServiceCollection();
 
+    services.AddSingleton<MainWindow>();
+    services.AddSingleton(commandLineArgs.Value);
+    services.AddSingleton(sp => sp.GetRequiredService<MainWindow>().WebView);
+    services.AddSingleton<IMessaging, WebView2Messaging>();
+    services.AddSingleton<SampleController>();
+    services.AddSingleton<IRequestDispatcherImpl, ApiGeneration.Generated.RequestDispatcherImpl>();
+    services.AddSingleton<RequestDispatcher>();
 
-    WebView2Messaging webView2Messaging = new(m_window.WebView);
-    RequestDispatcher requestDispatcher = new(webView2Messaging, new ApiGeneration.Generated.RequestDispatcherImpl(new SampleController()));
+    _serviceProvider = services.BuildServiceProvider();
 
-    m_window.Activate();
+    _window = _serviceProvider.GetRequiredService<MainWindow>();
+    _window.Closed += WindowClosed;
+
+    _serviceProvider.GetRequiredService<RequestDispatcher>();
+
+    _window.Activate();
   }
 
-  private MainWindow m_window;
+  private void WindowClosed(object sender, WindowEventArgs args)
+  {
+    _serviceProvider?.Dispose();
+  }
+
+  private MainWindow _window;
 }
