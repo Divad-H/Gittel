@@ -54,7 +54,7 @@ namespace ApiGenerator
                     RequestId = deserialized.RequestId,
                     Success = false,
                     Data = err.Message
-                  }))
+                  }, serializerOptions))
                   .Catch(Observable.Empty<string>())
                 );
             }
@@ -66,7 +66,7 @@ namespace ApiGenerator
                   RequestId = "",
                   Success = false,
                   Data = ex.Message
-                }))
+                }, serializerOptions))
                 .Catch(Observable.Empty<string>());
             }
           })

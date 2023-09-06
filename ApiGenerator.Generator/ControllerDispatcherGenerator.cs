@@ -174,8 +174,13 @@ public partial class DtosGenerationSpec : GenerationSpec
 
         ctx.AddSource("RequestDispatchImpl.cs", $@"namespace ApiGeneration.Generated;
 
-public partial class RequestDispatcherImpl : ApiGenerator.IRequestDispatcherImpl
+public class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
 {{
+  public static void RegisterService(global::Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection)
+  {{
+    global::Microsoft.Extensions.DependencyInjection.ServiceCollectionServiceExtensions.AddSingleton<global::ApiGenerator.IRequestDispatcherImpl, RequestDispatcherImpl>(serviceCollection);
+  }}
+
   private readonly global::System.IServiceProvider _serviceProvider;
 
   public RequestDispatcherImpl(global::System.IServiceProvider serviceProvider)
@@ -183,27 +188,35 @@ public partial class RequestDispatcherImpl : ApiGenerator.IRequestDispatcherImpl
     _serviceProvider = serviceProvider;
   }}
 
+  private static async Task<string?> ToNull(Func<Task> f)
+  {{
+    await f();
+    return (string)null;
+  }}
+
   { string.Join("\n\n", eps.Select(g => $@"private Task<string?> ExecuteOn{ g.Key }(global::System.Func<{ g.First().controllerFullName }, Task<string?>> f)
   {{
-    using var scope = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_serviceProvider);
-    var controller = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<{g.First().controllerFullName}>(scope.ServiceProvider);
+    using var scope = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.CreateScope(_serviceProvider);
+    var controller = global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<{g.First().controllerFullName}>(scope.ServiceProvider);
     return f(controller);
   }}")) }
 
-  async Task<string?> ApiGenerator.IRequestDispatcherImpl.DispatchRequest(ApiGenerator.RequestDto request, System.Text.Json.JsonSerializerOptions jsonSerializerOptions, CancellationToken ct)
+  async Task<string?> ApiGenerator.IRequestDispatcherImpl.DispatchRequest(ApiGenerator.RequestDto request, global::System.Text.Json.JsonSerializerOptions jsonSerializerOptions, CancellationToken ct)
   {{
     return request.Controller switch
     {{
-      { string.Join("\n", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
+      { string.Join("      \n", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
       {{
         { string.Join("\n", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
-          ? $"System.Text.Json.JsonSerializer.Serialize(await controller.{ o.methodName }( {
-              string.Join(", ", o.parameters.Select(p => p == "System.Threading.CancellationToken" ? "ct" : $"System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data ?? throw new System.ArgumentNullException(), jsonSerializerOptions) ?? throw new System.InvalidOperationException()"))
+          ? $"global::System.Text.Json.JsonSerializer.Serialize(await controller.{ o.methodName }( {
+              string.Join(", ", o.parameters.Select((p, i) => p == "System.Threading.CancellationToken" ? "ct" : $"global::System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
             }), jsonSerializerOptions)" 
-          : "TODO (Return type is Task)") }) ,")) }
-        _ => throw new InvalidOperationException(""Function not found."")
+          : $"await ToNull(async () => await controller.{ o.methodName }( {
+              string.Join(", ", o.parameters.Select((p, i) => p == "System.Threading.CancellationToken" ? "ct" : $"global::System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
+            }))") }) ,")) }
+        _ => throw new global::System.InvalidOperationException(""Function not found."")
       }},"))}
-      _ => throw new InvalidOperationException(""Controller not found."")
+      _ => throw new global::System.InvalidOperationException(""Controller not found."")
     }};
   }}
 }}
