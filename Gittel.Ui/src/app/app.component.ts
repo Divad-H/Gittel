@@ -1,9 +1,5 @@
 import { Component } from '@angular/core';
-import { SampleRequestDto } from '../generated-client/sample-request-dto';
-import { SampleResultDto } from '../generated-client/sample-result-dto';
-import { Observable } from 'rxjs';
-import { SampleRequestDto2 } from '../generated-client/sample-request-dto2';
-import { MessageService } from '../services/message.service';
+import { SampleClient } from '../generated-client/SampleClient';
 
 @Component({
   selector: 'app-root',
@@ -12,20 +8,12 @@ import { MessageService } from '../services/message.service';
 })
 export class AppComponent {
 
-  constructor(private readonly messageService: MessageService) {
-  }
-
-  callSampleFunction(data: SampleRequestDto): Observable<SampleResultDto> {
-    return this.messageService.callNativeFunction("Sample", "SampleFunction", [data]);
-  }
-
-  callSampleFunction2(data: SampleRequestDto, data2: SampleRequestDto2): Observable<null> {
-    return this.messageService.callNativeFunction("Sample", "ReturnVoid", [data, data2]);
+  constructor(private readonly sampleClient: SampleClient) {
   }
 
   public foo() {
 
-    this.callSampleFunction({
+    this.sampleClient.sampleFunction({
       text: "TestString"
     }).subscribe(res => {
       console.log(res);
@@ -35,7 +23,7 @@ export class AppComponent {
 
   public foo2() {
 
-    this.callSampleFunction2({
+    this.sampleClient.returnVoid({
       text: "TestString"
     }, {
       number: 5

@@ -1,6 +1,7 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 
@@ -172,6 +173,44 @@ public partial class DtosGenerationSpec : GenerationSpec
           return controllerName;
         }
 
+        string toCamelCase(string pascalCase)
+        {
+          return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
+        }
+
+        foreach (var g in eps)
+        {
+          var fileName = $@"..\Gittel.Ui\src\generated-client\{getControllerWireName(g.Key!)}Client.ts";
+
+          var code = $@"import {{ Injectable }} from ""@angular/core"";
+import {{ Observable }} from 'rxjs';
+import {{ MessageService }} from '../services/message.service';
+
+import {{ SampleRequestDto }} from ""./sample-request-dto"";
+import {{ SampleResultDto }} from ""./sample-result-dto"";
+import {{ SampleRequestDto2 }} from ""./sample-request-dto2"";
+
+@Injectable()
+export class {getControllerWireName(g.Key!)}Client {{
+
+  constructor(private readonly messageService: MessageService) {{
+  }}
+
+  { string.Join("  \n", g.Select(o => $@"public { toCamelCase(o.methodName!) }({ 
+    string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}: {p!.Split('.').Last()}"))
+  }) : Observable<{ (o.hasReturnType ? "SampleResultDto" : "null") }> {{
+    return this.messageService.callNativeFunction(""{ getControllerWireName(g.Key!) }"", ""{ o.methodName }"", [{ string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}")) }]);
+  }}")) }
+}}";
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
+          try
+          {
+            File.WriteAllText(fileName, code);
+          }
+          catch { }
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
+        }
+
         ctx.AddSource("RequestDispatchImpl.cs", $@"namespace ApiGeneration.Generated;
 
 public class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
@@ -191,7 +230,7 @@ public class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
   private static async Task<string?> ToNull(Func<Task> f)
   {{
     await f();
-    return (string)null;
+    return (string?)null;
   }}
 
   { string.Join("\n\n", eps.Select(g => $@"private Task<string?> ExecuteOn{ g.Key }(global::System.Func<{ g.First().controllerFullName }, Task<string?>> f)
@@ -207,7 +246,7 @@ public class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
     {{
       { string.Join("      \n", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
       {{
-        { string.Join("\n", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
+        { string.Join("        \n", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
           ? $"global::System.Text.Json.JsonSerializer.Serialize(await controller.{ o.methodName }( {
               string.Join(", ", o.parameters.Select((p, i) => p == "System.Threading.CancellationToken" ? "ct" : $"global::System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
             }), jsonSerializerOptions)" 

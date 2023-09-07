@@ -10,6 +10,7 @@
     <BuildOutputFolder>$(MSBuildProjectDirectory)\dist\Gittel.Ui</BuildOutputFolder>
   </PropertyGroup>
   <ItemGroup>
+    <Folder Include="src\generated-client\" />
     <Folder Include="src\services\" />
     <Folder Include="src\utilities\" />
   </ItemGroup>
