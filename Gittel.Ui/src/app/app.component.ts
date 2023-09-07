@@ -1,12 +1,9 @@
 import { Component } from '@angular/core';
 import { SampleRequestDto } from '../generated-client/sample-request-dto';
 import { SampleResultDto } from '../generated-client/sample-result-dto';
-import { EMPTY, Observable, Subject, defer, filter, map, merge, mergeWith, of, startWith, take, tap, withLatestFrom } from 'rxjs';
-import { ResponseDto } from '../generated-client/response-dto';
-import { RequestDto } from '../generated-client/request-dto';
-import { RequestType } from '../generated-client/request-type';
-import { makeid } from '../utilities/makeid';
+import { Observable } from 'rxjs';
 import { SampleRequestDto2 } from '../generated-client/sample-request-dto2';
+import { MessageService } from '../services/message.service';
 
 @Component({
   selector: 'app-root',
@@ -15,53 +12,15 @@ import { SampleRequestDto2 } from '../generated-client/sample-request-dto2';
 })
 export class AppComponent {
 
-  private readonly receivedMessage = new Subject<ResponseDto>();
-
-  constructor() {
-    (window as any).chrome.webview.addEventListener('message', (arg: any) => {
-      this.receivedMessage.next(arg.data);
-    })
+  constructor(private readonly messageService: MessageService) {
   }
 
   callSampleFunction(data: SampleRequestDto): Observable<SampleResultDto> {
-
-    const requestData: RequestDto = {
-      controller: "Sample",
-      function: "SampleFunction",
-      requestId: makeid(22),
-      requestType: RequestType.FunctionCall,
-      data: [JSON.stringify(data)]
-    };
-
-    return this.receivedMessage.pipe(
-      mergeWith(defer(() => {
-        (window as any).chrome.webview.postMessage(requestData);
-        return EMPTY;
-      })),
-      filter(data => data.requestId === requestData.requestId),
-      map(data => JSON.parse(data.data!)),
-      take(1)
-    );
+    return this.messageService.callNativeFunction("Sample", "SampleFunction", [data]);
   }
 
-  callSampleFunction2(data: SampleRequestDto, data2: SampleRequestDto2): Observable<SampleResultDto> {
-
-    const requestData: RequestDto = {
-      controller: "Sample",
-      function: "ReturnVoid",
-      requestId: makeid(22),
-      requestType: RequestType.FunctionCall,
-      data: [JSON.stringify(data), JSON.stringify(data2)]
-    };
-
-    (window as any).chrome.webview.postMessage(requestData);
-
-    return this.receivedMessage.pipe(
-      filter(data => data.requestId === requestData.requestId),
-      tap(data => console.log(data)),
-      map(data => JSON.parse(data.data!)),
-      take(1)
-    );
+  callSampleFunction2(data: SampleRequestDto, data2: SampleRequestDto2): Observable<null> {
+    return this.messageService.callNativeFunction("Sample", "ReturnVoid", [data, data2]);
   }
 
   public foo() {
