@@ -4,6 +4,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Text.RegularExpressions;
 
 namespace ApiGenerator.Generator;
 
@@ -140,6 +141,7 @@ public partial class DtosGenerationSpec : GenerationSpec
         var controllerName = controllerSymbol?.Name;
         var controllerFullName = controllerSymbol?.ToDisplayString(SymbolDisplayFormat.FullyQualifiedFormat);
         var methodName = o.SemanticModel.GetDeclaredSymbol(o.methodDeclaration, ct)?.Name;
+        var returnType = o.methodDeclaration.ReturnType;
 
         var parameters = o.methodDeclaration.ParameterList.Parameters
           .Select(p =>
@@ -155,9 +157,16 @@ public partial class DtosGenerationSpec : GenerationSpec
           .Where(p => p is not null)
           .ToImmutableArray();
 
-        var hasReturnType = (o.methodDeclaration.ReturnType as GenericNameSyntax)?.TypeArgumentList.Arguments.Any() ?? false;
+        var hasReturnType = (returnType as GenericNameSyntax)?.TypeArgumentList.Arguments.Any() ?? false;
+        var typeParams = (returnType as GenericNameSyntax)?.TypeArgumentList.Arguments;
+        string? returnTypeDto = null;
+        if (typeParams?.FirstOrDefault() is TypeSyntax dtoTypeSyntax)
+        {
+          var ti = o.SemanticModel.GetTypeInfo(dtoTypeSyntax, ct);
+          returnTypeDto = ti.Type?.Name;
+        }
 
-        return (controllerName, controllerFullName, methodName, parameters, hasReturnType);
+        return (controllerName, controllerFullName, methodName, parameters, hasReturnType, returnTypeDto);
       })
       .Where(static o => o.controllerName is not null && o.methodName is not null)
       .Collect()
@@ -180,15 +189,14 @@ public partial class DtosGenerationSpec : GenerationSpec
 
         foreach (var g in eps)
         {
-          var fileName = $@"..\Gittel.Ui\src\generated-client\{getControllerWireName(g.Key!)}Client.ts";
+          var fileName = $@"C:\Users\david\source\repos\Gittel\Gittel.Ui\src\generated-client\{getControllerWireName(g.Key!)}Client.ts";
 
           var code = $@"import {{ Injectable }} from ""@angular/core"";
 import {{ Observable }} from 'rxjs';
 import {{ MessageService }} from '../services/message.service';
 
-import {{ SampleRequestDto }} from ""./sample-request-dto"";
-import {{ SampleResultDto }} from ""./sample-result-dto"";
-import {{ SampleRequestDto2 }} from ""./sample-request-dto2"";
+{ string.Join("\n", g.Select(e => e.returnTypeDto).Where(t => t is not null).Distinct().Select(t => @$"import {{ { t } }} from ""./{ Regex.Replace(t, "(?<!^)([A-Z])", "-$1").ToLower() }""")) }
+{ string.Join("\n", g.SelectMany(e => e.parameters).Where(p => p is not null && p != "System.Threading.CancellationToken").Distinct().Select(p => @$"import {{ { p!.Split('.').Last() } }} from ""./{ Regex.Replace(p!.Split('.').Last(), "(?<!^)([A-Z])", "-$1").ToLower() }""")) }
 
 @Injectable()
 export class {getControllerWireName(g.Key!)}Client {{
@@ -196,9 +204,9 @@ export class {getControllerWireName(g.Key!)}Client {{
   constructor(private readonly messageService: MessageService) {{
   }}
 
-  { string.Join("  \n", g.Select(o => $@"public { toCamelCase(o.methodName!) }({ 
+  { string.Join("\n\n  ", g.Select(o => $@"public { toCamelCase(o.methodName!) }({ 
     string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}: {p!.Split('.').Last()}"))
-  }) : Observable<{ (o.hasReturnType ? "SampleResultDto" : "null") }> {{
+  }) : Observable<{ (o.hasReturnType ? o.returnTypeDto : "null") }> {{
     return this.messageService.callNativeFunction(""{ getControllerWireName(g.Key!) }"", ""{ o.methodName }"", [{ string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}")) }]);
   }}")) }
 }}";
@@ -213,7 +221,7 @@ export class {getControllerWireName(g.Key!)}Client {{
 
         ctx.AddSource("RequestDispatchImpl.cs", $@"namespace ApiGeneration.Generated;
 
-public class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
+public partial class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
 {{
   public static void RegisterService(global::Microsoft.Extensions.DependencyInjection.IServiceCollection serviceCollection)
   {{
