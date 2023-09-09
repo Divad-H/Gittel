@@ -1,5 +1,4 @@
-﻿using ApiGenerator;
-using ApiGenerator.Attributes;
+﻿using ApiGenerator.Attributes;
 using TypeGen.Core.TypeAnnotations;
 
 namespace Gittel.Controllers;
@@ -22,7 +21,7 @@ public record SampleRequestDto2
 }
 
 [GenerateController]
-public class SampleController : IController
+public class SampleController
 {
   public Task<SampleResultDto> SampleFunction(SampleRequestDto data, CancellationToken ct)
   {
