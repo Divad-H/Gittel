@@ -21,5 +21,12 @@
   <Target Name="GenerateTypeGen" AfterTargets="Build">
     <Exec Command="dotnet tool run dotnet-typegen --project-folder $(ProjectName) generate" WorkingDirectory=".." />
   </Target>
+  <Target Name="WriteProjectDirectory" BeforeTargets="Build">
+    <WriteLinesToFile File=".\project-dir.txt" Overwrite="true" Lines="$(MSBuildProjectDirectory)" />
+  </Target>
+  <ItemGroup>
+    <AdditionalFiles Include=".\project-dir.txt"/>
+    <AdditionalFiles Include=".\tgconfig.json"/>
+  </ItemGroup>
 
 </Project>

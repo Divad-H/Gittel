@@ -1,7 +1,6 @@
 ﻿using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
-using System;
 using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
@@ -23,6 +22,57 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
 #endif 
 
     Debug.WriteLine("Execute code generator");
+
+    var tgconfig = context
+      .AdditionalTextsProvider
+      .Where(text => text.Path.EndsWith("tgconfig.json",
+                      StringComparison.OrdinalIgnoreCase))
+      .Select((text, token) => text.GetText(token)?.ToString())
+      .Where(text => text is not null)
+      .Select((jsonString, ct) => 
+      {
+        var outputPathIndex = jsonString!.IndexOf("outputPath") + "outputPath".Length;
+        if (outputPathIndex < 0)
+        {
+          return null;
+        }
+        jsonString = jsonString.Substring(outputPathIndex + 1);
+        var colonIndex = jsonString.IndexOf(":");
+        if (colonIndex < 0)
+        {
+          return null;
+        }
+        jsonString = jsonString.Substring(colonIndex + 1);
+        var singleQuoteIndex = jsonString.IndexOf('\'');
+        var doubleQuotesIndex = jsonString.IndexOf('"');
+        var useSingleQuote = singleQuoteIndex >= 0 && (doubleQuotesIndex < 0 || doubleQuotesIndex > singleQuoteIndex);
+        var quotesIndex = useSingleQuote ? singleQuoteIndex : doubleQuotesIndex;
+        if (quotesIndex < 0)
+        {
+          return null;
+        }
+        jsonString = jsonString.Substring(quotesIndex + 1);
+        quotesIndex = jsonString.IndexOf(useSingleQuote ? '\'' : '"');
+        if (quotesIndex < 0)
+        {
+          return null;
+        }
+        return jsonString.Substring(0, quotesIndex);
+      })
+      .Where(config => config is not null)
+      .Collect()
+      .Select((cs, ct) => cs.FirstOrDefault());
+
+    var tsOutDir = context
+      .AdditionalTextsProvider
+      .Where(text => text.Path.EndsWith("project-dir.txt",
+                      StringComparison.OrdinalIgnoreCase))
+      .Select((text, token) => text.GetText(token)?.ToString().Split('\r', '\n').FirstOrDefault())
+      .Where(text => text is not null)
+      .Collect()
+      .Select((cs, ct) => cs.FirstOrDefault())
+      .Combine(tgconfig)
+      .Select((o, ct) => Path.Combine(o.Left, o.Right));
 
     var taskTypes = context.CompilationProvider.Select((c, ct) => (TaskGeneric: c.GetTypeByMetadataName("System.Task`1"), Task: c.GetTypeByMetadataName("System.Task")));
 
@@ -135,6 +185,8 @@ public partial class DtosGenerationSpec : GenerationSpec
       });
 
     var endPoints = methodDeclarations
+      .Combine(tsOutDir)
+      .Select((o, ct) => (o.Left.methodDeclaration, o.Left.classDeclarationSyntax, o.Left.SemanticModel, tsOutDir: o.Right))
       .Select(static (o, ct) =>
       {
         var controllerSymbol = o.SemanticModel.GetDeclaredSymbol(o.classDeclarationSyntax, ct);
@@ -166,7 +218,7 @@ public partial class DtosGenerationSpec : GenerationSpec
           returnTypeDto = ti.Type?.Name;
         }
 
-        return (controllerName, controllerFullName, methodName, parameters, hasReturnType, returnTypeDto);
+        return (controllerName, controllerFullName, methodName, parameters, hasReturnType, returnTypeDto, o.tsOutDir);
       })
       .Where(static o => o.controllerName is not null && o.methodName is not null)
       .Collect()
@@ -189,7 +241,7 @@ public partial class DtosGenerationSpec : GenerationSpec
 
         foreach (var g in eps)
         {
-          var fileName = $@"C:\Users\david\source\repos\Gittel\Gittel.Ui\src\generated-client\{getControllerWireName(g.Key!)}Client.ts";
+          var fileName = Path.Combine(g.First().tsOutDir, $@"{getControllerWireName(g.Key!)}Client.ts");
 
           var code = $@"import {{ Injectable }} from ""@angular/core"";
 import {{ Observable }} from 'rxjs';
@@ -252,9 +304,9 @@ public partial class RequestDispatcherImpl : global::ApiGenerator.IRequestDispat
   {{
     return request.Controller switch
     {{
-      { string.Join("      \n", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
+      { string.Join("\n      ", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
       {{
-        { string.Join("        \n", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
+        { string.Join("\n        ", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
           ? $"global::System.Text.Json.JsonSerializer.Serialize(await controller.{ o.methodName }( {
               string.Join(", ", o.parameters.Select((p, i) => p == "System.Threading.CancellationToken" ? "ct" : $"global::System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
             }), jsonSerializerOptions)" 
