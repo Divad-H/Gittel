@@ -24,15 +24,15 @@ public class WebView2Messaging : IMessaging
       .Select(evt => evt.EventArgs.WebMessageAsJson);
 
 
-  public async Task PostMessage(string message)
+  public void PostMessage(string message)
   {
-    if (_webView2.Dispatcher is null || _webView2.Dispatcher.HasThreadAccess)
+    if (_webView2.DispatcherQueue is null || _webView2.DispatcherQueue.HasThreadAccess)
     {
       _webView2.CoreWebView2.PostWebMessageAsJson(message);
     }
     else
     {
-      await _webView2.Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+      _webView2.DispatcherQueue.TryEnqueue(() =>
       {
         _webView2.CoreWebView2.PostWebMessageAsJson(message);
       });
