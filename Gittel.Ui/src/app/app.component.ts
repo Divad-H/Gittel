@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { SampleClient } from '../generated-client/SampleClient';
+import { SampleClient } from '../generated-client/sample-client';
 import { take } from 'rxjs';
 
 @Component({

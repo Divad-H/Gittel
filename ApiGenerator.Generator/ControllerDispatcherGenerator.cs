@@ -243,16 +243,21 @@ public partial class DtosGenerationSpec : GenerationSpec
           return char.ToLowerInvariant(pascalCase[0]) + pascalCase.Substring(1);
         }
 
+        string toHyphenCase(string camelCase)
+        {
+          return Regex.Replace(camelCase, "(?<!^)([A-Z])", "-$1").ToLower();
+        }
+
         foreach (var g in eps)
         {
-          var fileName = Path.Combine(g.First().tsOutDir, $@"{getControllerWireName(g.Key!)}Client.ts");
+          var fileName = Path.Combine(g.First().tsOutDir, $@"{toHyphenCase(getControllerWireName(g.Key!))}-client.ts");
 
           var code = $@"import {{ Injectable }} from ""@angular/core"";
 import {{ Observable }} from 'rxjs';
 import {{ MessageService }} from '../services/message.service';
 
-{ string.Join("\n", g.Select(e => e.returnTypeDto).Where(t => t is not null).Distinct().Select(t => @$"import {{ { t } }} from ""./{ Regex.Replace(t, "(?<!^)([A-Z])", "-$1").ToLower() }""")) }
-{ string.Join("\n", g.SelectMany(e => e.parameters).Where(p => p is not null && p != "System.Threading.CancellationToken").Distinct().Select(p => @$"import {{ { p!.Split('.').Last() } }} from ""./{ Regex.Replace(p!.Split('.').Last(), "(?<!^)([A-Z])", "-$1").ToLower() }""")) }
+{ string.Join("\n", g.Select(e => e.returnTypeDto).Where(t => t is not null).Distinct().Select(t => @$"import {{ { t } }} from ""./{toHyphenCase(t!) }""")) }
+{ string.Join("\n", g.SelectMany(e => e.parameters).Where(p => p is not null && p != "System.Threading.CancellationToken").Distinct().Select(p => @$"import {{ { p!.Split('.').Last() } }} from ""./{toHyphenCase(p!.Split('.').Last())}""")) }
 
 @Injectable()
 export class {getControllerWireName(g.Key!)}Client {{
