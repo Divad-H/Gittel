@@ -1,4 +1,5 @@
 ﻿using ApiGenerator.Attributes;
+using System.Reactive.Linq;
 using TypeGen.Core.TypeAnnotations;
 
 namespace Gittel.Controllers;
@@ -31,5 +32,13 @@ public class SampleController
   public Task ReturnVoid(SampleRequestDto data1, SampleRequestDto2 data2, CancellationToken ct)
   {
     return Task.CompletedTask;
+  }
+
+  public IObservable<SampleResultDto> SampleEvent(SampleRequestDto data)
+  {
+    return Observable
+      .Interval(TimeSpan.FromSeconds(1))
+      .Take(10)
+      .Select(i => new SampleResultDto() { Text = data.Text + i });
   }
 }

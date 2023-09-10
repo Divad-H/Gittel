@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { SampleClient } from '../generated-client/SampleClient';
+import { take } from 'rxjs';
 
 @Component({
   selector: 'app-root',
@@ -30,6 +31,20 @@ export class AppComponent {
     }).subscribe(res => {
       console.log(res);
     })
+
+  }
+
+  public foo3() {
+
+    this.sampleClient.sampleEvent({
+      text: "TestString"
+    }).pipe(take(5)
+    ).subscribe(
+      res => { console.log(res); },
+      err => { console.log(err); },
+      () => console.log('completed')
+    );
+      
 
   }
 }

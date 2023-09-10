@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Collections.Immutable;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text.RegularExpressions;
 
 namespace ApiGenerator.Generator;
@@ -74,8 +75,6 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
       .Combine(tgconfig)
       .Select((o, ct) => Path.Combine(o.Left, o.Right));
 
-    var taskTypes = context.CompilationProvider.Select((c, ct) => (TaskGeneric: c.GetTypeByMetadataName("System.Task`1"), Task: c.GetTypeByMetadataName("System.Task")));
-
     var controllerDeclarations = context.SyntaxProvider.CreateSyntaxProvider(
       static (node, ct) => node is ClassDeclarationSyntax,
       static (ctx, ct) =>
@@ -121,7 +120,8 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
         var typeParams = (returnType as GenericNameSyntax)?.TypeArgumentList.Arguments;
         var name = (typeInfo.Type as INamedTypeSymbol)?.Name;
 
-        if ( $"{typeInfo.Type?.ContainingNamespace}.{typeInfo.Type?.Name}" == "System.Threading.Tasks.Task")
+        if ( $"{typeInfo.Type?.ContainingNamespace}.{typeInfo.Type?.Name}" == "System.Threading.Tasks.Task"
+          || $"{typeInfo.Type?.ContainingNamespace}.{typeInfo.Type?.Name}" == "System.IObservable")
         {
           if (typeParams?.FirstOrDefault() is TypeSyntax dtoTypeSyntax)
           {
@@ -218,7 +218,11 @@ public partial class DtosGenerationSpec : GenerationSpec
           returnTypeDto = ti.Type?.Name;
         }
 
-        return (controllerName, controllerFullName, methodName, parameters, hasReturnType, returnTypeDto, o.tsOutDir);
+        var typeInfo = o.SemanticModel.GetTypeInfo(returnType, ct);
+        var name = (typeInfo.Type as INamedTypeSymbol)?.Name;
+        var isFunction = $"{typeInfo.Type?.ContainingNamespace}.{typeInfo.Type?.Name}" == "System.Threading.Tasks.Task";
+
+        return (controllerName, controllerFullName, methodName, parameters, hasReturnType, returnTypeDto, o.tsOutDir, isFunction);
       })
       .Where(static o => o.controllerName is not null && o.methodName is not null)
       .Collect()
@@ -259,7 +263,7 @@ export class {getControllerWireName(g.Key!)}Client {{
   { string.Join("\n\n  ", g.Select(o => $@"public { toCamelCase(o.methodName!) }({ 
     string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}: {p!.Split('.').Last()}"))
   }) : Observable<{ (o.hasReturnType ? o.returnTypeDto : "null") }> {{
-    return this.messageService.callNativeFunction(""{ getControllerWireName(g.Key!) }"", ""{ o.methodName }"", [{ string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}")) }]);
+    return this.messageService.{(o.isFunction ? "callNativeFunction" : "callNativeSubscribe")}(""{ getControllerWireName(g.Key!) }"", ""{ o.methodName }"", [{ string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}")) }]);
   }}")) }
 }}";
 #pragma warning disable RS1035 // Do not use APIs banned for analyzers
@@ -306,13 +310,28 @@ public partial class RequestDispatcherImpl : global::ApiGenerator.IRequestDispat
     {{
       { string.Join("\n      ", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
       {{
-        { string.Join("\n        ", g.Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
+        { string.Join("\n        ", g.Where(o => o.isFunction).Select(o => @$"""{ o.methodName }"" => await ExecuteOn{ g.Key }(async controller => { (o.hasReturnType 
           ? $"global::System.Text.Json.JsonSerializer.Serialize(await controller.{ o.methodName }( {
               string.Join(", ", o.parameters.Select((p, i) => p == "System.Threading.CancellationToken" ? "ct" : $"global::System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
             }), jsonSerializerOptions)" 
           : $"await ToNull(async () => await controller.{ o.methodName }( {
               string.Join(", ", o.parameters.Select((p, i) => p == "System.Threading.CancellationToken" ? "ct" : $"global::System.Text.Json.JsonSerializer.Deserialize<{ p }>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
             }))") }) ,")) }
+        _ => throw new global::System.InvalidOperationException(""Function not found."")
+      }},"))}
+      _ => throw new global::System.InvalidOperationException(""Controller not found."")
+    }};
+  }}
+
+  global::System.IObservable<string?> ApiGenerator.IRequestDispatcherImpl.DispatchObservableRequest(ApiGenerator.RequestDto request, global::System.Text.Json.JsonSerializerOptions jsonSerializerOptions, global::System.IServiceProvider serviceProvider)
+  {{
+    return request.Controller switch
+    {{
+      {string.Join("\n      ", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
+      {{
+        {string.Join("\n        ", g.Where(o => !o.isFunction).Select(o => @$"""{o.methodName}"" => global::System.Reactive.Linq.Observable.Select(global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<{o.controllerFullName}>(serviceProvider).{o.methodName}({
+          string.Join(", ", o.parameters.Select((p, i) => $"global::System.Text.Json.JsonSerializer.Deserialize<{p}>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException())"))
+        }, eventRes => {$"global::System.Text.Json.JsonSerializer.Serialize(eventRes, jsonSerializerOptions)"}) ,"))}
         _ => throw new global::System.InvalidOperationException(""Function not found."")
       }},"))}
       _ => throw new global::System.InvalidOperationException(""Controller not found."")

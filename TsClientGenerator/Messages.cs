@@ -10,6 +10,13 @@ public enum RequestType
   Unsubscription,
 }
 
+public enum ResponseType
+{
+  Success,
+  Error,
+  Completed,
+}
+
 public class RequestDto
 {
   public required string Controller { get; init; }
@@ -22,6 +29,6 @@ public class RequestDto
 public record ResponseDto
 {
   public required string RequestId { get; init; }
-  public required bool Success { get; init; }
+  public required ResponseType ResponseType { get; init; }
   public string? Data { get; init; }
 }
