@@ -44,7 +44,21 @@ export class AppComponent {
       err => { console.log(err); },
       () => console.log('completed')
     );
-      
+  }
 
+  public foo4() {
+
+    this.sampleClient.sampleEventWithMultipleParameters({
+      number: 5
+    },
+    {
+      text: "TestString"
+    }).pipe(take(5)
+    ).subscribe(
+      res => { console.log(res); },
+      err => { console.log(err); },
+      () => console.log('completed')
+    );
+    
   }
 }

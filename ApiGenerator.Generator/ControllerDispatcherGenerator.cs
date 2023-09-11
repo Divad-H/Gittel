@@ -335,8 +335,8 @@ public partial class RequestDispatcherImpl : global::ApiGenerator.IRequestDispat
       {string.Join("\n      ", eps.Select(g => @$"""{getControllerWireName(g.Key!)}"" => request.Function switch
       {{
         {string.Join("\n        ", g.Where(o => !o.isFunction).Select(o => @$"""{o.methodName}"" => global::System.Reactive.Linq.Observable.Select(global::Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions.GetRequiredService<{o.controllerFullName}>(serviceProvider).{o.methodName}({
-          string.Join(", ", o.parameters.Select((p, i) => $"global::System.Text.Json.JsonSerializer.Deserialize<{p}>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException())"))
-        }, eventRes => {$"global::System.Text.Json.JsonSerializer.Serialize(eventRes, jsonSerializerOptions)"}) ,"))}
+          string.Join(", ", o.parameters.Select((p, i) => $"global::System.Text.Json.JsonSerializer.Deserialize<{p}>(request.Data[{i}] ?? throw new global::System.ArgumentNullException(), jsonSerializerOptions) ?? throw new global::System.InvalidOperationException()"))
+        }), eventRes => {$"global::System.Text.Json.JsonSerializer.Serialize(eventRes, jsonSerializerOptions)"}) ,"))}
         _ => throw new global::System.InvalidOperationException(""Function not found."")
       }},"))}
       _ => throw new global::System.InvalidOperationException(""Controller not found."")

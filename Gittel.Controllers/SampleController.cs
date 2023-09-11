@@ -21,6 +21,25 @@ public record SampleRequestDto2
   public required int Number { get; init; }
 }
 
+[ExportTsInterface]
+public record SampleResponseForObservable
+{
+  public required string Text { get; init; }
+  public required int Number { get; init; }
+}
+
+[ExportTsInterface]
+public record SampleRequestDtoForObservable1
+{
+  public required int Number { get; init; } 
+}
+
+[ExportTsInterface]
+public record SampleRequestDtoForObservable2
+{
+  public required string Text { get; init; }
+}
+
 [GenerateController]
 public class SampleController
 {
@@ -40,5 +59,13 @@ public class SampleController
       .Interval(TimeSpan.FromSeconds(1))
       .Take(10)
       .Select(i => new SampleResultDto() { Text = data.Text + i });
+  }
+
+  public IObservable<SampleResponseForObservable> SampleEventWithMultipleParameters(SampleRequestDtoForObservable1 data1, SampleRequestDtoForObservable2 data2)
+  {
+    return Observable
+      .Interval(TimeSpan.FromSeconds(1))
+      .Take(10)
+      .Select(i => new SampleResponseForObservable() { Text = data2.Text + i, Number = data1.Number + (int)i });
   }
 }
