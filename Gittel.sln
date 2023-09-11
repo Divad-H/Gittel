@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator.WebView2", "Ap
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator.Generator", "ApiGenerator.Generator\ApiGenerator.Generator.csproj", "{27183063-78C0-4848-800D-92D35608284C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ApiGenerator.Attributes", "ApiGenerator.Attributes\ApiGenerator.Attributes.csproj", "{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator.Attributes", "ApiGenerator.Attributes\ApiGenerator.Attributes.csproj", "{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Gittel.Util", "Gittel.Util\Gittel.Util.csproj", "{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -175,6 +177,22 @@ Global
 		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x64.Build.0 = Release|Any CPU
 		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x86.ActiveCfg = Release|Any CPU
 		{F9D0A2F3-126E-4EC7-9439-1380CB1EBAAD}.Release|x86.Build.0 = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|arm64.ActiveCfg = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|arm64.Build.0 = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|x64.Build.0 = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Debug|x86.Build.0 = Debug|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|arm64.ActiveCfg = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|arm64.Build.0 = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|x64.ActiveCfg = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|x64.Build.0 = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|x86.ActiveCfg = Release|Any CPU
+		{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
