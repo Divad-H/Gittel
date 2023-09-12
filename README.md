@@ -10,5 +10,5 @@ and [TypeGen](https://github.com/jburzynski/TypeGen) for TypeScript dto types.
 Currently it is necessary to build three steps manually:
 
 * Build libgit2 using CMake
-* Build the C# bindings for libgit2 by running Libgit2BindingsGenerator
+* Generate the C# bindings for libgit2 by running Libgit2BindingsGenerator
 * Build the Solution
