@@ -15,4 +15,11 @@
     <PackageReference Include="CppSharp.Runtime" Version="1.0.54.626" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Include="../libgit2/build/$(Configuration)/git2.dll">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Pack>true</Pack>
+      <PackagePath>runtimes/win-x64/native/git2.dll</PackagePath>
+    </Content>
+  </ItemGroup>
 </Project>

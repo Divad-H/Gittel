@@ -20,5 +20,6 @@
   <ItemGroup>
     <ProjectReference Include="..\..\ApiGenerator.WebView2\ApiGenerator.WebView2.csproj" />
     <ProjectReference Include="..\..\Gittel.Controllers\Gittel.Controllers.csproj" />
+    <ProjectReference Include="..\..\Libgit2Bindings\Libgit2Bindings.csproj" />
   </ItemGroup>
 </Project>

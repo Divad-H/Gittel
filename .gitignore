@@ -398,4 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 Gittel.Ui/src/generated-client/
 Gittel.Controllers/project-dir.txt
-Libgit2Bindings/
+Libgit2Bindings/Generated/

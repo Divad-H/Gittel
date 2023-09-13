@@ -12,6 +12,7 @@ internal class Libgit2Library : ILibrary
 
   public void Preprocess(Driver driver, ASTContext ctx)
   {
+    ctx.GenerateEnumFromMacros("StructVersion", "GIT_STATUS_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
