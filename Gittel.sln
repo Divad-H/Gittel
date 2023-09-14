@@ -21,12 +21,13 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiGenerator.Attributes", "
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Gittel.Util", "Gittel.Util\Gittel.Util.csproj", "{E8B27F4B-B330-4B2B-A4D1-2017451A9D9E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libgit2BindingGenerator", "Libgit2BindingGenerator\Libgit2BindingGenerator.csproj", "{6C3FA95F-434C-4EB7-A394-FE809430CE75}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libgit2BindingGenerator", "Libgit2BindingGenerator\Libgit2BindingGenerator.csproj", "{6C3FA95F-434C-4EB7-A394-FE809430CE75}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Libgit2Bindings", "Libgit2Bindings\Libgit2Bindings.csproj", "{49B4E0AC-BB14-4757-8CD5-ACD579F8D42D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Libgit2Bindings", "Libgit2Bindings\Libgit2Bindings.csproj", "{49B4E0AC-BB14-4757-8CD5-ACD579F8D42D}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8D988846-9C39-48AE-B7F5-FF2239C80BF9}"
 	ProjectSection(SolutionItems) = preProject
+		.gitignore = .gitignore
 		README.md = README.md
 	EndProjectSection
 EndProject

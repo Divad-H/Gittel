@@ -45,5 +45,38 @@ namespace Libgit2Bindings
 
       global.GitLibgit2Shutdown();
     }
+
+    public static void Bar()
+    {
+      global.GitLibgit2Init();
+
+      var res = repository.GitRepositoryOpen(out var repo, @"G:\Projects\test-repo");
+      if (res == 0)
+      {
+        using var statusOptions = new GitStatusOptions();
+        statusOptions.Version = (uint)StructVersion.GIT_STATUS_OPTIONS_VERSION;
+        statusOptions.Flags = (uint)GitStatusOptT.GIT_STATUS_OPT_INCLUDE_UNTRACKED;
+
+        res = status.GitStatusListNew(out var gitStatusList, repo, statusOptions);
+        if (res == 0)
+        {
+          var entryCount = status.GitStatusListEntrycount(gitStatusList);
+
+          for (uint i = 0; i < entryCount; i++)
+          {
+            var entry = status.GitStatusByindex(gitStatusList, i);
+
+            var path = entry.HeadToIndex.OldFile?.Path;
+
+          }
+
+          status.GitStatusListFree(gitStatusList);
+        }
+
+        repository.GitRepositoryFree(repo);
+      }
+
+      global.GitLibgit2Shutdown();
+    }
   }
 }
