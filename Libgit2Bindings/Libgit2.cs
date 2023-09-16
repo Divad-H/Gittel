@@ -1,6 +1,6 @@
 ﻿namespace Libgit2Bindings;
 
-internal class Libgit2 : ILibgit2Internal, IDisposable
+internal class Libgit2 : ILibgit2, IDisposable
 {
   public Libgit2()
   {
@@ -11,12 +11,7 @@ internal class Libgit2 : ILibgit2Internal, IDisposable
   {
     var res = libgit2.repository.GitRepositoryOpen(out var repo, path);
     CheckLibgit2.Check(res, "Unable to open repository '{0}'", path);
-    return new GitRepository(repo, this);
-  }
-
-  public void GitRepositoryFree(libgit2.GitRepository repo)
-  {
-    libgit2.repository.GitRepositoryFree(repo);
+    return new GitRepository(repo);
   }
 
   #region IDisposable Support

@@ -2,7 +2,6 @@
 using CppSharp.AST;
 using CppSharp.Generators;
 using CppSharp.Passes;
-using System.Data;
 
 namespace Libgit2BindingGenerator;
 

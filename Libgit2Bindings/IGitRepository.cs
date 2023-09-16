@@ -2,4 +2,5 @@
 
 public interface IGitRepository : IDisposable
 {
+  IGitReference GetHead();
 }

@@ -2,13 +2,18 @@
 
 internal sealed class GitRepository : IGitRepository
 {
-  private readonly ILibgit2Internal _libgit2;
   private readonly libgit2.GitRepository _nativeGitRepository;
 
-  public GitRepository(libgit2.GitRepository nativeGitRepository, ILibgit2Internal libgit2)
+  public GitRepository(libgit2.GitRepository nativeGitRepository)
   {
-    _libgit2 = libgit2;
     _nativeGitRepository = nativeGitRepository;
+  }
+
+  public IGitReference GetHead()
+  {
+    var res = libgit2.repository.GitRepositoryHead(out var head, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to get HEAD");
+    return new GitReference(head);
   }
 
   #region IDisposable Support
@@ -17,7 +22,7 @@ internal sealed class GitRepository : IGitRepository
   {
     if (!_disposedValue)
     {
-      _libgit2.GitRepositoryFree(_nativeGitRepository);
+      libgit2.repository.GitRepositoryFree(_nativeGitRepository);
       _disposedValue = true;
     }
   }
