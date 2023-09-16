@@ -5,6 +5,7 @@ using Gittel.Controllers;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.UI.Xaml;
 using System;
+using Libgit2Bindings;
 
 namespace Gittel.Main;
 
@@ -32,9 +33,10 @@ public partial class App : Application
     services.AddSingleton(commandLineArgs.Value);
     services.AddSingleton(sp => sp.GetRequiredService<MainWindow>().WebView);
     services.AddSingleton<IMessaging, WebView2Messaging>();
-    services.AddScoped<SampleController>();
     services.AddSingleton<IRequestDispatcherImpl, ApiGeneration.Generated.RequestDispatcherImpl>();
     services.AddSingleton<RequestDispatcher>();
+    services.RegisterControllers();
+    services.RegisterLibgit2Bindings();
 
     _serviceProvider = services.BuildServiceProvider();
     _window = _serviceProvider.GetRequiredService<MainWindow>();

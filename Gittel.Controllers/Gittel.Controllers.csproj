@@ -14,6 +14,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ApiGenerator.Attributes\ApiGenerator.Attributes.csproj" />
+    <ProjectReference Include="..\Libgit2Bindings\Libgit2Bindings.csproj" />
     <ProjectReference Include="..\TsClientGenerator\ApiGenerator.csproj" />
     <ProjectReference Include="..\ApiGenerator.Generator\ApiGenerator.Generator.csproj" OutputItemType="Analyzer" ReferenceOutputAssembly="false" />
   </ItemGroup>
@@ -25,8 +26,8 @@
     <WriteLinesToFile File=".\project-dir.txt" Overwrite="true" Lines="$(MSBuildProjectDirectory)" />
   </Target>
   <ItemGroup>
-    <AdditionalFiles Include=".\project-dir.txt"/>
-    <AdditionalFiles Include=".\tgconfig.json"/>
+    <AdditionalFiles Include=".\project-dir.txt" />
+    <AdditionalFiles Include=".\tgconfig.json" />
   </ItemGroup>
 
 </Project>
