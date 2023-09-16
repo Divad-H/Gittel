@@ -21,6 +21,11 @@ internal sealed class GitRepository : IGitRepository
     return libgit2.repository.GitRepositoryPath(_nativeGitRepository);
   }
 
+  public string? GetWorkdir()
+  {
+    return libgit2.repository.GitRepositoryWorkdir(_nativeGitRepository);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

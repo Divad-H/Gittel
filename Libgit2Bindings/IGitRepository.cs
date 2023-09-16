@@ -12,4 +12,10 @@ public interface IGitRepository : IDisposable
   /// </summary>
   /// <returns>The path of the repository</returns>
   string GetPath();
+
+  /// <summary>
+  /// Get the path of the working directory of this repository
+  /// </summary>
+  /// <returns>the path to the working dir, if it exists</returns>
+  string? GetWorkdir();
 }
