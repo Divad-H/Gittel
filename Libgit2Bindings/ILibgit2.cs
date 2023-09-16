@@ -2,5 +2,22 @@
 
 public interface ILibgit2
 {
+  /// <summary>
+  /// Open a git repository
+  /// </summary>
+  /// <param name="path">The path to the repository</param>
+  /// <returns>The opened repository</returns>
   IGitRepository GitRepositoryOpen(string path);
+
+  /// <summary>
+  /// Look for a gir repository and return its path.
+  /// The lookup start from the given path and walk upward parent directories if nothing has been found.
+  /// The lookup ends when a repository has been found or when reaching a directory referenced in <paramref name="ceilingDirectories"/>.
+  /// </summary>
+  /// <param name="startPath">The base path where the lookup starts</param>
+  /// <param name="acrossFilesystem">If true, then the lookup will not stop when a filesystem device change is detected while exploring parent directories.</param>
+  /// <param name="ceilingDirectories">A list of absolute symbolic link free paths. The lookup will stop when any of this paths is reached. 
+  /// Note that the lookup always performs on start_path no matter start_path appears in ceiling_dirs</param>
+  /// <returns>The path of the found repository</returns>
+  string DiscoverRepository(string startPath, bool acrossFilesystem, string[] ceilingDirectories);
 }

@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using Libgit2Bindings.Util;
+
+namespace Libgit2Bindings;
 
 internal static class CheckLibgit2
 {
@@ -20,7 +22,7 @@ internal static class CheckLibgit2
 
     if (error is not null)
     {
-      message = string.Format("{0} [{1}] - {2}", message, result, ToString(error));
+      message = string.Format("{0} [{1}] - {2}", message, result, StringUtil.ToString(error));
     }
     else
     {
@@ -30,9 +32,4 @@ internal static class CheckLibgit2
     throw new Libgit2Exception(message);
     
   } 
-
-  private static unsafe string ToString(libgit2.GitError err)
-  {
-    return new string(err.Message);
-  }
 }
