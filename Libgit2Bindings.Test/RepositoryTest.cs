@@ -7,8 +7,7 @@ namespace Libgit2Bindings.Test
     [Fact]
     public void CanCreateRepository()
     {
-      var libgit2 = Setup.CreateInstance();
-      using var scope = libgit2 as IDisposable;
+      var libgit2 = new Libgit2();
 
       using var tempDirectory = new TemporaryDirectory();
       var repo = libgit2.GitRepositoryInit(tempDirectory.DirectoryPath, false);
@@ -21,8 +20,7 @@ namespace Libgit2Bindings.Test
     [Fact]
     public void CanCreateBareRepository()
     {
-      var libgit2 = Setup.CreateInstance();
-      using var scope = libgit2 as IDisposable;
+      var libgit2 = new Libgit2();
 
       using var tempDirectory = new TemporaryDirectory();
       var repo = libgit2.GitRepositoryInit(tempDirectory.DirectoryPath, true);

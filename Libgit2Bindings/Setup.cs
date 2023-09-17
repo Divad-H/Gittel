@@ -8,9 +8,4 @@ public static class Setup
   {
     services.AddSingleton<ILibgit2, Libgit2>();
   }
-
-  public static ILibgit2 CreateInstance()
-  {
-    return new Libgit2();
-  }
 }
