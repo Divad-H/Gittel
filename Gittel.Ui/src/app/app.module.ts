@@ -3,7 +3,7 @@ import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
 import { MessageService } from '../services/message.service';
-import { SampleClient } from '../generated-client/sample-client';
+import { clientApiProviders } from '../generated-client/injection-tokens';
 
 @NgModule({
   declarations: [
@@ -14,7 +14,7 @@ import { SampleClient } from '../generated-client/sample-client';
   ],
   providers: [
     MessageService,
-    SampleClient
+    ...clientApiProviders
   ],
   bootstrap: [AppComponent]
 })

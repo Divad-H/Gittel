@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
-import { SampleClient } from '../generated-client/sample-client';
+import { Component, Inject } from '@angular/core';
+import { ISampleClient, SAMPLE_CLIENT_TOKEN } from '../generated-client/sample-client';
 import { take } from 'rxjs';
+import { REPOSITORY_CLIENT_TOKEN, IRepositoryClient } from '../generated-client/repository-client';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,22 @@ import { take } from 'rxjs';
 })
 export class AppComponent {
 
-  constructor(private readonly sampleClient: SampleClient) {
+  public repo: string | undefined;
+  public repoWorkDir: string | undefined;
+
+  constructor(
+    @Inject(SAMPLE_CLIENT_TOKEN) private readonly sampleClient: ISampleClient,
+    @Inject(REPOSITORY_CLIENT_TOKEN) private readonly repositoryClient: IRepositoryClient,
+  ) {
+  }
+
+  public discoverRepo() {
+    this.repositoryClient.discoverRepository({ basePath: "G:\\Projects\\test-repo-worktree\\asdf\\a" })
+      .subscribe(res => {
+        console.log(res);
+        this.repo = res.path;
+        this.repoWorkDir = res.workDir;
+      })
   }
 
   public foo() {

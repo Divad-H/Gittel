@@ -12,6 +12,11 @@ namespace ApiGenerator.Generator;
 public class ControllerDispatcherGenerator : IIncrementalGenerator
 {
   private const string GenerateControllerAttribute = "ApiGenerator.Attributes.GenerateControllerAttribute";
+  private const string GeneratedFileHeader = @"/**
+ * This is an auto-generated file.
+ * Any changes made to this file can be lost when this file is regenerated.
+ */
+";
 
   public void Initialize(IncrementalGeneratorInitializationContext context)
   {
@@ -168,7 +173,7 @@ public class ControllerDispatcherGenerator : IIncrementalGenerator
     context.RegisterSourceOutput(dtos,
       static (ctx, dtoTypeNames) =>
       {
-        ctx.AddSource("DtosGenerationSpec.cs", $@"
+        ctx.AddSource("DtosGenerationSpec.cs", $@"{GeneratedFileHeader}
 using TypeGen.Core.SpecGeneration;
 
 namespace ApiGeneration.Generated;
@@ -248,19 +253,49 @@ public partial class DtosGenerationSpec : GenerationSpec
           return Regex.Replace(camelCase, "(?<!^)([A-Z])", "-$1").ToLower();
         }
 
+        if (eps.Any())
+        {
+          var fileName = Path.Combine(eps.First().First().tsOutDir, "injection-tokens.ts");
+
+          var code = $@"{GeneratedFileHeader}
+{string.Join("\n", eps.Select(g => @$"import {{ {getControllerWireName(g.Key!).ToUpperInvariant()}_CLIENT_TOKEN, {getControllerWireName(g.Key!)}Client }} from ""./{toHyphenCase(getControllerWireName(g.Key!))}-client"";"))}
+
+export const clientApiProviders = [
+  {string.Join(",\n  ", eps.Select(g => $@"{{ provide: {getControllerWireName(g.Key!).ToUpperInvariant()}_CLIENT_TOKEN, useClass: {getControllerWireName(g.Key!)}Client }}"))}
+];
+";
+
+#pragma warning disable RS1035 // Do not use APIs banned for analyzers
+          try
+          {
+            File.WriteAllText(fileName, code);
+          }
+          catch { }
+#pragma warning restore RS1035 // Do not use APIs banned for analyzers
+        }
+
         foreach (var g in eps)
         {
           var fileName = Path.Combine(g.First().tsOutDir, $@"{toHyphenCase(getControllerWireName(g.Key!))}-client.ts");
 
-          var code = $@"import {{ Injectable }} from ""@angular/core"";
+          var code = $@"{GeneratedFileHeader}
+import {{ Injectable, InjectionToken }} from ""@angular/core"";
 import {{ Observable }} from 'rxjs';
 import {{ MessageService }} from '../services/message.service';
 
 { string.Join("\n", g.Select(e => e.returnTypeDto).Where(t => t is not null).Distinct().Select(t => @$"import {{ { t } }} from ""./{toHyphenCase(t!) }""")) }
 { string.Join("\n", g.SelectMany(e => e.parameters).Where(p => p is not null && p != "System.Threading.CancellationToken").Distinct().Select(p => @$"import {{ { p!.Split('.').Last() } }} from ""./{toHyphenCase(p!.Split('.').Last())}""")) }
 
+export interface I{getControllerWireName(g.Key!)}Client {{
+  { string.Join("\n  ", g.Select(o => $@"{ toCamelCase(o.methodName!) }({ 
+    string.Join(", ", o.parameters.Where(p => p != "System.Threading.CancellationToken").Select((p, i) => $"data{i}: {p!.Split('.').Last()}"))
+      }): Observable<{ (o.hasReturnType ? o.returnTypeDto : "null") }>;")) }
+}}
+
+export const {getControllerWireName(g.Key!).ToUpperInvariant()}_CLIENT_TOKEN = new InjectionToken<I{getControllerWireName(g.Key!)}Client>(""I{getControllerWireName(g.Key!)}Client"");
+
 @Injectable()
-export class {getControllerWireName(g.Key!)}Client {{
+export class {getControllerWireName(g.Key!)}Client implements I{getControllerWireName(g.Key!)}Client {{
 
   constructor(private readonly messageService: MessageService) {{
   }}
@@ -280,7 +315,8 @@ export class {getControllerWireName(g.Key!)}Client {{
 #pragma warning restore RS1035 // Do not use APIs banned for analyzers
         }
 
-        ctx.AddSource("RequestDispatchImpl.cs", $@"namespace ApiGeneration.Generated;
+        ctx.AddSource("RequestDispatchImpl.cs", $@"{GeneratedFileHeader}
+namespace ApiGeneration.Generated;
 
 public partial class RequestDispatcherImpl : global::ApiGenerator.IRequestDispatcherImpl
 {{
