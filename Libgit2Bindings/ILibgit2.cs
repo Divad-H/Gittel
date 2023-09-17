@@ -20,4 +20,13 @@ public interface ILibgit2
   /// Note that the lookup always performs on start_path no matter start_path appears in ceiling_dirs</param>
   /// <returns>The path of the found repository</returns>
   string DiscoverRepository(string startPath, bool acrossFilesystem, string[] ceilingDirectories);
+
+  /// <summary>
+  /// Create a new git repository in the given folder
+  /// </summary>
+  /// <param name="path">The path to the repository</param>
+  /// <param name="isBare">if true, a Git repository without a working directory is created at the pointed path.
+  /// If false, provided path will be considered as the working directory into which the .git directory will be created.</param>
+  /// <returns>The repository which will be created or reinitialized</returns>
+  IGitRepository GitRepositoryInit(string path, bool isBare);
 }

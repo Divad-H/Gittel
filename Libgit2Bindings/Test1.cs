@@ -2,7 +2,7 @@
 
 namespace Libgit2Bindings
 {
-  public class Test
+  public class Test1
   {
     public unsafe static void Foo()
     {
@@ -11,7 +11,7 @@ namespace Libgit2Bindings
       IntPtr repoPtr;
 
       var res = repository.__Internal.GitRepositoryOpen((IntPtr)(&repoPtr), @"G:\Projects\test-repo");
-      GitRepository gitRepository = GitRepository.__CreateInstance(repoPtr);
+      libgit2.GitRepository gitRepository = libgit2.GitRepository.__CreateInstance(repoPtr);
 
       if (res == 0)
       {
@@ -48,35 +48,41 @@ namespace Libgit2Bindings
 
     public static void Bar()
     {
-      global.GitLibgit2Init();
+      using Libgit2 libgit2 = new();
+      var path = libgit2.DiscoverRepository(@"G:\Projects\test-repo-worktree\asdf\a\ratte.txt", true, new string[] { @"G:\Projects", @"G:\" });
+      using var repo = libgit2.GitRepositoryOpen(path);
+      using var head = repo.GetHead();
+      var path2 = repo.GetPath();
 
-      var res = repository.GitRepositoryOpen(out var repo, @"G:\Projects\test-repo");
-      if (res == 0)
-      {
-        using var statusOptions = new GitStatusOptions();
-        statusOptions.Version = (uint)StructVersion.GIT_STATUS_OPTIONS_VERSION;
-        statusOptions.Flags = (uint)GitStatusOptT.GIT_STATUS_OPT_INCLUDE_UNTRACKED;
-
-        res = status.GitStatusListNew(out var gitStatusList, repo, statusOptions);
-        if (res == 0)
-        {
-          var entryCount = status.GitStatusListEntrycount(gitStatusList);
-
-          for (uint i = 0; i < entryCount; i++)
-          {
-            var entry = status.GitStatusByindex(gitStatusList, i);
-
-            var path = entry.HeadToIndex.OldFile?.Path;
-
-          }
-
-          status.GitStatusListFree(gitStatusList);
-        }
-
-        repository.GitRepositoryFree(repo);
-      }
-
-      global.GitLibgit2Shutdown();
+      //global.GitLibgit2Init();
+      //
+      //var res = repository.GitRepositoryOpen(out var repo, @"G:\Projects\test-repo");
+      //if (res == 0)
+      //{
+      //  using var statusOptions = new GitStatusOptions();
+      //  statusOptions.Version = (uint)StructVersion.GIT_STATUS_OPTIONS_VERSION;
+      //  statusOptions.Flags = (uint)GitStatusOptT.GIT_STATUS_OPT_INCLUDE_UNTRACKED;
+      //
+      //  res = status.GitStatusListNew(out var gitStatusList, repo, statusOptions);
+      //  if (res == 0)
+      //  {
+      //    var entryCount = status.GitStatusListEntrycount(gitStatusList);
+      //
+      //    for (uint i = 0; i < entryCount; i++)
+      //    {
+      //      var entry = status.GitStatusByindex(gitStatusList, i);
+      //
+      //      var path = entry.HeadToIndex.OldFile?.Path;
+      //
+      //    }
+      //
+      //    status.GitStatusListFree(gitStatusList);
+      //  }
+      //
+      //  repository.GitRepositoryFree(repo);
+      //}
+      //
+      //global.GitLibgit2Shutdown();
     }
   }
 }

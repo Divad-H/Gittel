@@ -16,6 +16,13 @@ internal class Libgit2 : ILibgit2, IDisposable
     return new GitRepository(repo);
   }
 
+  public IGitRepository GitRepositoryInit(string path, bool isBare)
+  {
+    var res = libgit2.repository.GitRepositoryInit(out var repo, path, isBare ? 1u : 0);
+    CheckLibgit2.Check(res, "Unable to initialize repository '{0}'", path);
+    return new GitRepository(repo);
+  }
+
   public string DiscoverRepository(string startPath, bool acrossFilesystem, string[] ceilingDirectories)
   {
     var res = libgit2.repository.GitRepositoryDiscover(
