@@ -15,6 +15,7 @@ internal class Libgit2Library : ILibrary
   {
     ctx.GenerateEnumFromMacros("StructVersion", "GIT_STATUS_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("PathListSeparator", "GIT_PATH_LIST_SEPARATOR");
+    ctx.GenerateEnumFromMacros("GitCheckoutOptionsVersion", "GIT_CHECKOUT_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
