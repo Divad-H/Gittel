@@ -27,7 +27,7 @@ internal class RepositoryController
   public Task<RepositoryDto> DiscoverRepository(DiscoverRepositoryDto data, CancellationToken ct)
   {
     var gitDir = _libgit2.DiscoverRepository(data.BasePath, false, Array.Empty<string>());
-    using var repo = _libgit2.GitRepositoryOpen(gitDir);
+    using var repo = _libgit2.OpenRepository(gitDir);
 
     return Task.FromResult<RepositoryDto>(new() { 
       Path = gitDir,

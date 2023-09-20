@@ -7,7 +7,7 @@ public interface ILibgit2
   /// </summary>
   /// <param name="path">The path to the repository</param>
   /// <returns>The opened repository</returns>
-  IGitRepository GitRepositoryOpen(string path);
+  IGitRepository OpenRepository(string path);
 
   /// <summary>
   /// Look for a gir repository and return its path.
@@ -28,5 +28,5 @@ public interface ILibgit2
   /// <param name="isBare">if true, a Git repository without a working directory is created at the pointed path.
   /// If false, provided path will be considered as the working directory into which the .git directory will be created.</param>
   /// <returns>The repository which will be created or reinitialized</returns>
-  IGitRepository GitRepositoryInit(string path, bool isBare);
+  IGitRepository InitRepository(string path, bool isBare);
 }

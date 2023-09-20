@@ -10,7 +10,7 @@ namespace Libgit2Bindings.Test
       var libgit2 = new Libgit2();
 
       using var tempDirectory = new TemporaryDirectory();
-      var repo = libgit2.GitRepositoryInit(tempDirectory.DirectoryPath, false);
+      var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, false);
 
       var directoryPath = Path.GetFullPath(Path.Combine(tempDirectory.DirectoryPath, ".git"));
       var repoPath = Path.GetFullPath(repo.GetPath()).TrimEnd('/', '\\');
@@ -23,7 +23,7 @@ namespace Libgit2Bindings.Test
       var libgit2 = new Libgit2();
 
       using var tempDirectory = new TemporaryDirectory();
-      var repo = libgit2.GitRepositoryInit(tempDirectory.DirectoryPath, true);
+      var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, true);
 
       var directoryPath = Path.GetFullPath(tempDirectory.DirectoryPath).TrimEnd('/', '\\');
       var repoPath = Path.GetFullPath(repo.GetPath()).TrimEnd('/', '\\');

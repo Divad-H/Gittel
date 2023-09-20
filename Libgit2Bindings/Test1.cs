@@ -50,7 +50,7 @@ namespace Libgit2Bindings
     {
       using Libgit2 libgit2 = new();
       var path = libgit2.DiscoverRepository(@"G:\Projects\test-repo-worktree\asdf\a\ratte.txt", true, new string[] { @"G:\Projects", @"G:\" });
-      using var repo = libgit2.GitRepositoryOpen(path);
+      using var repo = libgit2.OpenRepository(path);
       using var head = repo.GetHead();
       var path2 = repo.GetPath();
 

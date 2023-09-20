@@ -9,14 +9,14 @@ internal class Libgit2 : ILibgit2, IDisposable
     libgit2.global.GitLibgit2Init();
   }
 
-  public IGitRepository GitRepositoryOpen(string path)
+  public IGitRepository OpenRepository(string path)
   {
     var res = libgit2.repository.GitRepositoryOpen(out var repo, path);
     CheckLibgit2.Check(res, "Unable to open repository '{0}'", path);
     return new GitRepository(repo);
   }
 
-  public IGitRepository GitRepositoryInit(string path, bool isBare)
+  public IGitRepository InitRepository(string path, bool isBare)
   {
     var res = libgit2.repository.GitRepositoryInit(out var repo, path, isBare ? 1u : 0);
     CheckLibgit2.Check(res, "Unable to initialize repository '{0}'", path);
