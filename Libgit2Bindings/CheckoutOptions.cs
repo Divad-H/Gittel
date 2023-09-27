@@ -175,7 +175,7 @@ public enum CheckoutNotifyAction
 /// Checkout notification callback function
 /// </summary>
 public delegate CheckoutNotifyAction CheckoutNotifyHandler(CheckoutNotifyFlags why, string path, DiffFile? baseline, DiffFile? target, DiffFile? workdir);
-public delegate void CheckoutProgressHandler(string path, UInt32 completedSteps, UInt32 totalSteps);
+public delegate void CheckoutProgressHandler(string path, UInt64 completedSteps, UInt64 totalSteps);
 
 public record CheckoutOptions
 {

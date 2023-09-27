@@ -27,4 +27,18 @@ public interface IGitRepository : IDisposable
   /// </summary>
   /// <returns>the path to the common dir</returns>
   string GetCommonDir();
+
+  /// <summary>
+  /// Updates files in the index and the working tree to match the content of the commit pointed at by HEAD
+  /// </summary>
+  /// <remarks>
+  /// Note that this is not the correct mechanism used to switch branches; 
+  /// do not change your HEAD and then call this method, that would leave you 
+  /// with checkout conflicts since your working directory would then appear to be dirty. 
+  /// Instead, checkout the target of the branch and then update HEAD using 
+  /// git_repository_set_head to point to the branch you checked out.
+  /// </remarks>
+  /// <param name="options">specifies checkout options</param>
+  void CheckoutHead(CheckoutOptions? options = null);
+
 }
