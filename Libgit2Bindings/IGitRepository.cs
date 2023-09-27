@@ -18,4 +18,13 @@ public interface IGitRepository : IDisposable
   /// </summary>
   /// <returns>the path to the working dir, if it exists</returns>
   string? GetWorkdir();
+
+  /// <summary>
+  /// Get the path of the shared common directory for this repository.
+  /// <para>If the repository is bare, it is the root directory for the repository. 
+  /// If the repository is a worktree, it is the parent repo's gitdir.
+  /// Otherwise, it is the gitdir.</para>
+  /// </summary>
+  /// <returns>the path to the common dir</returns>
+  string GetCommonDir();
 }
