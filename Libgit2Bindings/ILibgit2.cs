@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using libgit2;
+
+namespace Libgit2Bindings;
 
 public interface ILibgit2
 {
@@ -29,4 +31,26 @@ public interface ILibgit2
   /// If false, provided path will be considered as the working directory into which the .git directory will be created.</param>
   /// <returns>The repository which will be created or reinitialized</returns>
   IGitRepository InitRepository(string path, bool isBare);
+
+  /// <summary>
+  /// Create a new action signature.
+  /// </summary>
+  /// <remarks>
+  /// Note: angle brackets ('&lt;' and '&gt;') characters are not allowed to be used in either the name or the email parameter.</remarks>
+  /// <param name="name">name of the person</param>
+  /// <param name="email">email of the person</param>
+  /// <param name="when">time when the action happened</param>
+  /// <returns>new signature</returns>
+  IGitSignature CreateGitSignature(string name, string email, DateTimeOffset when);
+
+  /// <summary>
+  /// Create a new signature by parsing the given buffer, which is
+  /// expected to be in the format "Real Name &lt;email&gt; timestamp tzoffset",
+  /// where `timestamp` is the number of seconds since the Unix epoch and
+  /// `tzoffset` is the timezone offset in `hhmm` format(note the lack
+  /// of a colon separator).
+  /// </summary>
+  /// <param name="signature">signature string</param>
+  /// <returns>new signature</returns>
+  IGitSignature CreateGitSignature(string signature);
 }

@@ -38,6 +38,21 @@ internal class Libgit2 : ILibgit2, IDisposable
     }
   }
 
+  public IGitSignature CreateGitSignature(string signature)
+  {
+    var res = libgit2.signature.GitSignatureFromBuffer(out var nativeSignature, signature);
+    CheckLibgit2.Check(res, "Unable to create signature");
+    return new GitSignature(nativeSignature);
+  }
+
+  public IGitSignature CreateGitSignature(string name, string email, DateTimeOffset when)
+  {
+    var res = libgit2.signature.GitSignatureNew(
+      out var signature, name, email, when.ToUnixTimeSeconds(), (int)when.Offset.TotalMinutes);
+    CheckLibgit2.Check(res, "Unable to create signature");
+    return new GitSignature(signature);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
