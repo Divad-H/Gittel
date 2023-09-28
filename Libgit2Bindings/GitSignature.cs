@@ -1,13 +1,16 @@
-﻿namespace Libgit2Bindings;
+﻿using Libgit2Bindings.Util;
+using System.Runtime.InteropServices;
+
+namespace Libgit2Bindings;
 
 internal class GitSignature : IGitSignature
 {
   private readonly libgit2.GitSignature _nativeGitSignature;
   public libgit2.GitSignature NativeGitSignature => _nativeGitSignature;
 
-  public unsafe string Name => new(_nativeGitSignature.Name);
+  public unsafe string Name => StringUtil.ToString(_nativeGitSignature.Name);
 
-  public unsafe string Email => new(_nativeGitSignature.Email);
+  public unsafe string Email => StringUtil.ToString(_nativeGitSignature.Email);
 
   public DateTimeOffset When => new(
     (DateTimeOffset.FromUnixTimeSeconds(_nativeGitSignature.When.Time)
