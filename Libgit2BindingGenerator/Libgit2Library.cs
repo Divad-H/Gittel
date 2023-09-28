@@ -1,5 +1,6 @@
 ﻿using CppSharp;
 using CppSharp.AST;
+using CppSharp.AST.Extensions;
 using CppSharp.Generators;
 using CppSharp.Passes;
 
@@ -45,35 +46,42 @@ internal class FixOutVariableUsagePass : GeneratorOutputPass
   {
     var text = block.Text.ToString();
 
-    if (text.Contains("@out", StringComparison.OrdinalIgnoreCase) && text.Contains("____arg0", StringComparison.OrdinalIgnoreCase))
+    if ((text.Contains("(out ", StringComparison.OrdinalIgnoreCase)
+      || text.Contains(" out ", StringComparison.OrdinalIgnoreCase))
+      && text.Contains("____arg", StringComparison.OrdinalIgnoreCase))
     {
       var lines = text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
       var res = new List<string>();
-      string? outLine = null;
+      List<string> outLines = new();
+      List<int> outArgNumbers = new();
 
       for (int i = 0; i < lines.Length; i++)
       {
-        if (lines[i].Trim().StartsWith("@out"))
+        if (lines[i].Contains(" = new ") && !lines[i].Contains("__IntPtr"))
         {
-          outLine = lines[i];
+          outLines.Add(lines[i]);
         }
         else
         {
-          var assignArgIndex = lines[i].IndexOf("var ____arg0 = ");
+          var assignArgIndex = lines[i].IndexOf("var ____arg");
           if (assignArgIndex >= 0)
           {
-            lines[i] = lines[i].Substring(0, assignArgIndex) + "var ____arg0 = __IntPtr.Zero;";
+            var argNumIndex = assignArgIndex + "var ____arg".Length;
+            outArgNumbers.Add(int.Parse(lines[i].Substring(argNumIndex, 2)));
+
+            lines[i] = lines[i].Substring(0, argNumIndex + 2) + "= __IntPtr.Zero;";
           }
 
           if (lines[i].Trim().StartsWith("return"))
           {
-            if (outLine is not null)
+            int argNum = 0;
+            foreach (var ol in outLines)
             {
-              outLine = outLine.Replace(" new ", " ");
+              var outLine = ol.Replace(" new ", " ");
               var lastBracketsIndex = outLine.LastIndexOf("()");
               if (lastBracketsIndex > 0)
               {
-                outLine = outLine.Insert(lastBracketsIndex + 1, "____arg0");
+                outLine = outLine.Insert(lastBracketsIndex + 1, $"____arg{outArgNumbers[argNum++]}");
                 outLine = outLine.Insert(lastBracketsIndex, ".__CreateInstance");
               }
               res.Add(outLine!);
@@ -103,7 +111,7 @@ internal class FixOutVariablePass : TranslationUnitPass
   {
     foreach (var parameter in function.Parameters)
     {
-      if (parameter.Name.Equals("out"))
+      if (parameter.Type.GetPointee()?.GetPointee() is not null || parameter.Name.Equals("out"))
       {
         parameter.Usage = ParameterUsage.Out;
       }
