@@ -46,62 +46,132 @@ internal class FixOutVariableUsagePass : GeneratorOutputPass
   {
     var text = block.Text.ToString();
 
-    if ((text.Contains("(out ", StringComparison.OrdinalIgnoreCase)
-      || text.Contains(" out ", StringComparison.OrdinalIgnoreCase))
-      && text.Contains("____arg", StringComparison.OrdinalIgnoreCase))
+    if (IsFunctionWithOutVariable(text))
     {
-      var lines = text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-      var res = new List<string>();
-      List<string> outLines = new();
-      List<int> outArgNumbers = new();
+      List<string> res = FixOutFuncionImplementation(text);
+      ReplaceBlock(block, res);
+    }
 
-      for (int i = 0; i < lines.Length; i++)
-      {
-        if (lines[i].Contains(" = new ") && !lines[i].Contains("__IntPtr"))
-        {
-          outLines.Add(lines[i]);
-        }
-        else
-        {
-          var assignArgIndex = lines[i].IndexOf("var ____arg");
-          if (assignArgIndex >= 0)
-          {
-            var argNumIndex = assignArgIndex + "var ____arg".Length;
-            outArgNumbers.Add(int.Parse(lines[i].Substring(argNumIndex, 2)));
-
-            lines[i] = lines[i].Substring(0, argNumIndex + 2) + "= __IntPtr.Zero;";
-          }
-
-          if (lines[i].Trim().StartsWith("return"))
-          {
-            int argNum = 0;
-            foreach (var ol in outLines)
-            {
-              var outLine = ol.Replace(" new ", " ");
-              var lastBracketsIndex = outLine.LastIndexOf("()");
-              if (lastBracketsIndex > 0)
-              {
-                outLine = outLine.Insert(lastBracketsIndex + 1, $"____arg{outArgNumbers[argNum++]}");
-                outLine = outLine.Insert(lastBracketsIndex, ".__CreateInstance");
-              }
-              res.Add(outLine!);
-            }
-          }
-          res.Add(lines[i]);
-        }
-      }
-
-      block.Text.StringBuilder.Clear();
-      block.Text.Unindent();
-      block.Text.Unindent();
-      foreach (var line in res)
-      {
-
-        block.Text.WriteLine(line);
-      }
+    if (IsFunctionWithAllocHGlobal(text))
+    {
+      List<string> res = FixFunctionWithAllocHGlobal(text);
+      ReplaceBlock(block, res);
     }
 
     base.HandleBlock(block);
+  }
+
+  private List<string> FixFunctionWithAllocHGlobal(string text)
+  {
+    var lines = text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+    List<string> res = new();
+
+    for (int i = 0; i < lines.Length; i++)
+    {
+      res.Add(lines[i]);
+
+      if (lines[i].Contains("Marshal.AllocHGlobal"))
+      {
+        if (i + 1 < lines.Length && lines[i + 1].Contains("ownsNativeInstance"))
+        {
+          var varName = lines[i].Trim().Split(' ').First();
+          var sizeExpression = lines[i].Substring(lines[i].IndexOf('(') + 1, lines[i].IndexOf(')') - lines[i].IndexOf('('));
+          res.Add($"            System.Runtime.CompilerServices.Unsafe.InitBlockUnaligned((void*){varName}, 0, (uint){sizeExpression});");
+        }
+      }
+    }
+    return res;
+  }
+
+  private bool IsFunctionWithAllocHGlobal(string text)
+  {
+    return text.Contains("Marshal.AllocHGlobal");
+  }
+
+  private static List<string> FixOutFuncionImplementation(string text)
+  {
+    var lines = text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+    List<string> res = new();
+    List<string> outLines = new();
+    List<int> outArgNumbers = new();
+
+    for (int i = 0; i < lines.Length; i++)
+    {
+      if (IsConstructOutObjectLine(lines[i]))
+      {
+        outLines.Add(lines[i]);
+      }
+      else
+      {
+        lines[i] = FixOutPointerCreation(lines[i], outArgNumbers);
+
+        if (IsReturnStatementLine(lines[i]))
+        {
+          InsertOutObjectConstructions(res, outLines, outArgNumbers);
+        }
+
+        res.Add(lines[i]);
+      }
+    }
+
+    return res;
+  }
+
+  private static void ReplaceBlock(Block block, List<string> lines)
+  {
+    block.Text.StringBuilder.Clear();
+    block.Text.Unindent();
+    block.Text.Unindent();
+    foreach (var line in lines)
+    {
+      block.Text.WriteLine(line);
+    }
+  }
+
+  private static void InsertOutObjectConstructions(List<string> res, List<string> outLines, List<int> outArgNumbers)
+  {
+    int argNum = 0;
+    foreach (var ol in outLines)
+    {
+      var outLine = ol.Replace(" new ", " ");
+      var lastBracketsIndex = outLine.LastIndexOf("()");
+      if (lastBracketsIndex > 0)
+      {
+        outLine = outLine.Insert(lastBracketsIndex + 1, $"____arg{outArgNumbers[argNum++]}");
+        outLine = outLine.Insert(lastBracketsIndex, ".__CreateInstance");
+      }
+      res.Add(outLine!);
+    }
+  }
+
+  private static bool IsReturnStatementLine(string line)
+  {
+    return line.Trim().StartsWith("return");
+  }
+
+  private static bool IsConstructOutObjectLine(string line)
+  {
+    return line.Contains(" = new ") && !line.Contains("__IntPtr");
+  }
+
+  private static bool IsFunctionWithOutVariable(string text)
+  {
+    return (text.Contains("(out ", StringComparison.OrdinalIgnoreCase)
+         || text.Contains(" out ", StringComparison.OrdinalIgnoreCase))
+         && text.Contains("____arg", StringComparison.OrdinalIgnoreCase);
+  }
+
+  private static string FixOutPointerCreation(string line, List<int> outArgNumbers)
+  {
+    var assignArgIndex = line.IndexOf("var ____arg");
+    if (assignArgIndex >= 0)
+    {
+      var argNumIndex = assignArgIndex + "var ____arg".Length;
+      outArgNumbers.Add(int.Parse(line.Substring(argNumIndex, 2)));
+
+      return line.Substring(0, argNumIndex + 2) + "= __IntPtr.Zero;";
+    }
+    return line;
   }
 }
 
