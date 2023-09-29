@@ -63,6 +63,16 @@ internal class Libgit2 : ILibgit2, IDisposable
     }
   }
 
+  public string FindSystemConfig()
+  {
+    var res = libgit2.config.GitConfigFindSystem(out var path);
+    using (path)
+    {
+      CheckLibgit2.Check(res, "Unable to find system config");
+      return StringUtil.ToString(path);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -59,4 +59,10 @@ public interface ILibgit2
   /// </summary>
   /// <returns>Path to the global git config file</returns>
   string FindGlobalConfig();
+
+  /// <summary>
+  /// Locate the path to the system configuration file
+  /// </summary>
+  /// <returns>Path to the system git config file</returns>
+  string FindSystemConfig();
 }

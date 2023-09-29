@@ -12,4 +12,15 @@ public class GitConfigTest
     Assert.NotNull(config);
     Assert.NotEmpty(config);
   }
+
+  [Fact]
+  public void CanFindSystemGitConfig()
+  {
+    using var libgit2 = new Libgit2();
+
+    var config = libgit2.FindSystemConfig();
+
+    Assert.NotNull(config);
+    Assert.NotEmpty(config);
+  }
 }
