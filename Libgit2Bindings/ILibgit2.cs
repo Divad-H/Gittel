@@ -53,4 +53,10 @@ public interface ILibgit2
   /// <param name="signature">signature string</param>
   /// <returns>new signature</returns>
   IGitSignature CreateGitSignature(string signature);
+
+  /// <summary>
+  /// Locate the path to the global configuration file
+  /// </summary>
+  /// <returns>Path to the global git config file</returns>
+  string FindGlobalConfig();
 }

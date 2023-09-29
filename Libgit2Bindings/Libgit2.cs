@@ -53,6 +53,16 @@ internal class Libgit2 : ILibgit2, IDisposable
     return new GitSignature(signature);
   }
 
+  public string FindGlobalConfig()
+  {
+    var res = libgit2.config.GitConfigFindGlobal(out var path);
+    using (path)
+    {
+      CheckLibgit2.Check(res, "Unable to find global config");
+      return StringUtil.ToString(path);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
