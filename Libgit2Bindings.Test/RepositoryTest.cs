@@ -7,10 +7,10 @@ namespace Libgit2Bindings.Test
     [Fact]
     public void CanCreateRepository()
     {
-      var libgit2 = new Libgit2();
+      using var libgit2 = new Libgit2();
 
       using var tempDirectory = new TemporaryDirectory();
-      var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, false);
+      using var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, false);
 
       var directoryPath = Path.GetFullPath(Path.Combine(tempDirectory.DirectoryPath, ".git"));
       var repoPath = Path.GetFullPath(repo.GetPath()).TrimEnd('/', '\\');
@@ -20,10 +20,10 @@ namespace Libgit2Bindings.Test
     [Fact]
     public void CanCreateBareRepository()
     {
-      var libgit2 = new Libgit2();
+      using var libgit2 = new Libgit2();
 
       using var tempDirectory = new TemporaryDirectory();
-      var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, true);
+      using var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, true);
 
       var directoryPath = Path.GetFullPath(tempDirectory.DirectoryPath).TrimEnd('/', '\\');
       var repoPath = Path.GetFullPath(repo.GetPath()).TrimEnd('/', '\\');
