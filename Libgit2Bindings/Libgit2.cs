@@ -73,6 +73,26 @@ internal class Libgit2 : ILibgit2, IDisposable
     }
   }
 
+  public string FindProgramdataConfig()
+  {
+    var res = libgit2.config.GitConfigFindProgramdata(out var path);
+    using (path)
+    {
+      CheckLibgit2.Check(res, "Unable to find programdata config");
+      return StringUtil.ToString(path);
+    }
+  }
+
+  public string FindXdgConfig()
+  {
+    var res = libgit2.config.GitConfigFindXdg(out var path);
+    using (path)
+    {
+      CheckLibgit2.Check(res, "Unable to find xdg config");
+      return StringUtil.ToString(path);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

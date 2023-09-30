@@ -65,4 +65,16 @@ public interface ILibgit2
   /// </summary>
   /// <returns>Path to the system git config file</returns>
   string FindSystemConfig();
+
+  /// <summary>
+  /// Locate the path to the configuration file in ProgramData
+  /// </summary>
+  /// <returns>Path to the git config file in ProgramData</returns>
+  string FindProgramdataConfig();
+
+  /// <summary>
+  /// Locate the path to the global xdg compatible configuration file
+  /// </summary>
+  /// <returns>Path to the global xdg compatible git config file</returns>
+  string FindXdgConfig();
 }
