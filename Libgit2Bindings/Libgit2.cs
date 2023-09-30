@@ -93,6 +93,51 @@ internal class Libgit2 : ILibgit2, IDisposable
     }
   }
 
+  public IGitConfig NewConfig()
+  {
+    var res = libgit2.config.GitConfigNew(out var config);
+    CheckLibgit2.Check(res, "Unable to create config");
+    return new GitConfig(config);
+  }
+
+  public IGitConfig OpenConfigOndisk(string path)
+  {
+    var res = libgit2.config.GitConfigOpenOndisk(out var config, path);
+    CheckLibgit2.Check(res, "Unable to open config");
+    return new GitConfig(config);
+  }
+
+  public bool ParseConfigBool(string value)
+  {
+    var res = libgit2.config.GitConfigParseBool(out var result, value);
+    CheckLibgit2.Check(res, "Unable to parse config value");
+    return result != 0;
+  }
+
+  public int ParseConfigInt32(string value)
+  {
+    var res = libgit2.config.GitConfigParseInt32(out var result, value);
+    CheckLibgit2.Check(res, "Unable to parse config value");
+    return result;
+  }
+
+  public long ParseConfigInt64(string value)
+  {
+    var res = libgit2.config.GitConfigParseInt64(out var result, value);
+    CheckLibgit2.Check(res, "Unable to parse config value");
+    return result;
+  }
+
+  public string ParseConfigPath(string value)
+  {
+    var res = libgit2.config.GitConfigParsePath(out var result, value);
+    using (result)
+    {
+      CheckLibgit2.Check(res, "Unable to parse config value");
+      return StringUtil.ToString(result);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

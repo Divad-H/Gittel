@@ -77,4 +77,67 @@ public interface ILibgit2
   /// </summary>
   /// <returns>Path to the global xdg compatible git config file</returns>
   string FindXdgConfig();
+
+  /// <summary>
+  /// Allocate a new configuration object
+  /// </summary>
+  /// <remarks>
+  /// This object is empty, so you have to add a file to it before you can do anything with it.
+  /// </remarks>
+  /// <returns>the new configuration</returns>
+  IGitConfig NewConfig();
+
+  /// <summary>
+  /// Create a new config instance containing a single on-disk file
+  /// </summary>
+  /// <remarks>
+  /// This method is a simple utility wrapper for the following sequence of calls: 
+  /// - <see cref="NewConfig"/> - <see cref="IGitConfig.AddFileOndisk"/>
+  /// </remarks>
+  /// <returns>The created configuration instance</returns>
+  IGitConfig OpenConfigOndisk(string path);
+
+  /// <summary>
+  /// Parse a string value as a bool.
+  /// </summary>
+  /// <remarks>
+  /// Valid values for true are: 'true', 'yes', 'on', 1 or any number different from 0.
+  /// Valid values for false are: 'false', 'no', 'off', 0
+  /// </remarks>
+  /// <param name="value">value to parse</param>
+  /// <returns>the result of the parsing</returns>
+  bool ParseConfigBool(string value);
+
+  /// <summary>
+  /// Parse a string value as an int32.
+  /// </summary>
+  /// <remarks>
+  /// An optional value suffix of 'k', 'm', or 'g' will cause the value to be multiplied 
+  /// by 1024, 1048576, or 1073741824 prior to output.
+  /// </remarks>
+  /// <param name="value">value to parse</param>
+  /// <returns>the result of the parsing</returns>
+  int ParseConfigInt32(string value);
+
+  /// <summary>
+  /// Parse a string value as an int64.
+  /// </summary>
+  /// <remarks>
+  /// An optional value suffix of 'k', 'm', or 'g' will cause the value to be multiplied 
+  /// by 1024, 1048576, or 1073741824 prior to output.
+  /// </remarks>
+  /// <param name="value">value to parse</param>
+  /// <returns>the result of the parsing</returns>
+  long ParseConfigInt64(string value);
+
+  /// <summary>
+  /// Parse a string value as a path.
+  /// </summary>
+  /// <remarks>
+  /// <para>A leading '~' will be expanded to the global search path.</para>
+  /// <para>If the value does not begin with a tilde, the input will be returned.</para>
+  /// </remarks>
+  /// <param name="value">value to parse</param>
+  /// <returns>the result of the parsing</returns>
+  string ParseConfigPath(string value);
 }

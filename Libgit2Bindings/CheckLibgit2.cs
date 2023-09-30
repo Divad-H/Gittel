@@ -30,6 +30,5 @@ internal static class CheckLibgit2
     }
 
     throw new Libgit2Exception(message);
-    
   } 
 }

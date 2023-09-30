@@ -1,4 +1,6 @@
 ﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -56,13 +58,37 @@ internal class GitConfig : IGitConfig
     CheckLibgit2.Check(res, "Unable to set config value for {0}", name);
   }
 
-  public IReadOnlyCollection<GitConfigEntry> GetMultiVarEntries(string name, string? regexp)
+  private static IEnumerable<GitConfigEntry> YieldEntries(libgit2.GitConfigIterator iterator)
   {
-    using MultiVarForeachCallback callback = new();
-    var res = libgit2.config.GitConfigGetMultivarForeach(
-      _nativeGitConfig, name, regexp, MultiVarForeachCallback.GitConfigForeachCb, callback.Payload);
+    while (true)
+    {
+      var res = libgit2.config.GitConfigNext(out var entry, iterator);
+      using (entry)
+      {
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          yield break;
+        }
+        CheckLibgit2.Check(res, "Error while iterating config entries");
+        yield return GitConfigEntryMapper.FromNative(entry);
+      }
+    }
+  }
+
+  public IEnumerable<GitConfigEntry> GetMultiVarEntries(string name, string? regexp)
+  {
+    var res = libgit2.config.GitConfigMultivarIteratorNew
+      (out var iterator, _nativeGitConfig, name, regexp);
     CheckLibgit2.Check(res, "Unable to get config values for {0}", name);
-    return callback.GetEntries();
+    try
+    {
+      foreach (var entry in YieldEntries(iterator))
+        yield return entry;
+    }
+    finally
+    {
+      libgit2.config.GitConfigIteratorFree(iterator);
+    }
   }
 
   public void SetString(string name, string value)
@@ -73,9 +99,44 @@ internal class GitConfig : IGitConfig
 
   public string GetString(string name)
   {
-    var res = libgit2.config.GitConfigGetString(out var value, _nativeGitConfig, name);
-    CheckLibgit2.Check(res, "Unable to get config value for {0}", name);
-    return value;
+    var res = libgit2.config.GitConfigGetStringBuf(out var value, _nativeGitConfig, name);
+    using (value)
+    {
+      CheckLibgit2.Check(res, "Unable to get config value for {0}", name);
+      return StringUtil.ToString(value);
+    }
+  }
+
+  public string GetPath(string name)
+  {
+    var res = libgit2.config.GitConfigGetPath(out var value, _nativeGitConfig, name);
+    using (value) 
+    { 
+      CheckLibgit2.Check(res, "Unable to get config value for {0}", name);
+      return StringUtil.ToString(value); 
+    }
+  }
+
+  public GitConfigEntry GetEntry(string name)
+  {
+    var res = libgit2.config.GitConfigGetEntry(out var entry, _nativeGitConfig, name);
+    using (entry)
+    {
+      CheckLibgit2.Check(res, "Unable to get config value for {0}", name);
+      return GitConfigEntryMapper.FromNative(entry);
+    }
+  }
+
+  public void DeleteEntry(string name)
+  {
+    var res = libgit2.config.GitConfigDeleteEntry(_nativeGitConfig, name);
+    CheckLibgit2.Check(res, "Unable to delete config value for {0}", name);
+  }
+
+  public void DeleteMultiVar(string name, string regexp)
+  {
+    var res = libgit2.config.GitConfigDeleteMultivar(_nativeGitConfig, name, regexp);
+    CheckLibgit2.Check(res, "Unable to delete config value for {0}", name);
   }
 
   public IGitConfig Snapshot()
@@ -83,6 +144,47 @@ internal class GitConfig : IGitConfig
     var res = libgit2.config.GitConfigSnapshot(out var snapshot, _nativeGitConfig);
     CheckLibgit2.Check(res, "Unable to create snapshot");
     return new GitConfig(snapshot);
+  }
+
+  public IGitTransaction Lock()
+  {
+    var res = libgit2.config.GitConfigLock(out var transaction, _nativeGitConfig);
+    CheckLibgit2.Check(res, "Unable to lock config");
+    return new GitTransaction(transaction);
+  }
+
+  public void AddFileOndisk(string path, GitConfigLevel level, IGitRepository? repository, bool force)
+  {
+    var repo = repository is null ? null : repository as GitRepository 
+      ?? throw new ArgumentException($"{nameof(repository)} must be created by Gittel");
+    var res = libgit2.config.GitConfigAddFileOndisk(
+      _nativeGitConfig, path, GitConfigLevelMapper.ToNative(level), repo?.NativeGitRepository, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to add config file {0}", path);
+  }
+
+  public IGitConfig OpenLevel(GitConfigLevel level)
+  {
+    var res = libgit2.config.GitConfigOpenLevel(
+      out var config, _nativeGitConfig, GitConfigLevelMapper.ToNative(level));
+    CheckLibgit2.Check(res, "Unable to open config level {0}", level);
+    return new GitConfig(config);
+  }
+
+  public IEnumerable<GitConfigEntry> GetEntries(string? regexp = null)
+  {
+    using GitConfigForeachCallback callback = new();
+    var res = libgit2.config.GitConfigIteratorGlobNew(
+      out var iterator, _nativeGitConfig, regexp);
+    CheckLibgit2.Check(res, "Unable to get config entries");
+    try
+    {
+      foreach (var entry in YieldEntries(iterator))
+        yield return entry;
+    }
+    finally
+    {
+      libgit2.config.GitConfigIteratorFree(iterator);
+    }
   }
 
   #region IDisposable Support
