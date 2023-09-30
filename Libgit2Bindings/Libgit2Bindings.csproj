@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
@@ -8,12 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Generated\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="CppSharp.Runtime" Version="1.0.54.626" />
-    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
@@ -22,5 +17,11 @@
       <Pack>true</Pack>
       <PackagePath>runtimes/win-x64/native/git2.dll</PackagePath>
     </Content>
+  </ItemGroup>
+  
+  <ItemGroup>
+    <AssemblyAttribute Include="System.Runtime.CompilerServices.InternalsVisibleToAttribute">
+      <_Parameter1>Libgit2Bindings.Test</_Parameter1>
+    </AssemblyAttribute>
   </ItemGroup>
 </Project>

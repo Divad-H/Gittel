@@ -1,6 +1,4 @@
-﻿using libgit2;
-
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface ILibgit2
 {

@@ -36,7 +36,7 @@ public partial class App : Application
     services.AddSingleton<IRequestDispatcherImpl, ApiGeneration.Generated.RequestDispatcherImpl>();
     services.AddSingleton<RequestDispatcher>();
     services.RegisterControllers();
-    services.RegisterLibgit2Bindings();
+    services.AddSingleton(sp => Libgit2Bindings.Factory.CreateLibgit2());
 
     _serviceProvider = services.BuildServiceProvider();
     _window = _serviceProvider.GetRequiredService<MainWindow>();
