@@ -41,4 +41,16 @@ public interface IGitRepository : IDisposable
   /// <param name="options">specifies checkout options</param>
   void CheckoutHead(CheckoutOptions? options = null);
 
+
+  /// <summary>
+  /// Get the configuration file for this repository.
+  /// </summary>
+  /// <remarks>
+  /// If a configuration file has not been set, the default config set for the repository will be returned, 
+  /// including global and system configurations (if they are available).
+  /// </remarks>
+  /// <returns>
+  /// The loaded configuration
+  /// </returns>
+  IGitConfig GetConfig();
 }

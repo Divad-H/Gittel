@@ -64,6 +64,13 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to checkout HEAD");
   }
 
+  public IGitConfig GetConfig()
+  {
+    var res = libgit2.repository.GitRepositoryConfig(out var config, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to get config");
+    return new GitConfig(config);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
