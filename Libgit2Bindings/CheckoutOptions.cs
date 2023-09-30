@@ -1,10 +1,4 @@
-﻿using libgit2;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Threading.Channels;
-using System.Collections.Immutable;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Security.Principal;
+﻿using System.Collections.Immutable;
 
 namespace Libgit2Bindings;
 
