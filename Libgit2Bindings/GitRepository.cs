@@ -130,7 +130,8 @@ internal sealed class GitRepository : IGitRepository
 
   public IGitTree LookupTree(GitOid oid)
   {
-    var res = libgit2.tree.GitTreeLookup(out var nativeTree, _nativeGitRepository, GitOidMapper.ToNative(oid));
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.tree.GitTreeLookup(out var nativeTree, _nativeGitRepository, nativeOid);
     CheckLibgit2.Check(res, "Unable to lookup tree");
     return new GitTree(nativeTree);
   }
