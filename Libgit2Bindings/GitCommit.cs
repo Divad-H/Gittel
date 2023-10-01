@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -15,12 +16,9 @@ internal sealed class GitCommit : IGitCommit
   public GitOid Amend(string? updateRef, IGitSignature? author, IGitSignature? committer, 
     string? messageEncoding, string? message, IGitTree? tree)
   {
-    var managedAuthor = author is null ? null : author as GitSignature
-      ?? throw new ArgumentException($"{nameof(author)} must be created by Gittel");
-    var managedCommitter = committer is null ? null : committer as GitSignature
-      ?? throw new ArgumentException($"{nameof(committer)} must be created by Gittel");
-    var managedTree = tree is null ? null : tree as GitTree
-      ?? throw new ArgumentException($"{nameof(tree)} must be created by Gittel");
+    var managedAuthor = GittelObjects.Downcast<GitSignature>(author);
+    var managedCommitter = GittelObjects.Downcast<GitSignature>(committer);
+    var managedTree = GittelObjects.Downcast<GitTree>(tree);
 
     var data = new libgit2.GitOid.__Internal();
     using var commitOid = libgit2.GitOid.__CreateInstance(data);
@@ -29,6 +27,21 @@ internal sealed class GitCommit : IGitCommit
       managedCommitter?.NativeGitSignature, messageEncoding, message, managedTree?.NativeGitTree);
     CheckLibgit2.Check(res, "Unable to amend commit");
     return GitOidMapper.FromNative(commitOid);
+  }
+
+  public IGitSignature GetAuthor()
+  {
+    var nativeAuthor = libgit2.commit.GitCommitAuthor(_nativeGitCommit);
+    return new GitSignature(nativeAuthor);
+  }
+
+  public IGitSignature GetAuthor(IGitMailmap? mailmap)
+  {
+    var managedMailmap = GittelObjects.Downcast<GitMailmap>(mailmap);
+    var res = libgit2.commit.GitCommitAuthorWithMailmap(
+      out var nativeAuthor, _nativeGitCommit, managedMailmap?.NativeGitMailmap);
+    CheckLibgit2.Check(res, "Unable to get author");
+    return new GitSignature(nativeAuthor);
   }
 
   #region IDisposable Support

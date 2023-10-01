@@ -119,4 +119,17 @@ public interface IGitRepository : IDisposable
   /// <param name="oid">Identity of the tree to locate.</param>
   /// <returns>The looked up tree</returns>
   IGitTree LookupTree(GitOid oid);
+
+  /// <summary>
+  /// Create a new mailmap instance from a repository, loading mailmap files based on the repository's configuration.
+  /// </summary>
+  /// <remarks>
+  /// Mailmaps are loaded in the following order: 
+  /// <para>1. '.mailmap' in the root of the repository's working directory, if present.</para>
+  /// <para>2. The blob object identified by the 'mailmap.blob' config entry, if set.
+  /// [NOTE: 'mailmap.blob' defaults to 'HEAD:.mailmap' in bare repositories]</para>
+  /// <para>3. The path in the 'mailmap.file' config entry, if set.</para>
+  /// </remarks>
+  /// <returns>the new mailmap</returns>
+  IGitMailmap GetMailmap();
 }

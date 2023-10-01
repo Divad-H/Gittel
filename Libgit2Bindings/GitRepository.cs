@@ -136,6 +136,13 @@ internal sealed class GitRepository : IGitRepository
     return new GitTree(nativeTree);
   }
 
+  public IGitMailmap GetMailmap()
+  {
+    var res = libgit2.mailmap.GitMailmapFromRepository(out var nativeMailmap, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to get mailmap");
+    return new GitMailmap(nativeMailmap);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

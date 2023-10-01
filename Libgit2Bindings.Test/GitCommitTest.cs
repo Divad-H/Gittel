@@ -2,10 +2,15 @@
 
 namespace Libgit2Bindings.Test;
 
-public class CommitTest
+public class GitCommitTest
 {
   private class RepoWithOneCommit : IDisposable
   {
+    public const string Filename = "test.txt";
+    public const string AuthorName = "John Doe";
+    public const string AuthorEmail = "john@doe.de";
+    public const string CommitMessage = "Initial commit";
+
     public Libgit2 Libgit2 { get; }
     public TemporaryDirectory TempDirectory { get; }
     public IGitRepository Repo { get; }
@@ -14,14 +19,14 @@ public class CommitTest
 
     public RepoWithOneCommit()
     {
-      const string filename = "test.txt";
+      const string filename = Filename;
 
       Libgit2 = new Libgit2();
       TempDirectory = new TemporaryDirectory();
 
       Repo = Libgit2.InitRepository(TempDirectory.DirectoryPath, false);
 
-      Signature = Repo.GitSignatureNow("John Doe", "john@doe.de");
+      Signature = Repo.GitSignatureNow(AuthorName, AuthorEmail);
 
       var fileFullPath = Path.Combine(TempDirectory.DirectoryPath, filename);
       File.WriteAllLines(fileFullPath, Array.Empty<string>());
@@ -34,7 +39,7 @@ public class CommitTest
 
       using var tree = Repo.LookupTree(treeOid);
 
-      CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, null, "Initial commit", tree, null);
+      CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, null, CommitMessage, tree, null);
     }
 
     public void Dispose()
@@ -73,5 +78,38 @@ public class CommitTest
     var amendedCommitOid = commit.Amend("HEAD", null, null, null, "Amended commit", null);
 
     Assert.NotNull(amendedCommitOid);
+  }
+
+  [Fact]
+  public void CanReadAuthor()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var author = commit.GetAuthor();
+
+    Assert.NotNull(author);
+    Assert.Equal(RepoWithOneCommit.AuthorName, author.Name);
+    Assert.Equal(RepoWithOneCommit.AuthorEmail, author.Email);
+  }
+
+  [Fact]
+  public void CanReadAuthorWithMailmap()
+  {
+    const string realEmail = "Jim@Doe.de";
+
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    using var mailmap = repoWithOneCommit.Repo.GetMailmap();
+    mailmap.AddEntry(null, realEmail, null, RepoWithOneCommit.AuthorEmail);
+
+    var author = commit.GetAuthor(mailmap);
+
+    Assert.NotNull(author);
+    Assert.Equal(RepoWithOneCommit.AuthorName, author.Name);
+    Assert.Equal(realEmail, author.Email);
   }
 }

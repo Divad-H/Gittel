@@ -21,4 +21,18 @@ public interface IGitCommit : IDisposable
   /// <returns>The object id of the new commit</returns>
   GitOid Amend(string? updateRef, IGitSignature? author, IGitSignature? committer, 
     string? messageEncoding, string? message, IGitTree? tree);
+
+  /// <summary>
+  /// Get the author of a commit.
+  /// </summary>
+  /// <returns>the author of a commit</returns>
+  IGitSignature GetAuthor();
+
+  /// <summary>
+  /// Get the author of a commit, using the mailmap to map names and email addresses to 
+  /// canonical real names and email addresses.
+  /// </summary>
+  /// <param name="mailmap">the mailmap to resolve with. (may be null)</param>
+  /// <returns>the author of a commit</returns>
+  IGitSignature GetAuthor(IGitMailmap? mailmap);
 }
