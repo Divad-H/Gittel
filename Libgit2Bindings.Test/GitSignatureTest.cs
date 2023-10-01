@@ -1,6 +1,6 @@
 ﻿namespace Libgit2Bindings.Test;
 
-public class SignatureTest
+public sealed class GitSignatureTest
 {
   [Fact]
   public void CanCreateSignature()

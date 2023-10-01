@@ -2,7 +2,7 @@ using Libgit2Bindings.Test.Helpers;
 
 namespace Libgit2Bindings.Test
 {
-  public class RepositoryTest
+  public class GitRepositoryTest
   {
     [Fact]
     public void CanCreateRepository()
@@ -29,6 +29,22 @@ namespace Libgit2Bindings.Test
       var repoPath = Path.GetFullPath(repo.GetPath()).TrimEnd('/', '\\');
 
       Assert.Equal(directoryPath, repoPath);
+    }
+
+    [Fact]
+    public void CanCheckoutSimpleRepositoryHead()
+    {
+      using var libgit2 = new Libgit2();
+
+      using var repo = libgit2.OpenRepository(@"G:\Projects\test-repo-worktree");
+
+      CheckoutOptions checkoutOptions = new()
+      {
+        Strategy = CheckoutStrategy.Force
+      };
+      repo.CheckoutHead(checkoutOptions);
+
+      int sieben = 9;
     }
 
     [Fact]
