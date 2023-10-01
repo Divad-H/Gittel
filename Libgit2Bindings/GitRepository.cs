@@ -1,8 +1,12 @@
-﻿namespace Libgit2Bindings;
+﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Mappers;
+
+namespace Libgit2Bindings;
 
 internal sealed class GitRepository : IGitRepository
 {
   private readonly libgit2.GitRepository _nativeGitRepository;
+  public libgit2.GitRepository NativeGitRepository => _nativeGitRepository;
 
   public GitRepository(libgit2.GitRepository nativeGitRepository)
   {
@@ -64,11 +68,60 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to checkout HEAD");
   }
 
+  public IGitSignature DefaultGitSignature()
+  {
+    var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to get default signature");
+    return new GitSignature(signature);
+  }
+
+  public IGitSignature GitSignatureNow(string name, string email)
+  {
+    var res = libgit2.signature.GitSignatureNow(out var signature, name, email);
+    CheckLibgit2.Check(res, "Unable to create signature");
+    return new GitSignature(signature);
+  }
+
   public IGitConfig GetConfig()
   {
     var res = libgit2.repository.GitRepositoryConfig(out var config, _nativeGitRepository);
     CheckLibgit2.Check(res, "Unable to get config");
     return new GitConfig(config);
+  }
+
+  public GitOid CreateCommit(
+    string? updateRef, IGitSignature author, IGitSignature committer, 
+    string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
+  {
+    var managedAuthor = author as GitSignature ?? throw new ArgumentException($"{nameof(author)} must be created by Gittel");
+    var managedCommitter = committer as GitSignature ?? throw new ArgumentException($"{nameof(committer)} must be created by Gittel");
+    var managedTree = tree as GitTree ?? throw new ArgumentException($"{nameof(tree)} must be created by Gittel");
+    var nativeParents = parents?
+      .Select(p => p as GitCommit ?? throw new ArgumentException($"{nameof(parents)} must be created by Gittel"))
+      .Select(parents => parents.NativeGitCommit)
+      .ToArray();
+    var data = new libgit2.GitOid.__Internal();
+    using var commitOid = libgit2.GitOid.__CreateInstance(data);
+    var res = libgit2.commit.GitCommitCreate(
+      commitOid, _nativeGitRepository, updateRef, managedAuthor.NativeGitSignature,
+      managedCommitter.NativeGitSignature, messageEncoding, message, managedTree.NativeGitTree,
+      (UInt64)(nativeParents?.Length ?? 0), nativeParents);
+    CheckLibgit2.Check(res, "Unable to create commit");
+    return GitOidMapper.FromNative(commitOid);
+  }
+
+  public IGitIndex GetIndex()
+  {
+    var res = libgit2.repository.GitRepositoryIndex(out var nativeIndex, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to get index");
+    return new GitIndex(nativeIndex);
+  }
+
+  public IGitTree LookupTree(GitOid oid)
+  {
+    var res = libgit2.tree.GitTreeLookup(out var nativeTree, _nativeGitRepository, GitOidMapper.ToNative(oid));
+    CheckLibgit2.Check(res, "Unable to lookup tree");
+    return new GitTree(nativeTree);
   }
 
   #region IDisposable Support
