@@ -96,9 +96,16 @@ public interface IGitRepository : IDisposable
   /// <param name="parents">
   /// The parents that will be used for this commit. The parent commits must be owned by the repo.
   /// </param>
-  /// <returns></returns>
+  /// <returns>The object id of the new commit</returns>
   GitOid CreateCommit(string? updateRef, IGitSignature author, IGitSignature committer, 
     string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
+
+  /// <summary>
+  /// Lookup a commit object from a repository.
+  /// </summary>
+  /// <param name="oid">identity of the commit to locate. If the object is an annotated tag it will be peeled back to the commit.</param>
+  /// <returns>the looked up commit</returns>
+  IGitCommit LookupCommit(GitOid oid);
 
   /// <summary>
   /// Get the index file for this repository.
