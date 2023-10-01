@@ -21,8 +21,20 @@ internal class TemporaryDirectory : IDisposable
     DeleteDirectory(DirectoryPath);
   }
 
+  private static void RemoveReadOnlyFlagsAndDeleteDirectory(string path)
+  {
+    var directory = new DirectoryInfo(path) { Attributes = FileAttributes.Normal };
+
+    foreach (var info in directory.GetFileSystemInfos("*", SearchOption.AllDirectories))
+    {
+      info.Attributes = FileAttributes.Normal;
+    }
+
+    directory.Delete(true);
+  }
+
   private static void DeleteDirectory(string path)
-  { 
+  {
     if (!Directory.Exists(path))
     {
       return;
@@ -34,7 +46,7 @@ internal class TemporaryDirectory : IDisposable
     {
       try
       {
-        Directory.Delete(path, true);
+        RemoveReadOnlyFlagsAndDeleteDirectory(path);
         return;
       }
       catch (Exception ex) when (ex is IOException || ex is UnauthorizedAccessException)
