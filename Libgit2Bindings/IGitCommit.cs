@@ -35,4 +35,28 @@ public interface IGitCommit : IDisposable
   /// <param name="mailmap">the mailmap to resolve with. (may be null)</param>
   /// <returns>the author of a commit</returns>
   IGitSignature GetAuthor(IGitMailmap? mailmap);
+
+  /// <summary>
+  /// Get the committer of a commit.
+  /// </summary>
+  /// <returns>the committer of a commit</returns>
+  IGitSignature GetCommitter();
+
+  /// <summary>
+  /// Get the committer of a commit, using the mailmap to map names and email addresses to 
+  /// canonical real names and email addresses.
+  /// </summary>
+  /// <param name="mailmap">the mailmap to resolve with. (may be null)</param>
+  /// <returns>the committer of a commit</returns>
+  IGitSignature GetCommitter(IGitMailmap? mailmap);
+
+  /// <summary>
+  /// Get the long "body" of the git commit message.
+  /// </summary>
+  /// <remarks>
+  /// The returned message is the body of the commit, comprising everything but the first paragraph of the message.
+  /// Leading and trailing whitespaces are trimmed.
+  /// </remarks>
+  /// <returns>the body of a commit or null when no the message only consists of a summary</returns>
+  string? GetBody();
 }

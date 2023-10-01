@@ -44,6 +44,26 @@ internal sealed class GitCommit : IGitCommit
     return new GitSignature(nativeAuthor);
   }
 
+  public IGitSignature GetCommitter()
+  {
+    var nativeCommitter = libgit2.commit.GitCommitCommitter(_nativeGitCommit);
+    return new GitSignature(nativeCommitter);
+  }
+
+  public IGitSignature GetCommitter(IGitMailmap? mailmap)
+  {
+    var managedMailmap = GittelObjects.Downcast<GitMailmap>(mailmap);
+    var res = libgit2.commit.GitCommitCommitterWithMailmap(
+      out var nativeCommitter, _nativeGitCommit, managedMailmap?.NativeGitMailmap);
+    CheckLibgit2.Check(res, "Unable to get committer");
+    return new GitSignature(nativeCommitter);
+  }
+
+  public string? GetBody()
+  {
+    return libgit2.commit.GitCommitBody(_nativeGitCommit);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

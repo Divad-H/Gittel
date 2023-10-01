@@ -9,7 +9,8 @@ public class GitCommitTest
     public const string Filename = "test.txt";
     public const string AuthorName = "John Doe";
     public const string AuthorEmail = "john@doe.de";
-    public const string CommitMessage = "Initial commit";
+    public const string CommitBody = "This is the initial commit.";
+    public const string CommitMessage = $"Initial commit\n\n{CommitBody}";
 
     public Libgit2 Libgit2 { get; }
     public TemporaryDirectory TempDirectory { get; }
@@ -111,5 +112,51 @@ public class GitCommitTest
     Assert.NotNull(author);
     Assert.Equal(RepoWithOneCommit.AuthorName, author.Name);
     Assert.Equal(realEmail, author.Email);
+  }
+
+  [Fact]
+  public void CanReadCommitter()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var committer = commit.GetCommitter();
+
+    Assert.NotNull(committer);
+    Assert.Equal(RepoWithOneCommit.AuthorName, committer.Name);
+    Assert.Equal(RepoWithOneCommit.AuthorEmail, committer.Email);
+  }
+
+  [Fact]
+  public void CanReadCommitterWithMailmap()
+  {
+    const string realEmail = "Jim@Doe.de";
+
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    using var mailmap = repoWithOneCommit.Repo.GetMailmap();
+    mailmap.AddEntry(null, realEmail, null, RepoWithOneCommit.AuthorEmail);
+
+    var committer = commit.GetCommitter(mailmap);
+
+    Assert.NotNull(committer);
+    Assert.Equal(RepoWithOneCommit.AuthorName, committer.Name);
+    Assert.Equal(realEmail, committer.Email);
+  }
+
+  [Fact]
+  public void CanReadBody()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var body = commit.GetBody();
+
+    Assert.NotNull(body);
+    Assert.Equal(RepoWithOneCommit.CommitBody, body);
   }
 }
