@@ -30,5 +30,18 @@ namespace Libgit2Bindings.Test
 
       Assert.Equal(directoryPath, repoPath);
     }
+
+    [Fact]
+    public void CanGetRepositoryConfig()
+    {
+      using var libgit2 = new Libgit2();
+
+      using var tempDirectory = new TemporaryDirectory();
+      using var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, false);
+
+      using var config = repo.GetConfig();
+
+      Assert.NotNull(config);
+    }
   }
 }
