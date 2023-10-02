@@ -159,4 +159,40 @@ public class GitCommitTest
     Assert.NotNull(body);
     Assert.Equal(RepoWithOneCommit.CommitBody, body);
   }
+
+  [Fact]
+  public void CanCreateSignedCommit()
+  {
+    using var libgit2 = new Libgit2();
+    using var tempDirectory = new TemporaryDirectory();
+
+    using var repo = libgit2.InitRepository(tempDirectory.DirectoryPath, false);
+
+    const string commit = "tree 4b825dc642cb6eb9a060e54bf8d69288fbee4904\n" +
+      "author David Hübscher <huebschersdavid@gmail.com> 1696283371 +0200\n" +
+      "committer David Hübscher <huebschersdavid@gmail.com> 1696283371 +0200\n" +
+      "\n" +
+      "an empty but signed commit\n";
+
+    const string gpgsig = "-----BEGIN PGP SIGNATURE-----\n" +
+      "\n" +
+      "iQIzBAABCAAdFiEEiQg9Wo4C+bIB/zfgrSSj3zCxtdsFAmUbOusACgkQrSSj3zCx\n" +
+      "tdsvOxAAmJ/mxTN4McVpbhqTij/oTmzy7ff4X8YpJ5K0qfVeeUv7lufd6pPvxbdG\n" +
+      "iaBS7Ui/QRQ+/SXPub+swzaOg4XsOPWN40+38BS35IIBwLoROP0gsx40NRL29qRd\n" +
+      "rtdgy8r5FnQKr4mXd1lFnScOrppDAytpL4S0KG26yPWtNgG7ixEd0jAhAisQ+721\n" +
+      "9PO9YshySCcjdmPh1XNNLupHHz7lqg7FvsVcgD5lf9vB6AweLa2KAoL1pOPIFw/n\n" +
+      "i3C7G/STOcVLk9z9eBVaPkwStO/m2Js7I9Y2jxPNg2ZhpROJb47tsR5qSj62V2CI\n" +
+      "OtKTQBWzfl+6WVcIA0N5wyyuG3UIQYtF8c1sHm2cbAR59L28hY7NvxfHEhChU2Qo\n" +
+      "81ZX5dtwQnsZyPOSMxlkuYsT4TU3drjSkZ3KIlhmL3mxfigUNMX/4S1WV4ZqLsQs\n" +
+      "2VZvcuOfDod3MlbvHLFvs4dPAv8uWv6/wBQRQnFsJvT9i3+cYugAg+ZZ37XYrX4P\n" +
+      "4iVSXIjeFEJVW+n/BnzwxriQlDlOdoETEvJuH/a/KlkA+pU+nbEtu8cduPjhRyb2\n" +
+      "+qHVoWprwT6WUZeAAmx9z6UoGNo3fg5is3PPrf3ddUrvpm2fueLyZjhzaMGQNXoU\n" +
+      "tmnvBtzNBY3ccqhTo1nKU2Pgwtg8B+I2M7gGuZ4uhHMXqOvX9TA=\n" +
+      "=q0RV\n" +
+      "-----END PGP SIGNATURE-----";
+
+    var oid = repo.CreateCommitWithSignature(commit, gpgsig, "gpgsig");
+
+    Assert.NotNull(oid);
+  }
 }

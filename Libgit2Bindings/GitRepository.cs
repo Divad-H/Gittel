@@ -93,12 +93,9 @@ internal sealed class GitRepository : IGitRepository
     string? updateRef, IGitSignature author, IGitSignature committer, 
     string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
   {
-    var managedAuthor = (author ?? throw new ArgumentNullException(nameof(author))) as GitSignature 
-      ?? throw new ArgumentException($"{nameof(author)} must be created by Gittel");
-    var managedCommitter = (committer ?? throw new ArgumentNullException(nameof(committer))) as GitSignature 
-      ?? throw new ArgumentException($"{nameof(committer)} must be created by Gittel");
-    var managedTree = (tree ?? throw new ArgumentNullException(nameof(tree))) as GitTree 
-      ?? throw new ArgumentException($"{nameof(tree)} must be created by Gittel");
+    var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
+    var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
+    var managedTree = GittelObjects.DowncastNonNull<GitTree>(tree);
     var nativeParents = parents?
       .Select(p => p as GitCommit ?? throw new ArgumentException($"{nameof(parents)} must be created by Gittel"))
       .Select(parents => parents.NativeGitCommit)
@@ -111,6 +108,17 @@ internal sealed class GitRepository : IGitRepository
       (UInt64)(nativeParents?.Length ?? 0), nativeParents);
     CheckLibgit2.Check(res, "Unable to create commit");
     return GitOidMapper.FromNative(commitOid);
+  }
+
+  public GitOid CreateCommitWithSignature(string commitContent, string? signature, string? signatureField)
+  {
+    var res = libgit2.commit.GitCommitCreateWithSignature(
+      out var commitOid, _nativeGitRepository, commitContent, signature, signatureField);
+    using (commitOid)
+    {
+      CheckLibgit2.Check(res, "Unable to create commit with signature");
+      return GitOidMapper.FromNative(commitOid);
+    }
   }
 
   public IGitCommit LookupCommit(GitOid oid)

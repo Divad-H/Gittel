@@ -101,6 +101,21 @@ public interface IGitRepository : IDisposable
     string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
 
   /// <summary>
+  /// Create a commit object from the given buffer and signature
+  /// </summary>
+  /// <remarks>
+  /// Given the unsigned commit object's contents, its signature and the header field in which to store 
+  /// the signature, attach the signature to the commit and write it into the given repository.
+  /// </remarks>
+  /// <param name="commitContent">the content of the unsigned commit object</param>
+  /// <param name="signature">the signature to add to the commit. Leave `null` to create a commit 
+  /// without adding a signature field.</param>
+  /// <param name="signatureField">which header field should contain this signature. Leave `null` 
+  /// for the default of "gpgsig"</param>
+  /// <returns>the resulting commit id</returns>
+  GitOid CreateCommitWithSignature(string commitContent, string? signature, string? signatureField);
+
+  /// <summary>
   /// Lookup a commit object from a repository.
   /// </summary>
   /// <param name="oid">identity of the commit to locate. If the object is an annotated tag it will be peeled back to the commit.</param>
