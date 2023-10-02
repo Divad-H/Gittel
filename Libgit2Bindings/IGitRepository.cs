@@ -84,10 +84,6 @@ public interface IGitRepository : IDisposable
   /// </param>
   /// <param name="author">Signature with author and author time of commit</param>
   /// <param name="committer">Signature with committer and * commit time of commit</param>
-  /// <param name="messageEncoding">
-  /// The encoding for the message in the commit, represented with a standard encoding name. 
-  /// E.g. "UTF-8". If null, no encoding header is written and UTF-8 is assumed.
-  /// </param>
   /// <param name="message">Full message for this commit</param>
   /// <param name="tree">
   /// An instance of a <see cref="IGitTree"/> object that will be used as the tree for the commit. 
@@ -98,17 +94,13 @@ public interface IGitRepository : IDisposable
   /// </param>
   /// <returns>The object id of the new commit</returns>
   GitOid CreateCommit(string? updateRef, IGitSignature author, IGitSignature committer, 
-    string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
+    string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
 
   /// <summary>
   /// Create a commit and return the commit object content
   /// </summary>
   /// <param name="author">Signature with author and author time of commit</param>
   /// <param name="committer">Signature with committer and * commit time of commit</param>
-  /// <param name="messageEncoding">
-  /// The encoding for the message in the commit, represented with a standard encoding name. 
-  /// E.g. "UTF-8". If null, no encoding header is written and UTF-8 is assumed.
-  /// </param>
   /// <param name="message">Full message for this commit</param>
   /// <param name="tree">
   /// An instance of a <see cref="IGitTree"/> object that will be used as the tree for the commit. 
@@ -119,7 +111,7 @@ public interface IGitRepository : IDisposable
   /// </param>
   /// <returns>the commit object content</returns>
   byte[] CreateCommitObject(IGitSignature author, IGitSignature committer,
-    string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
+    string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
 
   /// <summary>
   /// Create a commit object from the given buffer and signature

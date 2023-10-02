@@ -1,5 +1,6 @@
 ﻿using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -91,7 +92,7 @@ internal sealed class GitRepository : IGitRepository
 
   public GitOid CreateCommit(
     string? updateRef, IGitSignature author, IGitSignature committer, 
-    string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
+    string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
   {
     var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
     var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
@@ -104,13 +105,13 @@ internal sealed class GitRepository : IGitRepository
     using var commitOid = libgit2.GitOid.__CreateInstance(data);
     var res = libgit2.commit.GitCommitCreate(
       commitOid, _nativeGitRepository, updateRef, managedAuthor.NativeGitSignature,
-      managedCommitter.NativeGitSignature, messageEncoding, message, managedTree.NativeGitTree,
+      managedCommitter.NativeGitSignature, null, message, managedTree.NativeGitTree,
       (UInt64)(nativeParents?.Length ?? 0), nativeParents);
     CheckLibgit2.Check(res, "Unable to create commit");
     return GitOidMapper.FromNative(commitOid);
   }
 
-  public byte[] CreateCommitObject(IGitSignature author, IGitSignature committer, string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
+  public byte[] CreateCommitObject(IGitSignature author, IGitSignature committer, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
   {
     var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
     var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
@@ -121,7 +122,7 @@ internal sealed class GitRepository : IGitRepository
       .ToArray();
     var res = libgit2.commit.GitCommitCreateBuffer(
       out var commitBuffer, _nativeGitRepository, managedAuthor.NativeGitSignature, 
-      managedCommitter.NativeGitSignature, messageEncoding, message, managedTree.NativeGitTree, 
+      managedCommitter.NativeGitSignature, null, message, managedTree.NativeGitTree, 
       (UInt64)(parents?.Count ?? 0), nativeParents);
     using (commitBuffer.GetDisposer())
     {

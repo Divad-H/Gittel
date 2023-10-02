@@ -15,7 +15,7 @@ internal sealed class GitCommit : IGitCommit
   }
 
   public GitOid Amend(string? updateRef, IGitSignature? author, IGitSignature? committer, 
-    string? messageEncoding, string? message, IGitTree? tree)
+    string? message, IGitTree? tree)
   {
     var managedAuthor = GittelObjects.Downcast<GitSignature>(author);
     var managedCommitter = GittelObjects.Downcast<GitSignature>(committer);
@@ -25,7 +25,7 @@ internal sealed class GitCommit : IGitCommit
     using var commitOid = libgit2.GitOid.__CreateInstance(data);
     var res = libgit2.commit.GitCommitAmend(
       commitOid, _nativeGitCommit, updateRef, managedAuthor?.NativeGitSignature,
-      managedCommitter?.NativeGitSignature, messageEncoding, message, managedTree?.NativeGitTree);
+      managedCommitter?.NativeGitSignature, null, message, managedTree?.NativeGitTree);
     CheckLibgit2.Check(res, "Unable to amend commit");
     return GitOidMapper.FromNative(commitOid);
   }

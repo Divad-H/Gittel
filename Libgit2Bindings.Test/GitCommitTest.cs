@@ -42,7 +42,7 @@ public class GitCommitTest
 
       Tree = Repo.LookupTree(treeOid);
 
-      CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, null, CommitMessage, Tree, null);
+      CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, CommitMessage, Tree, null);
     }
 
     public void Dispose()
@@ -71,7 +71,7 @@ public class GitCommitTest
     using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
 
     var commitObject = repoWithOneCommit.Repo.CreateCommitObject(repoWithOneCommit.Signature, 
-      repoWithOneCommit.Signature, null, "second commit", repoWithOneCommit.Tree, new IGitCommit[] { commit });
+      repoWithOneCommit.Signature, "second commit", repoWithOneCommit.Tree, new IGitCommit[] { commit });
     Assert.NotNull(commitObject);
 
     var commitObjectString = Encoding.UTF8.GetString(commitObject);
@@ -95,7 +95,7 @@ public class GitCommitTest
 
     using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
 
-    var amendedCommitOid = commit.Amend("HEAD", null, null, null, "Amended commit", null);
+    var amendedCommitOid = commit.Amend("HEAD", null, null, "Amended commit", null);
 
     Assert.NotNull(amendedCommitOid);
   }

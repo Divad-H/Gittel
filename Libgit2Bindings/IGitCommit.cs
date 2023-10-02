@@ -15,12 +15,11 @@ public interface IGitCommit : IDisposable
   /// <param name="updateRef"><see cref="IGitRepository.CreateCommit"/></param>
   /// <param name="author">Same as <see cref="IGitRepository.CreateCommit"/> but can be null</param>
   /// <param name="committer">Same as <see cref="IGitRepository.CreateCommit"/> but can be null</param>
-  /// <param name="messageEncoding">Same as <see cref="IGitRepository.CreateCommit"/></param>
   /// <param name="message">Same as <see cref="IGitRepository.CreateCommit"/> but can be null</param>
   /// <param name="tree">Same as <see cref="IGitRepository.CreateCommit"/> but can be null</param>
   /// <returns>The object id of the new commit</returns>
   GitOid Amend(string? updateRef, IGitSignature? author, IGitSignature? committer, 
-    string? messageEncoding, string? message, IGitTree? tree);
+    string? message, IGitTree? tree);
 
   /// <summary>
   /// Get the author of a commit.
