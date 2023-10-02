@@ -31,7 +31,7 @@ internal class Libgit2 : ILibgit2, IDisposable
       acrossFilesystem ? 1 : 0, 
       ceilingDirectories.Any() ? string.Join((char)libgit2.PathListSeparator.GIT_PATH_LIST_SEPARATOR, ceilingDirectories) : null);
 
-    using (repoPath)
+    using (repoPath.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to discover repository '{0}'", startPath);
       return StringUtil.ToString(repoPath);
@@ -56,7 +56,7 @@ internal class Libgit2 : ILibgit2, IDisposable
   public string FindGlobalConfig()
   {
     var res = libgit2.config.GitConfigFindGlobal(out var path);
-    using (path)
+    using (path.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to find global config");
       return StringUtil.ToString(path);
@@ -66,7 +66,7 @@ internal class Libgit2 : ILibgit2, IDisposable
   public string FindSystemConfig()
   {
     var res = libgit2.config.GitConfigFindSystem(out var path);
-    using (path)
+    using (path.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to find system config");
       return StringUtil.ToString(path);
@@ -76,7 +76,7 @@ internal class Libgit2 : ILibgit2, IDisposable
   public string FindProgramdataConfig()
   {
     var res = libgit2.config.GitConfigFindProgramdata(out var path);
-    using (path)
+    using (path.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to find programdata config");
       return StringUtil.ToString(path);
@@ -86,7 +86,7 @@ internal class Libgit2 : ILibgit2, IDisposable
   public string FindXdgConfig()
   {
     var res = libgit2.config.GitConfigFindXdg(out var path);
-    using (path)
+    using (path.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to find xdg config");
       return StringUtil.ToString(path);
@@ -131,7 +131,7 @@ internal class Libgit2 : ILibgit2, IDisposable
   public string ParseConfigPath(string value)
   {
     var res = libgit2.config.GitConfigParsePath(out var result, value);
-    using (result)
+    using (result.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to parse config value");
       return StringUtil.ToString(result);

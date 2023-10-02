@@ -100,7 +100,7 @@ internal class GitConfig : IGitConfig
   public string GetString(string name)
   {
     var res = libgit2.config.GitConfigGetStringBuf(out var value, _nativeGitConfig, name);
-    using (value)
+    using (value.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to get config value for {0}", name);
       return StringUtil.ToString(value);
@@ -110,7 +110,7 @@ internal class GitConfig : IGitConfig
   public string GetPath(string name)
   {
     var res = libgit2.config.GitConfigGetPath(out var value, _nativeGitConfig, name);
-    using (value) 
+    using (value.GetDisposer()) 
     { 
       CheckLibgit2.Check(res, "Unable to get config value for {0}", name);
       return StringUtil.ToString(value); 
