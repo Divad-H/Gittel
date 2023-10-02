@@ -97,7 +97,7 @@ internal sealed class GitRepository : IGitRepository
     var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
     var managedTree = GittelObjects.DowncastNonNull<GitTree>(tree);
     var nativeParents = parents?
-      .Select(p => p as GitCommit ?? throw new ArgumentException($"{nameof(parents)} must be created by Gittel"))
+      .Select(GittelObjects.DowncastNonNull<GitCommit>)
       .Select(parents => parents.NativeGitCommit)
       .ToArray();
     var data = new libgit2.GitOid.__Internal();
@@ -108,6 +108,26 @@ internal sealed class GitRepository : IGitRepository
       (UInt64)(nativeParents?.Length ?? 0), nativeParents);
     CheckLibgit2.Check(res, "Unable to create commit");
     return GitOidMapper.FromNative(commitOid);
+  }
+
+  public byte[] CreateCommitObject(IGitSignature author, IGitSignature committer, string? messageEncoding, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
+  {
+    var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
+    var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
+    var managedTree = GittelObjects.DowncastNonNull<GitTree>(tree);
+    var nativeParents = parents?
+      .Select(GittelObjects.DowncastNonNull<GitCommit>)
+      .Select(parents => parents.NativeGitCommit)
+      .ToArray();
+    var res = libgit2.commit.GitCommitCreateBuffer(
+      out var commitBuffer, _nativeGitRepository, managedAuthor.NativeGitSignature, 
+      managedCommitter.NativeGitSignature, messageEncoding, message, managedTree.NativeGitTree, 
+      (UInt64)(parents?.Count ?? 0), nativeParents);
+    using (commitBuffer.GetDisposer())
+    {
+      CheckLibgit2.Check(res, "Unable to create commit object");
+      return StringUtil.ToArray(commitBuffer);
+    }
   }
 
   public GitOid CreateCommitWithSignature(string commitContent, string? signature, string? signatureField)

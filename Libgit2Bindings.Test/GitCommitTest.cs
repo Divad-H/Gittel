@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Test.Helpers;
+using System.Text;
 
 namespace Libgit2Bindings.Test;
 
@@ -17,6 +18,7 @@ public class GitCommitTest
     public IGitRepository Repo { get; }
     public IGitSignature Signature { get; }
     public GitOid CommitOid { get; }
+    public IGitTree Tree { get; }
 
     public RepoWithOneCommit()
     {
@@ -38,13 +40,14 @@ public class GitCommitTest
       var treeOid = index.WriteTree();
       index.Write();
 
-      using var tree = Repo.LookupTree(treeOid);
+      Tree = Repo.LookupTree(treeOid);
 
-      CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, null, CommitMessage, tree, null);
+      CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, null, CommitMessage, Tree, null);
     }
 
     public void Dispose()
     {
+      Tree.Dispose();
       Signature.Dispose();
       Repo.Dispose();
       TempDirectory.Dispose();
@@ -58,6 +61,22 @@ public class GitCommitTest
     using var repoWithOneCommit = new RepoWithOneCommit();
     
     Assert.NotNull(repoWithOneCommit.CommitOid);
+  }
+
+  [Fact]
+  public void CanCreateCommitObject()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var commitObject = repoWithOneCommit.Repo.CreateCommitObject(repoWithOneCommit.Signature, 
+      repoWithOneCommit.Signature, null, "second commit", repoWithOneCommit.Tree, new IGitCommit[] { commit });
+    Assert.NotNull(commitObject);
+
+    var commitObjectString = Encoding.UTF8.GetString(commitObject);
+
+    Assert.Contains("second commit", commitObjectString);
   }
 
   [Fact]
