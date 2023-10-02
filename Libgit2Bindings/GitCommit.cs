@@ -1,5 +1,6 @@
 ﻿using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
+using System.Text;
 
 namespace Libgit2Bindings;
 
@@ -61,7 +62,15 @@ internal sealed class GitCommit : IGitCommit
 
   public string? GetBody()
   {
-    return libgit2.commit.GitCommitBody(_nativeGitCommit);
+    var encoding = Encoding.UTF8;
+    var encodingStr = libgit2.commit.GitCommitMessageEncoding(_nativeGitCommit);
+    if (encodingStr != null)
+    {
+      encoding = Encoding.GetEncoding(encodingStr);
+    }
+
+    var bodyPtr = libgit2.commit.__Internal.GitCommitBody(_nativeGitCommit.__Instance);
+    return CppSharp.Runtime.MarshalUtil.GetString(encoding, bodyPtr);
   }
 
   #region IDisposable Support
