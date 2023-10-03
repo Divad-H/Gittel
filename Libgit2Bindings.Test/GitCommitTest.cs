@@ -225,4 +225,45 @@ public class GitCommitTest
     Assert.Equal(gpgsig, resSignatureString);
     Assert.Equal(commit, signedDataString);
   }
+
+  [Fact]
+  public void CanGetHeaderField()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var headerField = commit.GetHeaderField("tree");
+
+    Assert.NotNull(headerField);
+
+    var headerFieldString = Encoding.UTF8.GetString(headerField);
+
+    var treeOid = repoWithOneCommit.Tree.GetId();
+    Assert.NotNull(treeOid);
+
+    Assert.Equal(treeOid.Sha, headerFieldString);
+  }
+
+  [Fact]
+  public void CanGetId()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var commitOid = commit.GetId();
+    Assert.NotNull(commitOid);
+    Assert.Equal(repoWithOneCommit.CommitOid, commitOid);
+  }
+
+  [Fact]
+  public void CanLookupCommitByPrefix()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+    using var commit = repoWithOneCommit.Repo.LookupCommitPrefix(
+      repoWithOneCommit.CommitOid.Sha.Substring(0, 7));
+
+    var commitOid = commit.GetId();
+    Assert.NotNull(commitOid);
+    Assert.Equal(repoWithOneCommit.CommitOid, commitOid);
+  }
 }
