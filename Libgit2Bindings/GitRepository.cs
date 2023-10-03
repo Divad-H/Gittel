@@ -111,7 +111,8 @@ internal sealed class GitRepository : IGitRepository
     return GitOidMapper.FromNative(commitOid);
   }
 
-  public byte[] CreateCommitObject(IGitSignature author, IGitSignature committer, string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
+  public byte[] CreateCommitObject(IGitSignature author, IGitSignature committer,
+    string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents)
   {
     var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
     var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
@@ -139,6 +140,19 @@ internal sealed class GitRepository : IGitRepository
     {
       CheckLibgit2.Check(res, "Unable to create commit with signature");
       return GitOidMapper.FromNative(commitOid);
+    }
+  }
+
+  public (byte[] Signature, byte[] SignedData) ExtractCommitSignature(
+    GitOid commitId, string? signatureField)
+  {
+    using var nativeCommitId = GitOidMapper.ToNative(commitId);
+    var res = libgit2.commit.GitCommitExtractSignature(
+      out var signature, out var signedData, _nativeGitRepository, nativeCommitId, signatureField);
+    using (signature) using (signedData)
+    {
+      CheckLibgit2.Check(res, "Unable to extract commit signature");
+      return (StringUtil.ToArray(signature), StringUtil.ToArray(signedData));
     }
   }
 

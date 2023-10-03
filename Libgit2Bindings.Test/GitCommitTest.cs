@@ -180,7 +180,7 @@ public class GitCommitTest
   }
 
   [Fact]
-  public void CanCreateSignedCommit()
+  public void CanCreateSignedCommitAndExtractSignature()
   {
     using var libgit2 = new Libgit2();
     using var tempDirectory = new TemporaryDirectory();
@@ -213,5 +213,16 @@ public class GitCommitTest
     var oid = repo.CreateCommitWithSignature(commit, gpgsig, "gpgsig");
 
     Assert.NotNull(oid);
+
+    var (resSignature, signedData) = repo.ExtractCommitSignature(oid, null);
+
+    Assert.NotNull(resSignature);
+    Assert.NotNull(signedData);
+
+    var resSignatureString = Encoding.UTF8.GetString(resSignature);
+    var signedDataString = Encoding.UTF8.GetString(signedData);
+
+    Assert.Equal(gpgsig, resSignatureString);
+    Assert.Equal(commit, signedDataString);
   }
 }

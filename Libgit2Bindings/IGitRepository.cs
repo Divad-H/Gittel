@@ -129,6 +129,16 @@ public interface IGitRepository : IDisposable
   GitOid CreateCommitWithSignature(string commitContent, string? signature, string? signatureField);
 
   /// <summary>
+  /// Extract the signature from a commit
+  /// </summary>
+  /// <param name="commitId">the commit from which to extract the data</param>
+  /// <param name="signatureField">the name of the header field containing the signature block; 
+  /// pass `null` to extract the default 'gpgsig'</param>
+  /// <returns>A tuple containing the signature block and signed data; 
+  /// this is the commit contents minus the signature block</returns>
+  (byte[] Signature, byte[] SignedData) ExtractCommitSignature(GitOid commitId, string? signatureField);
+
+  /// <summary>
   /// Lookup a commit object from a repository.
   /// </summary>
   /// <param name="oid">identity of the commit to locate. If the object is an annotated tag it will be peeled back to the commit.</param>
