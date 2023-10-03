@@ -73,6 +73,23 @@ internal sealed class GitCommit : IGitCommit
     return CppSharp.Runtime.MarshalUtil.GetString(encoding, bodyPtr);
   }
 
+  public byte[] GetHeaderField(string field)
+  {
+    var res = libgit2.commit.GitCommitHeaderField(out var headerField, _nativeGitCommit, field);
+    using (headerField)
+    {
+      CheckLibgit2.Check(res, "Unable to get header field");
+      return StringUtil.ToArray(headerField);
+    }
+  }
+
+  public IGitTree GetTree()
+  {
+    var res = libgit2.commit.GitCommitTree(out var nativeGitTree, _nativeGitCommit);
+    CheckLibgit2.Check(res, "Unable to get tree");
+    return new GitTree(nativeGitTree);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

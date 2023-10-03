@@ -50,6 +50,19 @@ public interface IGitCommit : IDisposable
   IGitSignature GetCommitter(IGitMailmap? mailmap);
 
   /// <summary>
+  /// Get an arbitrary header field from the commit.
+  /// </summary>
+  /// <param name="field">the header field to return</param>
+  /// <returns>The content of the header field</returns>
+  byte[] GetHeaderField(string field);
+
+  /// <summary>
+  /// Get the tree pointed to by a commit.
+  /// </summary>
+  /// <returns>the tree pointed to by a commit</returns>
+  IGitTree GetTree();
+
+  /// <summary>
   /// Get the long "body" of the git commit message.
   /// </summary>
   /// <remarks>

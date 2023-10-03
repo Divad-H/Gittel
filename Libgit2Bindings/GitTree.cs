@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using Libgit2Bindings.Mappers;
+
+namespace Libgit2Bindings;
 
 internal class GitTree : IGitTree
 {
@@ -8,6 +10,12 @@ internal class GitTree : IGitTree
   public GitTree(libgit2.GitTree nativeGitTree)
   {
     _nativeGitTree = nativeGitTree;
+  }
+
+  public GitOid GetId()
+  {
+    var res = libgit2.tree.GitTreeId(_nativeGitTree);
+    return GitOidMapper.FromNative(res);
   }
 
   #region IDisposable Support
