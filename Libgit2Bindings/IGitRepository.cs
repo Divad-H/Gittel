@@ -146,6 +146,22 @@ public interface IGitRepository : IDisposable
   IGitCommit LookupCommit(GitOid oid);
 
   /// <summary>
+  /// Lookup a commit object from a repository, given a prefix of its identifier (short id).
+  /// </summary>
+  /// <param name="shortId">identity of the commit to locate. 
+  /// If the object is an annotated tag it will be peeled back to the commit.</param>
+  /// <returns>the looked up commit</returns>
+  IGitCommit LookupCommitPrefix(byte[] shortId);
+
+  /// <summary>
+  /// Lookup a commit object from a repository, given a prefix of its identifier (short id).
+  /// </summary>
+  /// <param name="shortSha">identity of the commit to locate. 
+  /// If the object is an annotated tag it will be peeled back to the commit.</param>
+  /// <returns>the looked up commit</returns>
+  IGitCommit LookupCommitPrefix(string shortSha);
+
+  /// <summary>
   /// Get the index file for this repository.
   /// </summary>
   /// <returns>The index</returns>

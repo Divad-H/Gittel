@@ -164,6 +164,26 @@ internal sealed class GitRepository : IGitRepository
     return new GitCommit(commit);
   }
 
+  public IGitCommit LookupCommitPrefix(byte[] shortId)
+  {
+    GitOid gitOid = GitOidMapper.FromShortId(shortId);
+    using var nativeOid = GitOidMapper.ToNative(gitOid);
+    var res = libgit2.commit.GitCommitLookupPrefix(out var commit, 
+      _nativeGitRepository, nativeOid, (UInt64)shortId.Length);
+    CheckLibgit2.Check(res, "Unable to lookup commit");
+    return new GitCommit(commit);
+  }
+
+  public IGitCommit LookupCommitPrefix(string shortSha)
+  {
+    if (shortSha.Length % 2 != 0)
+    {
+      shortSha += "0";
+    }
+    var shortId = Convert.FromHexString(shortSha);
+    return LookupCommitPrefix(shortId);
+  }
+
   public IGitIndex GetIndex()
   {
     var res = libgit2.repository.GitRepositoryIndex(out var nativeIndex, _nativeGitRepository);
