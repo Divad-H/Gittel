@@ -90,6 +90,12 @@ internal sealed class GitCommit : IGitCommit
     return new GitTree(nativeGitTree);
   }
 
+  public GitOid GetId()
+  {
+    var res = libgit2.commit.GitCommitId(_nativeGitCommit);
+    return GitOidMapper.FromNative(res);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

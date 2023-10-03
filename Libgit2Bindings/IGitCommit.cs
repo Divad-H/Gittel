@@ -63,6 +63,12 @@ public interface IGitCommit : IDisposable
   IGitTree GetTree();
 
   /// <summary>
+  /// Get the id of the commit.
+  /// </summary>
+  /// <returns>the id of the commit</returns>
+  GitOid GetId();
+
+  /// <summary>
   /// Get the long "body" of the git commit message.
   /// </summary>
   /// <remarks>
