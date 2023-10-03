@@ -181,7 +181,12 @@ internal class FixOutVariablePass : TranslationUnitPass
   {
     foreach (var parameter in function.Parameters)
     {
-      if (parameter.Type.GetPointee()?.GetPointee() is not null || parameter.Name.Equals("out"))
+      if (parameter.Type.GetPointee()?.GetPointee() is not null 
+        || parameter.Name.Equals("out")
+        || function.Namespace.Name != "git_buf" 
+          && !function.Name.StartsWith("git_buf")
+          && parameter.Type.GetPointee()?.TryGetClass(out Class? @class) == true
+          && @class?.Name == "git_buf")
       {
         parameter.Usage = ParameterUsage.Out;
       }
