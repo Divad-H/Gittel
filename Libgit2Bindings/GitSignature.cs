@@ -12,14 +12,19 @@ internal class GitSignature : IGitSignature
 
   public unsafe string Email => StringUtil.ToString(_nativeGitSignature.Email);
 
-  public DateTimeOffset When => new(
-    (DateTimeOffset.FromUnixTimeSeconds(_nativeGitSignature.When.Time)
-      + TimeSpan.FromMinutes(_nativeGitSignature.When.Offset)).Ticks, 
-    new(0, _nativeGitSignature.When.Offset, 0));
+  public DateTimeOffset When => FromEpochAndOffset(
+    _nativeGitSignature.When.Time, _nativeGitSignature.When.Offset);
 
   public GitSignature(libgit2.GitSignature nativeGitSignature)
   {
     _nativeGitSignature = nativeGitSignature;
+  }
+
+  public static DateTimeOffset FromEpochAndOffset(long secondsSinceEpoch, int offsetMinutesFromUtc)
+  {
+    return new(
+      (DateTimeOffset.FromUnixTimeSeconds(secondsSinceEpoch) + TimeSpan.FromMinutes(offsetMinutesFromUtc)).Ticks,
+      new(0, offsetMinutesFromUtc, 0));
   }
 
   #region IDisposable Support

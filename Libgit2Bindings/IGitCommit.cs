@@ -63,10 +63,31 @@ public interface IGitCommit : IDisposable
   IGitTree GetTree();
 
   /// <summary>
+  /// Get the id of the tree pointed to by a commit
+  /// </summary>
+  /// <returns>the id of tree pointed to by commit.</returns>
+  GitOid GetTreeId();
+
+  /// <summary>
   /// Get the id of the commit.
   /// </summary>
   /// <returns>the id of the commit</returns>
   GitOid GetId();
+
+  /// <summary>
+  /// Get the full message of a commit.
+  /// </summary>
+  /// <remarks>
+  /// The returned message will be slightly prettified by removing any potential leading newlines.
+  /// </remarks>
+  /// <returns>the message of a commit</returns>
+  string GetMessage();
+
+  /// <summary>
+  /// Get the full raw message of the commit.
+  /// </summary>
+  /// <returns>the raw message of the commit</returns>
+  string GetRawMessage();
 
   /// <summary>
   /// Get the long "body" of the git commit message.
@@ -77,4 +98,61 @@ public interface IGitCommit : IDisposable
   /// </remarks>
   /// <returns>the body of a commit or null when no the message only consists of a summary</returns>
   string? GetBody();
+
+  /// <summary>
+  /// Get the short "summary" of the git commit message.
+  /// </summary>
+  /// <remarks>
+  /// The returned message is the summary of the commit, comprising the first paragraph of the message 
+  /// with whitespace trimmed and squashed.
+  /// </remarks>
+  /// <returns>the summary of a commit or null on error</returns>
+  string? GetSummary();
+
+  /// <summary>
+  /// Get the specified parent of the commit.
+  /// </summary>
+  /// <param name="n">the position of the parent (from 0 to `parentcount`)</param>
+  /// <returns>the parent commit</returns>
+  IGitCommit GetParent(UInt32 n);
+
+  /// <summary>
+  /// Get the number of parents of this commit.
+  /// </summary>
+  /// <returns>integer of count of parents</returns>
+  UInt32 GetParentCount();
+
+  /// <summary>
+  /// Get the id of the specified parent of the commit.
+  /// </summary>
+  /// <param name="n">the position of the parent (from 0 to `parentcount`)</param>
+  /// <returns>the id of the parent, null on error.</returns>
+  GitOid? GetParentId(UInt32 n);
+
+  /// <summary>
+  /// Get the nth-generation ancestor of the commit, following only first parents.
+  /// </summary>
+  /// <remarks>
+  /// Passing 0 as the generation number returns another instance of the base commit itself.
+  /// </remarks>
+  /// <param name="n">the requested generation</param>
+  /// <returns>the ancestor commit</returns>
+  IGitCommit GetNthAncestor(UInt32 n);
+
+  /// <summary>
+  /// Get the full raw text of the commit header.
+  /// </summary>
+  /// <returns>the header text of the commit</returns>
+  string GetRawHeader();
+
+  /// <summary>
+  /// Get the commit time (i.e. committer time) of a commit.
+  /// </summary>
+  /// <returns>the time of a commit</returns>
+  DateTimeOffset GetCommitTime();
+
+  /// <summary>
+  /// Get the owning repository of the commit.
+  /// </summary>
+  IGitRepository Owner { get; }
 }

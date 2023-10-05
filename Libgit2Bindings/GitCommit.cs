@@ -9,9 +9,12 @@ internal sealed class GitCommit : IGitCommit
   private readonly libgit2.GitCommit _nativeGitCommit;
   public libgit2.GitCommit NativeGitCommit => _nativeGitCommit;
 
-  public GitCommit(libgit2.GitCommit nativeGitCommit)
+  public IGitRepository Owner { get; }
+
+  public GitCommit(libgit2.GitCommit nativeGitCommit, IGitRepository owner)
   {
     _nativeGitCommit = nativeGitCommit;
+    Owner = owner;
   }
 
   public GitOid Amend(string? updateRef, IGitSignature? author, IGitSignature? committer, 
@@ -60,7 +63,7 @@ internal sealed class GitCommit : IGitCommit
     return new GitSignature(nativeCommitter);
   }
 
-  public string? GetBody()
+  private Encoding GetMessageEncoding()
   {
     var encoding = Encoding.UTF8;
     var encodingStr = libgit2.commit.GitCommitMessageEncoding(_nativeGitCommit);
@@ -69,8 +72,55 @@ internal sealed class GitCommit : IGitCommit
       encoding = Encoding.GetEncoding(encodingStr);
     }
 
+    return encoding;
+  }
+
+  public string GetMessage()
+  {
+    var encoding = GetMessageEncoding();
+
+    var messagePtr = libgit2.commit.__Internal.GitCommitMessage(_nativeGitCommit.__Instance);
+    if (messagePtr == IntPtr.Zero)
+    {
+      return string.Empty;
+    }
+    return CppSharp.Runtime.MarshalUtil.GetString(encoding, messagePtr);
+  }
+
+  public string GetRawMessage()
+  {
+    var encoding = GetMessageEncoding();
+
+    var rawMessagePtr = libgit2.commit.__Internal.GitCommitMessageRaw(_nativeGitCommit.__Instance);
+    if (rawMessagePtr == IntPtr.Zero)
+    {
+      return string.Empty;
+    }
+    return CppSharp.Runtime.MarshalUtil.GetString(encoding, rawMessagePtr);
+  }
+
+  public string? GetBody()
+  {
+    var encoding = GetMessageEncoding();
+
     var bodyPtr = libgit2.commit.__Internal.GitCommitBody(_nativeGitCommit.__Instance);
+    if (bodyPtr == IntPtr.Zero)
+    {
+      return null;
+    }
     return CppSharp.Runtime.MarshalUtil.GetString(encoding, bodyPtr);
+  }
+
+  public string? GetSummary()
+  {
+    var encoding = GetMessageEncoding();
+
+    var summaryPtr = libgit2.commit.__Internal.GitCommitSummary(_nativeGitCommit.__Instance);
+    if (summaryPtr == IntPtr.Zero)
+    {
+      return null;
+    }
+    return CppSharp.Runtime.MarshalUtil.GetString(encoding, summaryPtr);
   }
 
   public byte[] GetHeaderField(string field)
@@ -90,10 +140,57 @@ internal sealed class GitCommit : IGitCommit
     return new GitTree(nativeGitTree);
   }
 
+  public GitOid GetTreeId()
+  {
+    using var res = libgit2.commit.GitCommitTreeId(_nativeGitCommit);
+    return GitOidMapper.FromNative(res);
+  }
+
   public GitOid GetId()
   {
-    var res = libgit2.commit.GitCommitId(_nativeGitCommit);
+    using var res = libgit2.commit.GitCommitId(_nativeGitCommit);
     return GitOidMapper.FromNative(res);
+  }
+
+  public IGitCommit GetParent(uint n)
+  {
+    var res = libgit2.commit.GitCommitParent(out var nativeGitCommit, _nativeGitCommit, n);
+    CheckLibgit2.Check(res, "Unable to get parent");
+    return new GitCommit(nativeGitCommit, Owner);
+  }
+
+  public uint GetParentCount()
+  {
+    return libgit2.commit.GitCommitParentcount(_nativeGitCommit);
+  }
+
+  public GitOid? GetParentId(uint n)
+  {
+    using var res = libgit2.commit.GitCommitParentId(_nativeGitCommit, n);
+    if (res == null)
+    {
+      return null;
+    }
+    return GitOidMapper.FromNative(res);
+  }
+
+  public IGitCommit GetNthAncestor(uint n)
+  {
+    var res = libgit2.commit.GitCommitNthGenAncestor(out var nativeGitCommit, _nativeGitCommit, n);
+    CheckLibgit2.Check(res, "Unable to get nth ancestor");
+    return new GitCommit(nativeGitCommit, Owner);
+  }
+
+  public string GetRawHeader()
+  {
+    return libgit2.commit.GitCommitRawHeader(_nativeGitCommit);
+  }
+
+  public DateTimeOffset GetCommitTime()
+  {
+    var secondsSinceEpoch = libgit2.commit.GitCommitTime(_nativeGitCommit);
+    var offsetMinutesFromUtc = libgit2.commit.GitCommitTimeOffset(_nativeGitCommit);
+    return GitSignature.FromEpochAndOffset(secondsSinceEpoch, offsetMinutesFromUtc);
   }
 
   #region IDisposable Support
