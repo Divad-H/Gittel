@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Test.Helpers;
+﻿using libgit2;
+using Libgit2Bindings.Test.Helpers;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -59,7 +60,7 @@ public class GitCommitTest
   public void CanCreateCommit()
   {
     using var repoWithOneCommit = new RepoWithOneCommit();
-    
+
     Assert.NotNull(repoWithOneCommit.CommitOid);
   }
 
@@ -70,7 +71,7 @@ public class GitCommitTest
 
     using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
 
-    var commitObject = repoWithOneCommit.Repo.CreateCommitObject(repoWithOneCommit.Signature, 
+    var commitObject = repoWithOneCommit.Repo.CreateCommitObject(repoWithOneCommit.Signature,
       repoWithOneCommit.Signature, "second commit", repoWithOneCommit.Tree, new IGitCommit[] { commit });
     Assert.NotNull(commitObject);
 
@@ -265,5 +266,135 @@ public class GitCommitTest
     var commitOid = commit.GetId();
     Assert.NotNull(commitOid);
     Assert.Equal(repoWithOneCommit.CommitOid, commitOid);
+  }
+
+  [Fact]
+  public void CanGetRawCommitHeader()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var rawCommitHeader = commit.GetRawHeader();
+
+    Assert.Contains("author John Doe <john@doe.de>", rawCommitHeader);
+  }
+
+  [Fact]
+  public void CanGetCommitTree()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    using var tree = commit.GetTree();
+
+    Assert.NotNull(tree);
+    Assert.Equal(repoWithOneCommit.Tree.GetId(), tree.GetId());
+  }
+
+  [Fact]
+  public void CanGetCommitTreeId()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var treeId = commit.GetTreeId();
+
+    Assert.NotNull(treeId);
+    Assert.Equal(repoWithOneCommit.Tree.GetId(), treeId);
+  }
+
+  [Fact]
+  public void CanGetCommitMessage()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var message = commit.GetMessage();
+
+    Assert.NotNull(message);
+    Assert.Equal(RepoWithOneCommit.CommitMessage, message);
+  }
+
+  [Fact]
+  public void CanGetRawCommitMessage()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var rawMessage = commit.GetRawMessage();
+
+    Assert.NotNull(rawMessage);
+    Assert.Equal(RepoWithOneCommit.CommitMessage, rawMessage);
+  }
+
+  [Fact]
+  public void CanGetCommitSummary()
+  {
+    using var repoWithOneCommit = new RepoWithOneCommit();
+
+    using var commit = repoWithOneCommit.Repo.LookupCommit(repoWithOneCommit.CommitOid);
+
+    var summary = commit.GetSummary();
+
+    Assert.NotNull(summary);
+    Assert.Equal("Initial commit", summary);
+  }
+
+  [Fact]
+  public void CanGetCommitParentAndAncestor()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+
+    var secondCommitOid = repo.Repo.CreateCommit(
+      "HEAD", repo.Signature, repo.Signature, "Second commit", repo.Tree, new IGitCommit[] { commit });
+
+    using var secondCommit = repo.Repo.LookupCommit(secondCommitOid);
+
+    var parentCount = secondCommit.GetParentCount();
+    Assert.Equal(1u, parentCount);
+    var parentCommit = secondCommit.GetParent(0);
+    Assert.Equal(repo.CommitOid, parentCommit.GetId());
+    var parentCommitId = secondCommit.GetParentId(0);
+    Assert.Equal(repo.CommitOid, parentCommitId);
+    var ancestorCommit = secondCommit.GetNthAncestor(1);
+    Assert.Equal(repo.CommitOid, ancestorCommit.GetId());
+  }
+
+  [Fact]
+  public void CanGetCommitTime()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var commitTime = new DateTimeOffset(2000, 2, 2, 10, 0, 0, TimeSpan.FromMinutes(60));
+    using var signature = repo.Libgit2.CreateGitSignature(
+      "Name", "e@mail", commitTime);
+
+    var secondCommitOid = repo.Repo.CreateCommit(
+      null, signature, signature, "Second commit", repo.Tree, null);
+
+    using var secondCommit = repo.Repo.LookupCommit(secondCommitOid);
+
+    var secondCommitTime = secondCommit.GetCommitTime();
+
+    Assert.Equal(commitTime, secondCommitTime);
+  }
+
+  [Fact]
+  public void CanGetCommitOwner()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+
+    var owner = commit.Owner;
+
+    Assert.Equal(repo.Repo, owner);
   }
 }
