@@ -17,6 +17,8 @@ internal sealed class CloneCallbacksImpl : IDisposable
     _gcHandle = GCHandle.Alloc(this);
   }
 
+  public IntPtr Payload => GCHandle.ToIntPtr(_gcHandle);
+
   public unsafe static int GitRemoteCreateCb(IntPtr @out, IntPtr repo, string name, string url, IntPtr payload)
   {
     try
