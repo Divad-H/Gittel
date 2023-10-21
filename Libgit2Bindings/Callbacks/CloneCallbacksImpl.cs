@@ -2,14 +2,14 @@
 
 namespace Libgit2Bindings.Callbacks;
 
-internal sealed class CloneCallbacks : IDisposable
+internal sealed class CloneCallbacksImpl : IDisposable
 {
   private readonly GCHandle _gcHandle;
 
   private readonly RepositoryCreateHandler? _repositoryCreate;
   private readonly RemoteCreateHandler? _remoteCreate;
 
-  public CloneCallbacks(RepositoryCreateHandler? repositoryCreate, RemoteCreateHandler? remoteCreate)
+  public CloneCallbacksImpl(RepositoryCreateHandler? repositoryCreate, RemoteCreateHandler? remoteCreate)
   {
     _repositoryCreate = repositoryCreate;
     _remoteCreate = remoteCreate;
@@ -22,7 +22,7 @@ internal sealed class CloneCallbacks : IDisposable
     try
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
-      var callbacks = (CloneCallbacks)gcHandle.Target!;
+      var callbacks = (CloneCallbacksImpl)gcHandle.Target!;
       using var managedRepo = new GitRepository(libgit2.GitRepository.__CreateInstance(repo));
       if (callbacks._remoteCreate is null)
       {
@@ -50,7 +50,7 @@ internal sealed class CloneCallbacks : IDisposable
     try
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
-      var callbacks = (CloneCallbacks)gcHandle.Target!;
+      var callbacks = (CloneCallbacksImpl)gcHandle.Target!;
       if (callbacks._repositoryCreate is null)
       {
         return -1;
