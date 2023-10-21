@@ -4,6 +4,14 @@ namespace Libgit2Bindings.Mappers;
 
 internal static class GitOidMapper
 {
+  public static GitOid FromNativePtr(IntPtr nativeOidPtr)
+  {
+    if (nativeOidPtr == IntPtr.Zero)
+      return null;
+    using var nativeOid = libgit2.GitOid.__CreateInstance(nativeOidPtr);
+    return FromNative(nativeOid);
+  }
+
   public static GitOid FromNative(libgit2.GitOid nativeOid)
   {
     return new(nativeOid.Id);
