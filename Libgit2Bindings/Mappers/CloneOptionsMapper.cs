@@ -14,8 +14,8 @@ internal static class CloneOptionsMapper
       libgit2.clone.GitCloneOptionsInit(nativeOptions, 
         (uint)libgit2.GitCloneOptionsVersion.GIT_CLONE_OPTIONS_VERSION);
 
-      nativeOptions.CheckoutOpts = managedOptions.CheckoutOptions.ToNative(disposables);
-      nativeOptions.FetchOpts = managedOptions.FetchOptions.ToNative(disposables);
+      nativeOptions.CheckoutOpts = managedOptions.CheckoutOptions.ToNative(disposables).DisposeWith(disposables);
+      nativeOptions.FetchOpts = managedOptions.FetchOptions.ToNative(disposables).DisposeWith(disposables);
       nativeOptions.Bare = managedOptions.Bare ? 1 : 0;
       nativeOptions.Local = managedOptions.CloneLocal.ToNative();
       nativeOptions.CheckoutBranch = managedOptions.CheckoutBranch;

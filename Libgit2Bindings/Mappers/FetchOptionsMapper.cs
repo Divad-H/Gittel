@@ -13,11 +13,11 @@ internal static class FetchOptionsMapper
       libgit2.remote.GitFetchOptionsInit(nativeOptions, 
                (uint)libgit2.GitFetchOptionsVersion.GIT_FETCH_OPTIONS_VERSION);
 
-      nativeOptions.Callbacks = managedOptions.Callbacks.ToNative(disposables);
+      nativeOptions.Callbacks = managedOptions.Callbacks.ToNative(disposables).DisposeWith(disposables);
       nativeOptions.Prune = managedOptions.Prune.ToNative();
       nativeOptions.UpdateFetchhead = managedOptions.UpdateFetchHead ? 1 : 0;
       nativeOptions.DownloadTags = managedOptions.DownloadTags.ToNative();
-      nativeOptions.ProxyOpts = managedOptions.ProxyOptions?.ToNative(disposables);
+      nativeOptions.ProxyOpts = managedOptions.ProxyOptions?.ToNative(disposables).DisposeWith(disposables);
       nativeOptions.Depth = managedOptions.Depth;
       nativeOptions.FollowRedirects = managedOptions.FollowRedirects.ToNative();
 
