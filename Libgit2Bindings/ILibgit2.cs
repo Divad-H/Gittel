@@ -138,4 +138,13 @@ public interface ILibgit2
   /// <param name="value">value to parse</param>
   /// <returns>the result of the parsing</returns>
   string ParseConfigPath(string value);
+
+  /// <summary>
+  /// Clone a remote repository.
+  /// </summary>
+  /// <param name="url">the remote repository to clone</param>
+  /// <param name="localPath">local directory to clone to</param>
+  /// <param name="options">configuration options for the clone.</param>
+  /// <returns>the resulting repository object</returns>
+  IGitRepository Clone(string url, string localPath, CloneOptions? options = null);
 }

@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Util;
+﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -20,6 +21,16 @@ internal class Libgit2 : ILibgit2, IDisposable
   {
     var res = libgit2.repository.GitRepositoryInit(out var repo, path, isBare ? 1u : 0);
     CheckLibgit2.Check(res, "Unable to initialize repository '{0}'", path);
+    return new GitRepository(repo);
+  }
+
+  public IGitRepository Clone(string url, string localPath, CloneOptions? options = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative(disposable);
+
+    var res = libgit2.clone.GitClone(out var repo, url, localPath, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to clone repository '{0}'", url);
     return new GitRepository(repo);
   }
 
