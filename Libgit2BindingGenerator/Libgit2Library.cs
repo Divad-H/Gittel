@@ -17,6 +17,10 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("StructVersion", "GIT_STATUS_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("PathListSeparator", "GIT_PATH_LIST_SEPARATOR");
     ctx.GenerateEnumFromMacros("GitCheckoutOptionsVersion", "GIT_CHECKOUT_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitCloneOptionsVersion", "GIT_CLONE_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitFetchOptionsVersion", "GIT_FETCH_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitRemoteCallbacksVersion", "GIT_REMOTE_CALLBACKS_VERSION");
+    ctx.GenerateEnumFromMacros("GitProxyOptionsVersion", "GIT_PROXY_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
@@ -26,6 +30,7 @@ internal class Libgit2Library : ILibrary
     var module = options.AddModule("libgit2");
     module.IncludeDirs.Add(@"..\..\..\..\libgit2\include\");
     module.Headers.Add(@"git2.h");
+    module.Headers.Add(@"git2\sys\transport.h");
 
     module.LibraryDirs.Add(@"..\..\..\..\libgit2\build\Debug");
     module.Libraries.Add("git2.lib");
