@@ -299,7 +299,7 @@ internal class RemoteCallbacksImpl : IDisposable
         return -1;
       }
 
-      using var managedRemote = new GitRemote(libgit2.GitRemote.__CreateInstance(owner));
+      using var managedRemote = new GitRemote(libgit2.GitRemote.__CreateInstance(owner), false);
 
       var res = callbacks._transport(out var managedTransport, managedRemote);
       if (res == RemoteOperationContinuation.Continue)
@@ -327,7 +327,7 @@ internal class RemoteCallbacksImpl : IDisposable
         return -1;
       }
 
-      using var managedRemote = new GitRemote(libgit2.GitRemote.__CreateInstance(remote));
+      using var managedRemote = new GitRemote(libgit2.GitRemote.__CreateInstance(remote), false);
       var remoteDirection = GitRemoteDirectionMapper.FromNative((libgit2.GitDirection)direction);
 
       var res = callbacks._remoteReady(managedRemote, remoteDirection);

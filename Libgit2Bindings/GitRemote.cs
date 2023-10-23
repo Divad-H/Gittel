@@ -2,10 +2,17 @@
 
 internal sealed class GitRemote : IGitRemote
 {
+  private readonly bool _ownsNativeInstance;
   public libgit2.GitRemote NativeGitRemote { get; }
-  public GitRemote(libgit2.GitRemote nativeGitRemote)
+  public GitRemote(libgit2.GitRemote nativeGitRemote, bool ownsNativeInstance)
   {
+    _ownsNativeInstance = ownsNativeInstance;
     NativeGitRemote = nativeGitRemote;
+  }
+
+  public int SetUrl(string url)
+  {
+    throw new NotImplementedException();
   }
 
   #region IDisposable Support
@@ -14,7 +21,10 @@ internal sealed class GitRemote : IGitRemote
   {
     if (!_disposedValue)
     {
-      libgit2.remote.GitRemoteFree(NativeGitRemote);
+      if (_ownsNativeInstance)
+      {
+        libgit2.remote.GitRemoteFree(NativeGitRemote);
+      }
       _disposedValue = true;
     }
   }
