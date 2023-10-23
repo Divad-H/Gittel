@@ -1,4 +1,5 @@
 using Libgit2Bindings.Test.Helpers;
+using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test
 {
@@ -58,6 +59,37 @@ namespace Libgit2Bindings.Test
       using var config = repo.GetConfig();
 
       Assert.NotNull(config);
+    }
+
+    [Fact]
+    public void CanCloneLocalRepository()
+    {
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath);
+
+      using var clonedCommit = clonedRepo.LookupCommit(sourceRepo.CommitOid);
+
+      Assert.NotNull(clonedRepo);
+      Assert.Equal(sourceRepo.CommitOid, clonedCommit.GetId());
+    }
+
+    [Fact]
+    public void CanCloneRepositoryBare()
+    {
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+        {
+          Bare = true,
+        });
+
+      Assert.NotNull(clonedRepo);
+      Assert.True(clonedRepo.IsBare());
     }
   }
 }
