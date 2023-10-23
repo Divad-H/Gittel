@@ -186,4 +186,10 @@ public interface IGitRepository : IDisposable
   /// </remarks>
   /// <returns>the new mailmap</returns>
   IGitMailmap GetMailmap();
+
+  /// <summary>
+  /// Check if a repository is bare
+  /// </summary>
+  /// <returns>true if the repository is bare, false otherwise.</returns>
+  bool IsBare();
 }

@@ -182,6 +182,12 @@ internal sealed class GitRepository : IGitRepository
     return new GitMailmap(nativeMailmap);
   }
 
+  public bool IsBare()
+  {
+    var res = libgit2.repository.GitRepositoryIsBare(_nativeGitRepository);
+    return res != 0;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
