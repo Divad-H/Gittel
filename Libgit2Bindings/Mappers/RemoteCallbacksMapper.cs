@@ -31,18 +31,66 @@ internal static class RemoteCallbacksMapper
         .DisposeWith(disposables);
 
       nativeCallbacks.Payload = remoteCallbacksImpl.Payload;
-      nativeCallbacks.Transport = RemoteCallbacksImpl.GitTransportCb;
-      nativeCallbacks.Completion = RemoteCallbacksImpl.GitRemoteCompletionCb;
-      nativeCallbacks.Credentials = RemoteCallbacksImpl.GitCredentialAcquireCb;
-      nativeCallbacks.CertificateCheck = RemoteCallbacksImpl.GitTransportCertificateCheckCb;
-      nativeCallbacks.TransferProgress = RemoteCallbacksImpl.GitTransferProgressCb;
-      nativeCallbacks.UpdateTips = RemoteCallbacksImpl.GitUpdateTipsCb;
-      nativeCallbacks.PackProgress = RemoteCallbacksImpl.GitPackbuilderProgressCb;
-      nativeCallbacks.PushTransferProgress = RemoteCallbacksImpl.GitPushTransferProgressCb;
-      nativeCallbacks.PushUpdateReference = RemoteCallbacksImpl.GitPushUpdateReferenceCb;
-      nativeCallbacks.PushNegotiation = RemoteCallbacksImpl.GitPushNegotiation;
-      nativeCallbacks.Transport = RemoteCallbacksImpl.GitTransportCb;
-      nativeCallbacks.RemoteReady = RemoteCallbacksImpl.GitRemoteReadyCb;
+
+      if (managedCallbacks.TransportMessage is not null)
+      {
+        nativeCallbacks.Transport = RemoteCallbacksImpl.GitTransportCb;
+      }
+
+      if (managedCallbacks.OperationCompleted is not null)
+      {
+        nativeCallbacks.Completion = RemoteCallbacksImpl.GitRemoteCompletionCb;
+      }
+
+      if (managedCallbacks.CredentialAcquire is not null)
+      {
+        nativeCallbacks.Credentials = RemoteCallbacksImpl.GitCredentialAcquireCb;
+      }
+
+      if (managedCallbacks.CertificateCheck is not null)
+      {
+        nativeCallbacks.CertificateCheck = RemoteCallbacksImpl.GitTransportCertificateCheckCb;
+      }
+
+      if (managedCallbacks.TransferProgress is not null)
+      {
+        nativeCallbacks.TransferProgress = RemoteCallbacksImpl.GitTransferProgressCb;
+      }
+
+      if (managedCallbacks.UpdateTips is not null)
+      {
+        nativeCallbacks.UpdateTips = RemoteCallbacksImpl.GitUpdateTipsCb;
+      }
+
+      if (managedCallbacks.PackProgress is not null)
+      {
+        nativeCallbacks.PackProgress = RemoteCallbacksImpl.GitPackbuilderProgressCb;
+      }
+
+      if (managedCallbacks.PushTransferProgress is not null)
+      {
+        nativeCallbacks.PushTransferProgress = RemoteCallbacksImpl.GitPushTransferProgressCb;
+      }
+
+      if (managedCallbacks.PushUpdateReference is not null)
+      {
+        nativeCallbacks.PushUpdateReference = RemoteCallbacksImpl.GitPushUpdateReferenceCb;
+      }
+
+      if (managedCallbacks.PushNegotiation is not null)
+      {
+        nativeCallbacks.PushNegotiation = RemoteCallbacksImpl.GitPushNegotiation;
+      }
+
+      if (managedCallbacks.Transport is not null)
+      {
+        nativeCallbacks.Transport = RemoteCallbacksImpl.GitTransportCb;
+      }
+
+      if (managedCallbacks.RemoteReady is not null)
+      {
+        nativeCallbacks.RemoteReady = RemoteCallbacksImpl.GitRemoteReadyCb;
+      }
 
       return nativeCallbacks;
     }

@@ -17,7 +17,10 @@ internal static class FetchOptionsMapper
       nativeOptions.Prune = managedOptions.Prune.ToNative();
       nativeOptions.UpdateFetchhead = managedOptions.UpdateFetchHead ? 1 : 0;
       nativeOptions.DownloadTags = managedOptions.DownloadTags.ToNative();
-      nativeOptions.ProxyOpts = managedOptions.ProxyOptions?.ToNative(disposables).DisposeWith(disposables);
+      if (managedOptions.ProxyOptions is not null)
+      {
+        nativeOptions.ProxyOpts = managedOptions.ProxyOptions.ToNative(disposables).DisposeWith(disposables);
+      }
       nativeOptions.Depth = managedOptions.Depth;
       nativeOptions.FollowRedirects = managedOptions.FollowRedirects.ToNative();
 
