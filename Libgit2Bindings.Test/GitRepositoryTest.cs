@@ -91,5 +91,25 @@ namespace Libgit2Bindings.Test
       Assert.NotNull(clonedRepo);
       Assert.True(clonedRepo.IsBare());
     }
+
+    [Fact]
+    public void CanCreateRepositoryCustomWhileCloning()
+    {
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+        {
+          RepositoryCreateCallback = (out IGitRepository? repository, string path, bool bare) =>
+          {
+            repository = sourceRepo.Libgit2.InitRepository(path, true);
+            return 0;
+          }
+        });
+
+      Assert.NotNull(clonedRepo);
+      Assert.True(clonedRepo.IsBare());
+    }
   }
 }
