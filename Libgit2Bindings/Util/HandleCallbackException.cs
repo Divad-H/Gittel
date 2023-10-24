@@ -37,7 +37,7 @@ internal static class HandleCallbackException
     Func<int> func = () =>
     {
       var res = action();
-      return res == GitOperationContinuation.Continue ? 0 : -1;
+      return (int)(res == GitOperationContinuation.Continue ? libgit2.GitErrorCode.GIT_OK : libgit2.GitErrorCode.GIT_EUSER);
     };
 
     return func.ExecuteInTryCatch(callbackName);
