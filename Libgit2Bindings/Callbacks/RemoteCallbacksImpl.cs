@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 using System.Runtime.InteropServices;
 
 namespace Libgit2Bindings.Callbacks;
@@ -54,38 +55,33 @@ internal class RemoteCallbacksImpl : IDisposable
 
   public static int GitTransportMessageCb(string message, int len, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
-      callbacks._transportMessage?.Invoke(message);
-      return 0;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._transportMessage?.Invoke(message) ?? GitOperationContinuation.Continue;
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.TransportMessage));
   }
 
   public static int GitRemoteCompletionCb(libgit2.GitRemoteCompletionT type, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       var managedType = type.ToManaged();
       var res = callbacks._operationCompleted?.Invoke(managedType);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return res ?? GitOperationContinuation.Continue;
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.OperationCompleted));
   }
 
   public unsafe static int GitCredentialAcquireCb(IntPtr cred, string url, string usernameFromUrl, uint allowedTypes, IntPtr payload)
   {
-    try
+    Func<int> func = () =>
     {
       void** outPtr = (void**)cred;
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
@@ -94,7 +90,7 @@ internal class RemoteCallbacksImpl : IDisposable
       if (callbacks._credentialAcquire is null)
       {
         *outPtr = (void*)IntPtr.Zero;
-        return -1;
+        return (int)libgit2.GitErrorCode.GIT_EUSER;
       }
 
       var nativeAllowedTypes = (libgit2.GitCredentialT)allowedTypes;
@@ -106,167 +102,148 @@ internal class RemoteCallbacksImpl : IDisposable
         if (credential is not GitCredential managedCredential)
         {
           *outPtr = (void*)IntPtr.Zero;
-          return -1;
+          return (int)libgit2.GitErrorCode.GIT_EUSER;
         }
 
         *outPtr = (void*)managedCredential.NativeGitCredential.__Instance;
         managedCredential.Release();
         return res;
       }
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.CredentialAcquire));
   }
 
   public static int GitTransportCertificateCheckCb(IntPtr cert, int valid, string host, IntPtr payload)
   {
-    try
+    Func<int> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._certificateCheck is null)
       {
-        return -1;
+        return (int)libgit2.GitErrorCode.GIT_EUSER;
       }
 
       using var managedCert = new GitCertificate(libgit2.GitCert.__CreateInstance(cert));
       var res = callbacks._certificateCheck(managedCert, valid != 0, host);
       return res;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.CertificateCheck));
   }
 
   public static int GitTransferProgressCb(IntPtr stats, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._transferProgress is null)
       {
-        return -1;
+        return GitOperationContinuation.Continue;
       }
 
       var managedStats = GitIndexerProgressMapper.FromNativePtr(stats);
       if (managedStats is null)
       {
-        return 0;
+        return GitOperationContinuation.Continue;
       }
 
-      var res = callbacks._transferProgress(managedStats);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._transferProgress(managedStats);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.TransferProgress));
   }
 
   public static int GitUpdateTipsCb(string refname, IntPtr a, IntPtr b, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._updateTips is null)
       {
-        return -1;
+        return GitOperationContinuation.Continue;
       }
 
       var oldOid = GitOidMapper.FromNativePtr(a);
       var newOid = GitOidMapper.FromNativePtr(b);
 
-      var res = callbacks._updateTips(refname, oldOid, newOid);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._updateTips(refname, oldOid, newOid);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.UpdateTips));
   }
 
   public static int GitPackbuilderProgressCb(int stage, uint current, uint total, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._packProgress is null)
       {
-        return -1;
+        return GitOperationContinuation.Continue;
       }
 
       var managedStage = ((libgit2.GitPackbuilderStageT)stage).ToManaged();
-      var res = callbacks._packProgress(managedStage, current, total);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._packProgress(managedStage, current, total);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.PackProgress));
   }
 
   public static int GitPushTransferProgressCb(uint current, uint total, ulong bytes, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._pushTransferProgress is null)
       {
-        return -1;
+        return GitOperationContinuation.Continue;
       }
 
-      var res = callbacks._pushTransferProgress(current, total, bytes);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._pushTransferProgress(current, total, bytes);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.PushTransferProgress));
   }
 
   public static int GitPushUpdateReferenceCb(string refname, string status, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._pushUpdateReference is null)
       {
-        return -1;
+        return GitOperationContinuation.Continue;
       }
 
-      var res = callbacks._pushUpdateReference(refname, status);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._pushUpdateReference(refname, status);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.PushUpdateReference));
   }
 
   public static int GitPushNegotiation(IntPtr updates, UInt64 len, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._pushNegotiation is null)
       {
-        return -1;
+        return GitOperationContinuation.Stop;
       }
 
       List<GitPushUpdate> managedUpdates = new();
@@ -277,18 +254,15 @@ internal class RemoteCallbacksImpl : IDisposable
         managedUpdates.Add(managedUpdate);
       }
 
-      var res = callbacks._pushNegotiation(managedUpdates);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._pushNegotiation(managedUpdates);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.PushNegotiation));
   }
 
   public unsafe static int GitTransportCb(IntPtr @out, IntPtr owner, IntPtr payload)
   {
-    try
+    Func<int> func = () =>
     {
       void** outPtr = (void**)@out;
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
@@ -296,47 +270,42 @@ internal class RemoteCallbacksImpl : IDisposable
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._transport is null)
       {
-        return -1;
+        return (int)libgit2.GitErrorCode.GIT_EUSER;
       }
 
       using var managedRemote = new GitRemote(libgit2.GitRemote.__CreateInstance(owner), false);
 
       var res = callbacks._transport(out var managedTransport, managedRemote);
-      if (res == RemoteOperationContinuation.Continue)
+      if (res == GitOperationContinuation.Continue)
       {
         *outPtr = (void*)managedRemote.NativeGitRemote.__Instance;
-        return 0;
+        return (int)libgit2.GitErrorCode.GIT_OK;
       }
-      return -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return (int)libgit2.GitErrorCode.GIT_EUSER;
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.Transport));
   }
 
   public static int GitRemoteReadyCb(IntPtr remote, int direction, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
 
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._remoteReady is null)
       {
-        return -1;
+        return GitOperationContinuation.Continue;
       }
 
       using var managedRemote = new GitRemote(libgit2.GitRemote.__CreateInstance(remote), false);
       var remoteDirection = GitRemoteDirectionMapper.FromNative((libgit2.GitDirection)direction);
 
-      var res = callbacks._remoteReady(managedRemote, remoteDirection);
-      return res == RemoteOperationContinuation.Continue ? 0 : -1;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return callbacks._remoteReady(managedRemote, remoteDirection);
+    };
+
+    return func.ExecuteInTryCatch(nameof(RemoteCallbacks.RemoteReady));
   }
 
   public void Dispose()

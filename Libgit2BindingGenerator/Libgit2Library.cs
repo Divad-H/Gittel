@@ -30,6 +30,7 @@ internal class Libgit2Library : ILibrary
     var module = options.AddModule("libgit2");
     module.IncludeDirs.Add(@"..\..\..\..\libgit2\include\");
     module.Headers.Add(@"git2.h");
+    module.Headers.Add(@"git2\sys\errors.h");
     module.Headers.Add(@"git2\sys\transport.h");
 
     module.LibraryDirs.Add(@"..\..\..\..\libgit2\build\Debug");

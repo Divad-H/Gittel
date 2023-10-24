@@ -23,7 +23,7 @@ internal class GitConfigForeachCallback : IDisposable
     using var entryStruct = libgit2.GitConfigEntry.__CreateInstance(entry);
     var callbacks = (GitConfigForeachCallback)gcHandle.Target!;
     callbacks._entries.Add(GitConfigEntryMapper.FromNative(entryStruct));
-    return 0;
+    return (int)libgit2.GitErrorCode.GIT_OK;
   }
 
   public void Dispose()

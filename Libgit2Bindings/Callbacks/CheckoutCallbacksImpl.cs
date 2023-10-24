@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using Libgit2Bindings.Util;
+using System.Runtime.InteropServices;
 
 namespace Libgit2Bindings.Callbacks;
 
@@ -21,7 +22,7 @@ internal sealed class CheckoutCallbacksImpl : IDisposable
 
   public static int GitCheckoutNotifyCb(global::libgit2.GitCheckoutNotifyT why, string path, IntPtr baseline, IntPtr target, IntPtr workdir, IntPtr payload)
   {
-    try
+    Func<GitOperationContinuation> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (CheckoutCallbacksImpl)gcHandle.Target!;
@@ -30,14 +31,10 @@ internal sealed class CheckoutCallbacksImpl : IDisposable
       var targetDiffFile = Mappers.DiffFileMapper.FromNativePtr(target);
       var workdirDiffFile = Mappers.DiffFileMapper.FromNativePtr(workdir);
       var res = callbacks._notify?.Invoke(managedWhy, path, baselineDiffFile, targetDiffFile, workdirDiffFile);
-      if (res.HasValue)
-        return res.Value == CheckoutNotifyAction.Continue ? 0 : -1;
-      return 0;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+      return res ?? GitOperationContinuation.Continue;
+    };
+    
+    return func.ExecuteInTryCatch(nameof(GitCheckoutNotifyCb));
   }
 
   public static void GitCheckoutProgressCb(string path, ulong completed_steps, ulong total_steps, IntPtr payload)

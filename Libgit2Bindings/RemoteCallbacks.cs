@@ -1,6 +1,6 @@
 ﻿namespace Libgit2Bindings;
 
-public enum RemoteOperationContinuation
+public enum GitOperationContinuation
 {
   Continue,
   Stop,
@@ -53,14 +53,14 @@ public static class CallbackResults
 /// </summary>
 /// <param name="message">The message from the transport</param>
 /// <returns>Whether to continue the operation.</returns>
-public delegate RemoteOperationContinuation TransportMessageHandler(string message);
+public delegate GitOperationContinuation TransportMessageHandler(string message);
 /// <summary>
 /// Completion is called when different parts of the download
 /// process are done(currently unused).
 /// </summary>
 /// <param name="type">part of the download</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation OperationCompletedHandler(RemoteCompletionType type);
+public delegate GitOperationContinuation OperationCompletedHandler(RemoteCompletionType type);
 /// <summary>
 /// Credential acquisition callback.
 /// </summary>
@@ -94,7 +94,7 @@ public delegate int TransportCertificateCheckHandler(IGitCertificate certificate
 /// </summary>
 /// <param name="stats">Record containing information about the state of the transfer</param>
 /// <returns>Whether to continue the operation.</returns>
-public delegate RemoteOperationContinuation IndexerProgressHandler(GitIndexerProgress stats);
+public delegate GitOperationContinuation IndexerProgressHandler(GitIndexerProgress stats);
 /// <summary>
 /// Each time a reference is updated locally, this function
 /// will be called with information about it.
@@ -103,7 +103,7 @@ public delegate RemoteOperationContinuation IndexerProgressHandler(GitIndexerPro
 /// <param name="oldOid">The old object id</param>
 /// <param name="newOid">The new object id</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation UpdateTipsHandler(string refname, GitOid oldOida, GitOid newOid);
+public delegate GitOperationContinuation UpdateTipsHandler(string refname, GitOid oldOida, GitOid newOid);
 /// <summary>
 /// Function to call with progress information during pack
 /// building.Be aware that this is called inline with pack
@@ -113,7 +113,7 @@ public delegate RemoteOperationContinuation UpdateTipsHandler(string refname, Gi
 /// <param name="current">current object</param>
 /// <param name="total">total objects</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation PackbuilderProgressHandler(PackbuilderStage stage, UInt32 current, UInt32 total);
+public delegate GitOperationContinuation PackbuilderProgressHandler(PackbuilderStage stage, UInt32 current, UInt32 total);
 /// <summary>
 /// Function to call with progress information during the upload portion of a push.
 /// Be aware that this is called inline with pack 
@@ -123,7 +123,7 @@ public delegate RemoteOperationContinuation PackbuilderProgressHandler(Packbuild
 /// <param name="total">total objects</param>
 /// <param name="bytes">Bytes transferred</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation PushTransferProgressHandler(UInt32 current, UInt32 total, UInt64 bytes);
+public delegate GitOperationContinuation PushTransferProgressHandler(UInt32 current, UInt32 total, UInt64 bytes);
 /// <summary>
 /// Callback used to inform of the update status from the remote.
 /// </summary>
@@ -134,19 +134,19 @@ public delegate RemoteOperationContinuation PushTransferProgressHandler(UInt32 c
 /// <param name="referenceName">efname specifying to the remote ref</param>
 /// <param name="status">status message sent from the remote</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation PushUpdateReferenceHandler(string referenceName, string? status);
+public delegate GitOperationContinuation PushUpdateReferenceHandler(string referenceName, string? status);
 /// <summary>
 /// Called once between the negotiation step and the upload. 
 /// It provides information about what updates will be performed.
 /// </summary>
 /// <param name="updates">an array containing the updates which will be sent as commands to the destination.</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation PushNegotiationHandler(IReadOnlyCollection<GitPushUpdate> updates);
+public delegate GitOperationContinuation PushNegotiationHandler(IReadOnlyCollection<GitPushUpdate> updates);
 /// <summary>
 /// Create the transport to use for this operation. Leave null to auto-detect.
 /// </summary>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation TransportHandler(out IGitTransport? transport, IGitRemote remote);
+public delegate GitOperationContinuation TransportHandler(out IGitTransport? transport, IGitRemote remote);
 /// <summary>
 /// Callback when the remote is ready to connect.
 /// </summary>
@@ -158,7 +158,7 @@ public delegate RemoteOperationContinuation TransportHandler(out IGitTransport? 
 /// <param name="remote">The remote to be connected</param>
 /// <param name="direction">The direction of the operation</param>
 /// <returns>Whether to continue the operation</returns>
-public delegate RemoteOperationContinuation RemoteReadyHandler(IGitRemote remote, GitRemoteDirection direction);
+public delegate GitOperationContinuation RemoteReadyHandler(IGitRemote remote, GitRemoteDirection direction);
 
 public record RemoteCallbacks
 {

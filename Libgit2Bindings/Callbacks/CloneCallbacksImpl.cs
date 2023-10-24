@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using Libgit2Bindings.Util;
+using System.Runtime.InteropServices;
 
 namespace Libgit2Bindings.Callbacks;
 
@@ -21,57 +22,53 @@ internal sealed class CloneCallbacksImpl : IDisposable
 
   public unsafe static int GitRemoteCreateCb(IntPtr @out, IntPtr repo, string name, string url, IntPtr payload)
   {
-    try
+    Func<int> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (CloneCallbacksImpl)gcHandle.Target!;
       using var managedRepo = new GitRepository(libgit2.GitRepository.__CreateInstance(repo));
       if (callbacks._remoteCreate is null)
       {
-        return -1;
+        return (int)libgit2.GitErrorCode.GIT_EUSER;
       }
       var res = callbacks._remoteCreate(out var remote, managedRepo, name, url);
       if (res == 0)
       {
         var managedRemote = remote as GitRemote;
         if (managedRemote is null)
-          return -1;
+          return (int)libgit2.GitErrorCode.GIT_EUSER;
         void** ptr = (void**)@out;
         *ptr = (void*)managedRemote.NativeGitRemote.__Instance;
       }
       return res;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+    };
+
+    return func.ExecuteInTryCatch(nameof(CloneOptions.RemoteCreateCallback));
   }
 
   public unsafe static int GitRepositoryCreateCb(IntPtr @out, string path, int bare, IntPtr payload)
   {
-    try
+    Func<int> func = () =>
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (CloneCallbacksImpl)gcHandle.Target!;
       if (callbacks._repositoryCreate is null)
       {
-        return -1;
+        return (int)libgit2.GitErrorCode.GIT_EUSER;
       }
       var res = callbacks._repositoryCreate(out var repository, path, bare != 0);
       if (res == 0)
       {
         var managedRepository = repository as GitRepository;
         if (managedRepository is null)
-          return -1;
+          return (int)libgit2.GitErrorCode.GIT_EUSER;
         void** ptr = (void**)@out;
         *ptr = (void*)managedRepository.NativeGitRepository.__Instance;
       }
       return res;
-    }
-    catch (Exception)
-    {
-      return -1;
-    }
+    };
+
+    return func.ExecuteInTryCatch(nameof(CloneOptions.RepositoryCreateCallback));
   }
 
   public void Dispose()
