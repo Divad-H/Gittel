@@ -1,5 +1,4 @@
-﻿using Libgit2Bindings.Callbacks;
-using Libgit2Bindings.Mappers;
+﻿using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
@@ -186,6 +185,20 @@ internal sealed class GitRepository : IGitRepository
   {
     var res = libgit2.repository.GitRepositoryIsBare(_nativeGitRepository);
     return res != 0;
+  }
+
+  public IGitRemote CreateRemote(string name, string url)
+  {
+    var res = libgit2.remote.GitRemoteCreate(out var remote, _nativeGitRepository, name, url);
+    CheckLibgit2.Check(res, "Unable to create remote");
+    return new GitRemote(remote, true);
+  }
+
+  public IGitRemote LookupRemote(string name)
+  {
+    var res = libgit2.remote.GitRemoteLookup(out var remote, _nativeGitRepository, name);
+    CheckLibgit2.Check(res, "Unable to lookup remote");
+    return new GitRemote(remote, true);
   }
 
   #region IDisposable Support

@@ -192,4 +192,19 @@ public interface IGitRepository : IDisposable
   /// </summary>
   /// <returns>true if the repository is bare, false otherwise.</returns>
   bool IsBare();
+
+  /// <summary>
+  /// Add a remote with the default fetch refspec to the repository's configuration.
+  /// </summary>
+  /// <param name="name">the remote's name</param>
+  /// <param name="url">the remote's url</param>
+  /// <returns>the resulting remote</returns>
+  IGitRemote CreateRemote(string name, string url);
+
+  /// <summary>
+  /// Get the information for a particular remote
+  /// </summary>
+  /// <param name="name">the remote's name</param>
+  /// <returns>the new remote object</returns>
+  IGitRemote LookupRemote(string name);
 }
