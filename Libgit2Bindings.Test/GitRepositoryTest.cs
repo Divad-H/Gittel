@@ -184,5 +184,24 @@ namespace Libgit2Bindings.Test
       Assert.NotNull(clonedRepo);
       Assert.NotNull(clonedBranch);
     }
+
+    [Fact]
+    public void CanCloneWithCustomCheckoutStrategy()
+    {
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+        {
+          CheckoutOptions = new CheckoutOptions
+          {
+            Strategy = CheckoutStrategy.None,
+          }
+        });
+
+      Assert.NotNull(clonedRepo);
+      Assert.False(File.Exists(Path.Combine(tempDirectory.DirectoryPath, RepoWithOneCommit.Filename)));
+    }
   }
 }
