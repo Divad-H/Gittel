@@ -163,7 +163,7 @@ public enum CheckoutNotifyFlags
 /// Checkout notification callback function
 /// </summary>
 public delegate GitOperationContinuation CheckoutNotifyHandler(CheckoutNotifyFlags why, string path, DiffFile? baseline, DiffFile? target, DiffFile? workdir);
-public delegate void CheckoutProgressHandler(string path, UInt64 completedSteps, UInt64 totalSteps);
+public delegate void CheckoutProgressHandler(string? path, UInt64 completedSteps, UInt64 totalSteps);
 
 public record CheckoutOptions
 {

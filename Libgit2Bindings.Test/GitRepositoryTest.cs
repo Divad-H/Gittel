@@ -238,5 +238,31 @@ namespace Libgit2Bindings.Test
       }
       Assert.True(caughtException);
     }
+
+    [Fact]
+    public void CanCloneWithCustomCheckoutProgress()
+    {
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      bool callbackCalled = false;
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+        {
+          CheckoutOptions = new CheckoutOptions
+          {
+            ProgressCallback = (string? path, UInt64 completedSteps, UInt64 totalSteps) =>
+            {
+              if (path?.EndsWith(RepoWithOneCommit.Filename) ?? true)
+              {
+                callbackCalled = true;
+              }
+            }
+          }
+        });
+
+      Assert.NotNull(clonedRepo);
+      Assert.True(callbackCalled);
+    }
   }
 }
