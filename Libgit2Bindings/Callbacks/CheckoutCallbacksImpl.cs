@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Util;
+﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 using System.Runtime.InteropServices;
 
 namespace Libgit2Bindings.Callbacks;
@@ -9,11 +10,16 @@ internal sealed class CheckoutCallbacksImpl : IDisposable
 
   private readonly CheckoutNotifyHandler? _notify;
   private readonly CheckoutProgressHandler? _progress;
+  private readonly PerformanceDataHandler? _performanceData;
 
-  public CheckoutCallbacksImpl(CheckoutNotifyHandler? notify, CheckoutProgressHandler? progress)
+  public CheckoutCallbacksImpl(
+    CheckoutNotifyHandler? notify, 
+    CheckoutProgressHandler? progress,
+    PerformanceDataHandler? performanceData)
   {
     _notify = notify;
     _progress = progress;
+    _performanceData = performanceData;
 
     _gcHandle = GCHandle.Alloc(this);
   }
@@ -44,6 +50,21 @@ internal sealed class CheckoutCallbacksImpl : IDisposable
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (CheckoutCallbacksImpl)gcHandle.Target!;
       callbacks._progress?.Invoke(path, completed_steps, total_steps);
+    }
+    catch (Exception)
+    {
+      // ignored
+    }
+  }
+
+  public static void GitPerformanceDataCb(IntPtr perfdata, IntPtr payload)
+  {
+    try
+    {
+      GCHandle gcHandle = GCHandle.FromIntPtr(payload);
+      var callbacks = (CheckoutCallbacksImpl)gcHandle.Target!;
+      var managedPerfdata = PerfromanceDataMapper.FromNativePtr(perfdata);
+      callbacks._performanceData?.Invoke(managedPerfdata);
     }
     catch (Exception)
     {

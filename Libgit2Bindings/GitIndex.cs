@@ -4,22 +4,22 @@ namespace Libgit2Bindings;
 
 internal sealed class GitIndex : IGitIndex
 {
-  private readonly libgit2.GitIndex _nativeGitIndex;
+  public libgit2.GitIndex NativeGitIndex { get; }
 
   public GitIndex(libgit2.GitIndex nativeGitIndex)
   {
-    _nativeGitIndex = nativeGitIndex;
+    NativeGitIndex = nativeGitIndex;
   }
 
   public void AddByPath(string path)
   {
-    var res = libgit2.index.GitIndexAddBypath(_nativeGitIndex, path);
+    var res = libgit2.index.GitIndexAddBypath(NativeGitIndex, path);
     CheckLibgit2.Check(res, "Unable to add path '{0}' to index", path);
   }
 
   public GitOid WriteTree()
   {
-    var res = libgit2.index.GitIndexWriteTree(out var treeOid, _nativeGitIndex);
+    var res = libgit2.index.GitIndexWriteTree(out var treeOid, NativeGitIndex);
     using (treeOid)
     {
       CheckLibgit2.Check(res, "Unable to write tree");
@@ -29,7 +29,7 @@ internal sealed class GitIndex : IGitIndex
 
   public void Write()
   {
-    var res = libgit2.index.GitIndexWrite(_nativeGitIndex);
+    var res = libgit2.index.GitIndexWrite(NativeGitIndex);
     CheckLibgit2.Check(res, "Unable to write index");
   }
 
@@ -39,7 +39,7 @@ internal sealed class GitIndex : IGitIndex
   {
     if (!_disposedValue)
     {
-      libgit2.index.GitIndexFree(_nativeGitIndex);
+      libgit2.index.GitIndexFree(NativeGitIndex);
       _disposedValue = true;
     }
   }

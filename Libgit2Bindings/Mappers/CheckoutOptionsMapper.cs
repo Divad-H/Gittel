@@ -19,8 +19,14 @@ internal static class CheckoutOptionsMapper
         return nativeOptions;
       }
 
-      var callbacks = managedOptions.NotifyCallback is not null || managedOptions.ProgressCallback is not null
-        ? new CheckoutCallbacksImpl(managedOptions.NotifyCallback, managedOptions.ProgressCallback).DisposeWith(disposables)
+      var callbacks = managedOptions.NotifyCallback is not null 
+        || managedOptions.ProgressCallback is not null
+        || managedOptions.PerformanceDataCallback is not null
+        ? new CheckoutCallbacksImpl(
+            managedOptions.NotifyCallback, 
+            managedOptions.ProgressCallback,
+            managedOptions.PerformanceDataCallback
+          ).DisposeWith(disposables)
         : null;
 
       nativeOptions.CheckoutStrategy = (uint)CheckoutStrategyMapper.ToNative(managedOptions.Strategy);
@@ -39,6 +45,11 @@ internal static class CheckoutOptionsMapper
           nativeOptions.ProgressCb = CheckoutCallbacksImpl.GitCheckoutProgressCb;
           nativeOptions.ProgressPayload = callbacks.Payload;
         }
+        if (managedOptions.PerformanceDataCallback is not null)
+        {
+          nativeOptions.PerfdataCb = CheckoutCallbacksImpl.GitPerformanceDataCb;
+          nativeOptions.PerfdataPayload = callbacks.Payload;
+        }
       }
 
       if (managedOptions.Paths is not null)
@@ -46,6 +57,13 @@ internal static class CheckoutOptionsMapper
         var gitStrArray = new GitStrArrayImpl(managedOptions.Paths).DisposeWith(disposables);
         nativeOptions.Paths = gitStrArray.NativeStrArray;
       }
+
+      nativeOptions.Baseline = (managedOptions.Baseline as GitTree)?.NativeGitTree;
+      nativeOptions.BaselineIndex = (managedOptions.BaselineIndex as GitIndex)?.NativeGitIndex;
+      nativeOptions.TargetDirectory = managedOptions.TargetDirectory;
+      nativeOptions.AncestorLabel = managedOptions.AncestorLabel;
+      nativeOptions.OurLabel = managedOptions.OurLabel;
+      nativeOptions.TheirLabel = managedOptions.TheirLabel;
 
       return nativeOptions;
     }

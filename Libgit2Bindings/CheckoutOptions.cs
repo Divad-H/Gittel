@@ -165,6 +165,9 @@ public enum CheckoutNotifyFlags
 public delegate GitOperationContinuation CheckoutNotifyHandler(CheckoutNotifyFlags why, string path, DiffFile? baseline, DiffFile? target, DiffFile? workdir);
 public delegate void CheckoutProgressHandler(string? path, UInt64 completedSteps, UInt64 totalSteps);
 
+public record PerformanceData(UInt64 MkdirCalls, UInt64 StatCalls, UInt64 ChmodCalls);
+public delegate void PerformanceDataHandler(PerformanceData data);
+
 public record CheckoutOptions
 {
   /// <summary>
@@ -200,5 +203,40 @@ public record CheckoutOptions
   /// </summary>
   public IReadOnlyCollection<string>? Paths { get; init; }
 
+  /// <summary>
+  /// The expected content of the working directory; defaults to HEAD. 
+  /// If the working directory does not match this baseline information, that will produce a checkout conflict.
+  /// </summary>
+  public IGitTree? Baseline { get; init; }
+
+  /// <summary>
+  /// Like <see cref="Baseline"/> above, though expressed as an index. This option overrides <see cref="Baseline"/>.
+  /// </summary>
+  public IGitIndex? BaselineIndex { get; init; }
+
+  /// <summary>
+  /// alternative checkout path to workdir
+  /// </summary>
+  public string? TargetDirectory { get; init; }
+
+  /// <summary>
+  /// the name of the common ancestor side of conflicts
+  /// </summary>
+  public string? AncestorLabel { get; init; }
+
+  /// <summary>
+  /// the name of the "our" side of conflicts
+  /// </summary>
+  public string? OurLabel { get; init; }
+
+  /// <summary>
+  /// the name of the "their" side of conflicts
+  /// </summary>
+  public string? TheirLabel { get; init; }
+
+  /// <summary>
+  /// Optional callback to notify the consumer of performance data. 
+  /// </summary>
+  public PerformanceDataHandler? PerformanceDataCallback { get; init; }
 }
   
