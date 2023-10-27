@@ -198,7 +198,7 @@ public record CheckoutOptions
   ///
   /// Use <see cref="CheckoutStrategy.DisablePathspecMatch"/> to treat as a simple list.
   /// </summary>
-  public ImmutableArray<string>? Paths { get; init; }
+  public IReadOnlyCollection<string>? Paths { get; init; }
 
 }
   

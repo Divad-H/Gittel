@@ -41,6 +41,12 @@ internal static class CheckoutOptionsMapper
         }
       }
 
+      if (managedOptions.Paths is not null)
+      {
+        var gitStrArray = new GitStrArrayImpl(managedOptions.Paths).DisposeWith(disposables);
+        nativeOptions.Paths = gitStrArray.NativeStrArray;
+      }
+
       return nativeOptions;
     }
     catch (Exception)
