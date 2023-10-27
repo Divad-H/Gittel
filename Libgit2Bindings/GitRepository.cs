@@ -225,6 +225,41 @@ internal sealed class GitRepository : IGitRepository
     return new GitRemote(remote, true);
   }
 
+  public IGitAnnotatedCommit GetAnnotatedCommitFromFetchhead(string branchName, string remoteUrl, GitOid Id)
+  {
+    using var nativeId = GitOidMapper.ToNative(Id);
+    var res = libgit2.annotated_commit.GitAnnotatedCommitFromFetchhead(
+      out var nativeAnnotatedCommit, _nativeGitRepository, branchName, remoteUrl, nativeId);
+    CheckLibgit2.Check(res, "Unable to get annotated commit from fetchhead");
+    return new GitAnnotatedCommit(nativeAnnotatedCommit);
+  }
+
+  public IGitAnnotatedCommit GetAnnotatedCommitFromRef(IGitReference gitReferencee)
+  {
+    var managedReference = GittelObjects.DowncastNonNull<GitReference>(gitReferencee);
+    var res = libgit2.annotated_commit.GitAnnotatedCommitFromRef(
+      out var nativeAnnotatedCommit, _nativeGitRepository, managedReference.NativeGitReference);
+    CheckLibgit2.Check(res, "Unable to get annotated commit from ref");
+    return new GitAnnotatedCommit(nativeAnnotatedCommit);
+  }
+
+  public IGitAnnotatedCommit GetAnnotatedCommitFromRevspec(string refspec)
+  {
+    var res = libgit2.annotated_commit.GitAnnotatedCommitFromRevspec(
+      out var nativeAnnotatedCommit, _nativeGitRepository, refspec);
+    CheckLibgit2.Check(res, "Unable to get annotated commit from revspec");
+    return new GitAnnotatedCommit(nativeAnnotatedCommit);
+  }
+
+  public IGitAnnotatedCommit AnnotatedCommitLookup(GitOid id)
+  {
+    using var nativeId = GitOidMapper.ToNative(id);
+    var res = libgit2.annotated_commit.GitAnnotatedCommitLookup(
+      out var nativeAnnotatedCommit, _nativeGitRepository, nativeId);
+    CheckLibgit2.Check(res, "Unable to lookup annotated commit");
+    return new GitAnnotatedCommit(nativeAnnotatedCommit);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

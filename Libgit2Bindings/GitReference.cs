@@ -2,16 +2,16 @@
 
 internal class GitReference : IGitReference
 {
-  private readonly libgit2.GitReference _nativeGitReference;
+  public libgit2.GitReference NativeGitReference { get; }
 
   public GitReference(libgit2.GitReference nativeGitReference)
   {
-    _nativeGitReference = nativeGitReference;
+    NativeGitReference = nativeGitReference;
   }
 
   public string BranchName()
   {
-    var res = libgit2.branch.GitBranchName(out var name, _nativeGitReference);
+    var res = libgit2.branch.GitBranchName(out var name, NativeGitReference);
     CheckLibgit2.Check(res, "Unable to get branch name");
     return name;
   }
@@ -22,7 +22,7 @@ internal class GitReference : IGitReference
   {
     if (!_disposedValue)
     {
-      libgit2.refs.GitReferenceFree(_nativeGitReference);
+      libgit2.refs.GitReferenceFree(NativeGitReference);
       _disposedValue = true;
     }
   }

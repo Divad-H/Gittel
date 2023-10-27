@@ -225,4 +225,38 @@ public interface IGitRepository : IDisposable
   /// <param name="name">the remote's name</param>
   /// <returns>the new remote object</returns>
   IGitRemote LookupRemote(string name);
+
+  /// <summary>
+  /// Creates a <see cref="IGitAnnotatedCommit"/> from the given fetch head data.
+  /// </summary>
+  /// <param name="branchName">name of the (remote) branch</param>
+  /// <param name="remoteUrl">url of the remote</param>
+  /// <param name="Id">the commit object id of the remote branch</param>
+  /// <returns>The annotated commit</returns>
+  IGitAnnotatedCommit GetAnnotatedCommitFromFetchhead(string branchName, string remoteUrl, GitOid Id);
+
+  /// <summary>
+  /// Creates a <see cref="IGitAnnotatedCommit"/> from the given reference.
+  /// </summary>
+  /// <param name="gitReference">reference to use to lookup the <see cref="IGitAnnotatedCommit"/></param>
+  /// <returns>The annotated commit</returns>
+  IGitAnnotatedCommit GetAnnotatedCommitFromRef(IGitReference gitReference);
+
+  /// <summary>
+  /// Creates a <see cref="IGitAnnotatedCommit"/> from the given refspec.
+  /// </summary>
+  /// <remarks>
+  /// See man gitrevisions, or http://git-scm.com/docs/git-rev-parse.html#_specifying_revisions 
+  /// for information on the syntax accepted.
+  /// </remarks>
+  /// <param name="refspec">the extended sha syntax string to use to lookup the commit</param>
+  /// <returns>The annotated commit</returns>
+  IGitAnnotatedCommit GetAnnotatedCommitFromRevspec(string refspec);
+
+  /// <summary>
+  /// Creates a <see cref="IGitAnnotatedCommit"/> from the given id.
+  /// </summary>
+  /// <param name="id">the commit object id to lookup</param>
+  /// <returns>The annotated commit</returns>
+  IGitAnnotatedCommit AnnotatedCommitLookup(GitOid id);
 }
