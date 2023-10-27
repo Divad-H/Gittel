@@ -3,7 +3,7 @@
 public enum GitOperationContinuation
 {
   Continue,
-  Stop,
+  Cancel,
 }
 
 public enum RemoteCompletionType

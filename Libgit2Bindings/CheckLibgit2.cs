@@ -29,6 +29,6 @@ internal static class CheckLibgit2
       message = string.Format("{0} [{1}] - Unknown Error", message, result);
     }
 
-    throw new Libgit2Exception(message);
+    throw new Libgit2Exception(message, result);
   } 
 }

@@ -19,7 +19,7 @@ internal static class CheckoutOptionsMapper
         return nativeOptions;
       }
 
-      using var callbacks = managedOptions.NotifyCallback is not null || managedOptions.ProgressCallback is not null
+      var callbacks = managedOptions.NotifyCallback is not null || managedOptions.ProgressCallback is not null
         ? new CheckoutCallbacksImpl(managedOptions.NotifyCallback, managedOptions.ProgressCallback).DisposeWith(disposables)
         : null;
 

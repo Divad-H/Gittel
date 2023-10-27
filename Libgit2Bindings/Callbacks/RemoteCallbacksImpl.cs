@@ -243,7 +243,7 @@ internal class RemoteCallbacksImpl : IDisposable
       var callbacks = (RemoteCallbacksImpl)gcHandle.Target!;
       if (callbacks._pushNegotiation is null)
       {
-        return GitOperationContinuation.Stop;
+        return GitOperationContinuation.Cancel;
       }
 
       List<GitPushUpdate> managedUpdates = new();

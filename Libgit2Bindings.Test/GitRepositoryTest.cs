@@ -203,5 +203,40 @@ namespace Libgit2Bindings.Test
       Assert.NotNull(clonedRepo);
       Assert.False(File.Exists(Path.Combine(tempDirectory.DirectoryPath, RepoWithOneCommit.Filename)));
     }
+
+    [Fact]
+    public void CanAbortCloneInNotifyCallback()
+    {
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      bool caughtException = false;
+      try
+      {
+        using var clonedRepo = sourceRepo.Libgit2.Clone(
+          sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+          {
+            CheckoutOptions = new CheckoutOptions
+            {
+              NotifyFlags = CheckoutNotifyFlags.Updated,
+              NotifyCallback = (CheckoutNotifyFlags why, string path, DiffFile? baseline, DiffFile? target, DiffFile? workdir) =>
+              {
+                if (why == CheckoutNotifyFlags.Updated && path.EndsWith(RepoWithOneCommit.Filename))
+                {
+                  return GitOperationContinuation.Cancel;
+                }
+                return GitOperationContinuation.Continue;
+              }
+            }
+          });
+      }
+      catch (Libgit2Exception ex)
+      {
+        Assert.Equal(-7, ex.ErrorCode);
+        caughtException = true;
+        return;
+      }
+      Assert.True(caughtException);
+    }
   }
 }

@@ -2,7 +2,10 @@
 
 public class Libgit2Exception : Exception
 {
-  public Libgit2Exception(string message) : base(message)
+  public int ErrorCode { get; }
+
+  public Libgit2Exception(string message, int errorCode) : base(message)
   {
+    ErrorCode = errorCode;
   }
 }
