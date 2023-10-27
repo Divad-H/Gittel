@@ -6,11 +6,18 @@ namespace Libgit2Bindings;
 internal sealed class GitRepository : IGitRepository
 {
   private readonly libgit2.GitRepository _nativeGitRepository;
+  private bool _ownsNativeInstance;
   public libgit2.GitRepository NativeGitRepository => _nativeGitRepository;
 
-  public GitRepository(libgit2.GitRepository nativeGitRepository)
+  public GitRepository(libgit2.GitRepository nativeGitRepository, bool ownsNativeInstance)
   {
     _nativeGitRepository = nativeGitRepository;
+    _ownsNativeInstance = ownsNativeInstance;
+  }
+
+  public void ReleaseNativeInstance()
+  {
+    _ownsNativeInstance = false;
   }
 
   public IGitReference GetHead()
@@ -207,7 +214,10 @@ internal sealed class GitRepository : IGitRepository
   {
     if (!_disposedValue)
     {
+      if (_ownsNativeInstance)
+    {
       libgit2.repository.GitRepositoryFree(_nativeGitRepository);
+      }
       _disposedValue = true;
     }
   }

@@ -26,7 +26,7 @@ internal sealed class CloneCallbacksImpl : IDisposable
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (CloneCallbacksImpl)gcHandle.Target!;
-      using var managedRepo = new GitRepository(libgit2.GitRepository.__CreateInstance(repo));
+      using var managedRepo = new GitRepository(libgit2.GitRepository.__CreateInstance(repo), true);
       if (callbacks._remoteCreate is null)
       {
         return (int)libgit2.GitErrorCode.GIT_EUSER;
@@ -34,12 +34,14 @@ internal sealed class CloneCallbacksImpl : IDisposable
       var res = callbacks._remoteCreate(out var remote, managedRepo, name, url);
       if (res == 0)
       {
-        var managedRemote = remote as GitRemote;
+        using var managedRemote = remote as GitRemote;
         if (managedRemote is null)
           return (int)libgit2.GitErrorCode.GIT_EUSER;
+        managedRemote.ReleaseNativeInstance();
         void** ptr = (void**)@out;
         *ptr = (void*)managedRemote.NativeGitRemote.__Instance;
       }
+      managedRepo.ReleaseNativeInstance();
       return res;
     };
 
@@ -59,8 +61,7 @@ internal sealed class CloneCallbacksImpl : IDisposable
       var res = callbacks._repositoryCreate(out var repository, path, bare != 0);
       if (res == 0)
       {
-        var managedRepository = repository as GitRepository;
-        if (managedRepository is null)
+        if (repository is not GitRepository managedRepository)
           return (int)libgit2.GitErrorCode.GIT_EUSER;
         void** ptr = (void**)@out;
         *ptr = (void*)managedRepository.NativeGitRepository.__Instance;

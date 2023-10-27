@@ -14,14 +14,14 @@ internal class Libgit2 : ILibgit2, IDisposable
   {
     var res = libgit2.repository.GitRepositoryOpen(out var repo, path);
     CheckLibgit2.Check(res, "Unable to open repository '{0}'", path);
-    return new GitRepository(repo);
+    return new GitRepository(repo, true);
   }
 
   public IGitRepository InitRepository(string path, bool isBare)
   {
     var res = libgit2.repository.GitRepositoryInit(out var repo, path, isBare ? 1u : 0);
     CheckLibgit2.Check(res, "Unable to initialize repository '{0}'", path);
-    return new GitRepository(repo);
+    return new GitRepository(repo, true);
   }
 
   public IGitRepository Clone(string url, string localPath, CloneOptions? options = null)
@@ -31,7 +31,7 @@ internal class Libgit2 : ILibgit2, IDisposable
 
     var res = libgit2.clone.GitClone(out var repo, url, localPath, nativeOptions);
     CheckLibgit2.Check(res, "Unable to clone repository '{0}'", url);
-    return new GitRepository(repo);
+    return new GitRepository(repo, true);
   }
 
   public string DiscoverRepository(string startPath, bool acrossFilesystem, string[] ceilingDirectories)

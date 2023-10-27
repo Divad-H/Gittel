@@ -2,12 +2,17 @@
 
 internal sealed class GitRemote : IGitRemote
 {
-  private readonly bool _ownsNativeInstance;
+  private bool _ownsNativeInstance;
   public libgit2.GitRemote NativeGitRemote { get; }
   public GitRemote(libgit2.GitRemote nativeGitRemote, bool ownsNativeInstance)
   {
     _ownsNativeInstance = ownsNativeInstance;
     NativeGitRemote = nativeGitRemote;
+  }
+
+  public void ReleaseNativeInstance()
+  {
+    _ownsNativeInstance = false;
   }
 
   public int SetUrl(string url)

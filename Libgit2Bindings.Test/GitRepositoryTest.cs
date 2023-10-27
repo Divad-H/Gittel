@@ -111,5 +111,27 @@ namespace Libgit2Bindings.Test
       Assert.NotNull(clonedRepo);
       Assert.True(clonedRepo.IsBare());
     }
+
+    [Fact]
+    public void CanCreateRemoteCustomWhileCloning()
+    {
+      const string remoteName = "my-origin";
+      using var sourceRepo = new RepoWithOneCommit();
+      using var tempDirectory = new TemporaryDirectory();
+
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+        {
+          RemoteCreateCallback = (out IGitRemote? remote, IGitRepository repository, string name, string url) =>
+          {
+            remote = repository.CreateRemote(remoteName, url);
+            return 0;
+          }
+        });
+
+      Assert.NotNull(clonedRepo);
+      using var remote = clonedRepo.LookupRemote(remoteName);
+      Assert.NotNull(remote);
+    }
   }
 }
