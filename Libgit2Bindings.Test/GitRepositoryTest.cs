@@ -162,5 +162,27 @@ namespace Libgit2Bindings.Test
       using var remote = clonedRepo.LookupRemote(remoteName);
       Assert.NotNull(remote);
     }
+
+    [Fact]
+    public void CanCloneRepositoryWithCustonCheckoutBranch()
+    {
+      const string branchName = "test-branch";
+
+      using var sourceRepo = new RepoWithOneCommit();
+      using var commit = sourceRepo.Repo.LookupCommit(sourceRepo.CommitOid);
+      using var branch = sourceRepo.Repo.CreateBranch(branchName, commit, false);
+      using var tempDirectory = new TemporaryDirectory();
+
+      using var clonedRepo = sourceRepo.Libgit2.Clone(
+        sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+        {
+          CheckoutBranch = branchName,
+        });
+
+      using var clonedBranch = clonedRepo.LookupBranch(branchName, BranchType.LocalBranch);
+
+      Assert.NotNull(clonedRepo);
+      Assert.NotNull(clonedBranch);
+    }
   }
 }
