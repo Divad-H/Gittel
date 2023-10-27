@@ -51,6 +51,14 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to checkout HEAD");
   }
 
+  public IGitReference LookupBranch(string branchName, BranchType branchType)
+  {
+    var branchTypeNative = BranchTypeMapper.ToNative(branchType);
+    var res = libgit2.branch.GitBranchLookup(out var branch, _nativeGitRepository, branchName, branchTypeNative);
+    CheckLibgit2.Check(res, "Unable to lookup branch '{0}'", branchName);
+    return new GitReference(branch);
+  }
+
   public IGitReference CreateBranch(string branchName, IGitCommit target, bool force)
   {
     var concreteTarget = target as GitCommit ?? throw new ArgumentException($"{nameof(target)} must be created by Gittel");

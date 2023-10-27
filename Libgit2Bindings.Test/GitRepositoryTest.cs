@@ -76,6 +76,21 @@ namespace Libgit2Bindings.Test
     }
 
     [Fact]
+    public void CanLookupBranch()
+    {
+      const string branchName = "test-branch";
+
+      using var repo = new RepoWithOneCommit();
+      using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+      using var branch = repo.Repo.CreateBranch(branchName, commit, false);
+
+      using var lookupBranch = repo.Repo.LookupBranch(branchName, BranchType.LocalBranch);
+
+      Assert.NotNull(lookupBranch);
+      Assert.Equal(branchName, lookupBranch.BranchName());
+    }
+
+    [Fact]
     public void CanCloneLocalRepository()
     {
       using var sourceRepo = new RepoWithOneCommit();

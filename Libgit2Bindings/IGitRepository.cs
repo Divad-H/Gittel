@@ -42,6 +42,14 @@ public interface IGitRepository : IDisposable
   void CheckoutHead(CheckoutOptions? options = null);
 
   /// <summary>
+  /// Lookup a branch by its name in a repository.
+  /// </summary>
+  /// <param name="branchName">Name of the branch to be looked up; this name is validated for consistency</param>
+  /// <param name="branchType">Type of the branch</param>
+  /// <returns>The branch </returns>
+  IGitReference LookupBranch(string branchName, BranchType branchType);
+
+  /// <summary>
   /// Create a new branch pointing at a target commit
   /// </summary>
   /// <param name="branchName">Name for the branch; this name is validated for consistency. 
