@@ -42,6 +42,16 @@ public interface IGitRepository : IDisposable
   void CheckoutHead(CheckoutOptions? options = null);
 
   /// <summary>
+  /// Create a new branch pointing at a target commit
+  /// </summary>
+  /// <param name="branchName">Name for the branch; this name is validated for consistency. 
+  /// It should also not conflict with an already existing branch name.</param>
+  /// <param name="target">Commit to which this branch should point. This object must belong to this <see cref="IGitRepository"/>.</param>
+  /// <param name="force">Overwrite existing branch.</param>
+  /// <returns>The branch</returns>
+  IGitReference CreateBranch(string branchName, IGitCommit target, bool force);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>

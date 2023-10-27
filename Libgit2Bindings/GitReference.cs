@@ -9,6 +9,13 @@ internal class GitReference : IGitReference
     _nativeGitReference = nativeGitReference;
   }
 
+  public string BranchName()
+  {
+    var res = libgit2.branch.GitBranchName(out var name, _nativeGitReference);
+    CheckLibgit2.Check(res, "Unable to get branch name");
+    return name;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

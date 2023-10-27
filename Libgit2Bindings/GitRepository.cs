@@ -51,6 +51,15 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to checkout HEAD");
   }
 
+  public IGitReference CreateBranch(string branchName, IGitCommit target, bool force)
+  {
+    var concreteTarget = target as GitCommit ?? throw new ArgumentException($"{nameof(target)} must be created by Gittel");
+    var res = libgit2.branch.GitBranchCreate(
+      out var branch, _nativeGitRepository, branchName, concreteTarget.NativeGitCommit, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to create branch '{0}'", branchName);
+    return new GitReference(branch);
+  }
+
   public IGitSignature DefaultGitSignature()
   {
     var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);

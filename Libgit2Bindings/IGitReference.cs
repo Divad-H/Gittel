@@ -10,4 +10,9 @@ public enum BranchType
 
 public interface IGitReference : IDisposable
 {
+  /// <summary>
+  /// Get the branch name
+  /// </summary>
+  /// <returns>the abbreviated reference nam</returns>
+  string BranchName();
 }
