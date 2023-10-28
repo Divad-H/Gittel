@@ -1,8 +1,15 @@
 ﻿namespace Libgit2Bindings;
 
+public enum GitOidType
+{
+  Sha1 = 1,
+  // Sha256 = 2,
+}
+
 public sealed record GitOid(byte[] Id)
 {
   public const int Size = 20;
+  public const int HexSize = Size * 2;
 
   public byte[] Id { get; } = Id.Length == Size ? Id : throw new ArgumentException($"Length of {nameof(Id)} must be {Size}.");
 

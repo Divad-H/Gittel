@@ -21,6 +21,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitFetchOptionsVersion", "GIT_FETCH_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitRemoteCallbacksVersion", "GIT_REMOTE_CALLBACKS_VERSION");
     ctx.GenerateEnumFromMacros("GitProxyOptionsVersion", "GIT_PROXY_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitDiffOptionsVersion", "GIT_DIFF_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
