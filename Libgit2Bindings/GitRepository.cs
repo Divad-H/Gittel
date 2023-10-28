@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
@@ -167,7 +167,7 @@ internal sealed class GitRepository : IGitRepository
   {
     GitOid gitOid = GitOidMapper.FromShortId(shortId);
     using var nativeOid = GitOidMapper.ToNative(gitOid);
-    var res = libgit2.commit.GitCommitLookupPrefix(out var commit, 
+    var res = libgit2.commit.GitCommitLookupPrefix(out var commit,
       _nativeGitRepository, nativeOid, (UInt64)shortId.Length);
     CheckLibgit2.Check(res, "Unable to lookup commit");
     return new GitCommit(commit, this);
@@ -260,6 +260,17 @@ internal sealed class GitRepository : IGitRepository
     return new GitAnnotatedCommit(nativeAnnotatedCommit);
   }
 
+  public IGitDiff DiffTreeToWorkdir(IGitTree? tree, GitDiffOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var managedTree = GittelObjects.Downcast<GitTree>(tree);
+    var res = libgit2.diff.GitDiffTreeToWorkdir(
+      out var nativeDiff, _nativeGitRepository, managedTree?.NativeGitTree, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to diff tree to workdir");
+    return new GitDiff(nativeDiff);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
@@ -267,8 +278,8 @@ internal sealed class GitRepository : IGitRepository
     if (!_disposedValue)
     {
       if (_ownsNativeInstance)
-    {
-      libgit2.repository.GitRepositoryFree(_nativeGitRepository);
+      {
+        libgit2.repository.GitRepositoryFree(_nativeGitRepository);
       }
       _disposedValue = true;
     }

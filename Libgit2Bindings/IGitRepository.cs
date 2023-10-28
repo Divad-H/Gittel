@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface IGitRepository : IDisposable
 {
@@ -259,4 +259,28 @@ public interface IGitRepository : IDisposable
   /// <param name="id">the commit object id to lookup</param>
   /// <returns>The annotated commit</returns>
   IGitAnnotatedCommit AnnotatedCommitLookup(GitOid id);
+
+  /// <summary>
+  /// Create a diff between a tree and the working directory.
+  /// </summary>
+  /// <remarks>
+  /// The tree you provide will be used for the "OldFile" side of the delta, 
+  /// and the working directory will be used for the "NewFile" side.
+  /// <para/>
+  /// This is not the same as git diff<treeish> or git diff-index<treeish>.
+  /// Those commands use information from the index, whereas this function 
+  /// strictly returns the differences between the tree and the files in the 
+  /// working directory, regardless of the state of the index.
+  /// Use git_diff_tree_to_workdir_with_index to emulate those commands.
+  /// <para/>
+  /// To see difference between this and git_diff_tree_to_workdir_with_index, 
+  /// consider the example of a staged file deletion where the file has then 
+  /// been put back into the working dir and further modified.The tree-to-workdir 
+  /// diff for that file is 'modified', but git diff would show status 'deleted' 
+  /// since there is a staged delete.
+  /// </remarks>
+  /// <param name="oldTree">A <see cref="IGitTree"/> object to diff from, or null for empty tree.</param>
+  /// <param name="options">Structure with options to influence diff or null for defaults.</param>
+  /// <returns>The diff</returns>
+  IGitDiff DiffTreeToWorkdir(IGitTree? oldTree, GitDiffOptions? options = null);
 }
