@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using Libgit2Bindings.Mappers;
+
+namespace Libgit2Bindings;
 
 internal class GitDiff : IGitDiff
 {
@@ -9,6 +11,21 @@ internal class GitDiff : IGitDiff
   {
     NativeGitDiff = nativeGitDiff;
     _ownsNativeInstance = ownsNativeInstance;
+  }
+
+  public GitDiffDelta? GetDelta(UInt64 index)
+  {
+    var nativeDelta = libgit2.diff.GitDiffGetDelta(NativeGitDiff, index);
+    if (nativeDelta is null)
+    {
+      return null;
+    }
+    return GitDiffDeltaMapper.FromNative(nativeDelta);
+  }
+
+  public UInt64 GetNumDeltas()
+  {
+    return libgit2.diff.GitDiffNumDeltas(NativeGitDiff);
   }
 
   #region IDisposable Support

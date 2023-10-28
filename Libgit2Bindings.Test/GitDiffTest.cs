@@ -15,5 +15,11 @@ public class GitDiffTest
     using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
 
     Assert.NotNull(diff);
+    Assert.Equal(1ul, diff.GetNumDeltas());
+    var delta = diff.GetDelta(0);
+    Assert.NotNull(delta);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.NewFile?.Path);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
+    Assert.Equal(GitDeltaType.Modified, delta.Status);
   }
 }
