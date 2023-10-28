@@ -32,10 +32,10 @@ internal sealed class CheckoutCallbacksImpl : IDisposable
     {
       GCHandle gcHandle = GCHandle.FromIntPtr(payload);
       var callbacks = (CheckoutCallbacksImpl)gcHandle.Target!;
-      var managedWhy = Mappers.CheckoutNotifyFlagsMapper.FromNative(why);
-      var baselineDiffFile = Mappers.DiffFileMapper.FromNativePtr(baseline);
-      var targetDiffFile = Mappers.DiffFileMapper.FromNativePtr(target);
-      var workdirDiffFile = Mappers.DiffFileMapper.FromNativePtr(workdir);
+      var managedWhy = CheckoutNotifyFlagsMapper.FromNative(why);
+      var baselineDiffFile = GitDiffFileMapper.FromNativePtr(baseline);
+      var targetDiffFile = GitDiffFileMapper.FromNativePtr(target);
+      var workdirDiffFile = GitDiffFileMapper.FromNativePtr(workdir);
       var res = callbacks._notify?.Invoke(managedWhy, path, baselineDiffFile, targetDiffFile, workdirDiffFile);
       return res ?? GitOperationContinuation.Continue;
     };

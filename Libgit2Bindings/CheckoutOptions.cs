@@ -162,7 +162,7 @@ public enum CheckoutNotifyFlags
 /// <summary>
 /// Checkout notification callback function
 /// </summary>
-public delegate GitOperationContinuation CheckoutNotifyHandler(CheckoutNotifyFlags why, string path, DiffFile? baseline, DiffFile? target, DiffFile? workdir);
+public delegate GitOperationContinuation CheckoutNotifyHandler(CheckoutNotifyFlags why, string path, GitDiffFile? baseline, GitDiffFile? target, GitDiffFile? workdir);
 public delegate void CheckoutProgressHandler(string? path, UInt64 completedSteps, UInt64 totalSteps);
 
 public record PerformanceData(UInt64 MkdirCalls, UInt64 StatCalls, UInt64 ChmodCalls);
