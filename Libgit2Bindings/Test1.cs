@@ -33,7 +33,7 @@ namespace Libgit2Bindings
 
             var statusFlags = entry->status;
 
-            var gitDiffFile = GitDiffFile.__CreateInstance((IntPtr)(&((GitDiffDelta.__Internal*)entry->head_to_index)->new_file));
+            var gitDiffFile = libgit2.GitDiffFile.__CreateInstance((IntPtr)(&((libgit2.GitDiffDelta.__Internal*)entry->head_to_index)->new_file));
             var path = gitDiffFile?.Path;
           }
 
