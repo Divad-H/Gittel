@@ -22,6 +22,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitRemoteCallbacksVersion", "GIT_REMOTE_CALLBACKS_VERSION");
     ctx.GenerateEnumFromMacros("GitProxyOptionsVersion", "GIT_PROXY_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitDiffOptionsVersion", "GIT_DIFF_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitBlobFilterOptionsVersion", "GIT_BLOB_FILTER_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
@@ -44,6 +45,7 @@ internal class Libgit2Library : ILibrary
   {
     driver.Context.GeneratorOutputPasses.AddPass(new FixOutVariableUsagePass());
     driver.Context.TranslationUnitPasses.AddPass(new FixOutVariablePass());
+    driver.Context.TranslationUnitPasses.AddPass(new FixBuffersInterpretedAsStrings());
   }
 }
 
@@ -68,7 +70,7 @@ internal class FixOutVariableUsagePass : GeneratorOutputPass
     base.HandleBlock(block);
   }
 
-  private List<string> FixFunctionWithAllocHGlobal(string text)
+  private static List<string> FixFunctionWithAllocHGlobal(string text)
   {
     var lines = text.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
     List<string> res = new();
@@ -90,7 +92,7 @@ internal class FixOutVariableUsagePass : GeneratorOutputPass
     return res;
   }
 
-  private bool IsFunctionWithAllocHGlobal(string text)
+  private static bool IsFunctionWithAllocHGlobal(string text)
   {
     return text.Contains("Marshal.AllocHGlobal");
   }
@@ -193,9 +195,32 @@ internal class FixOutVariablePass : TranslationUnitPass
         || function.Namespace.Name != "git_buf" 
           && !function.Name.StartsWith("git_buf")
           && parameter.Type.GetPointee()?.TryGetClass(out Class? @class) == true
-          && @class?.Name == "git_buf")
+          && @class?.Name == "git_buf"
+        || function.Name.Contains("git_blob_create")
+          && parameter.Name == "id")
       {
         parameter.Usage = ParameterUsage.Out;
+      }
+    }
+
+    return base.VisitFunctionDecl(function);
+  }
+}
+
+internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
+{
+  public override bool VisitFunctionDecl(Function function)
+  {
+    if (function.Name == "git_blob_data_is_binary")
+    {
+      foreach (var parameter in function.Parameters)
+      {
+        if (parameter.Name == "data")
+        {
+          parameter.QualifiedType = new QualifiedType(
+            new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
+            new TypeQualifiers() { IsConst = true });
+        }
       }
     }
 

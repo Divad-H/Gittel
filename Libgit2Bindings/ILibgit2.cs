@@ -147,4 +147,12 @@ public interface ILibgit2
   /// <param name="options">configuration options for the clone.</param>
   /// <returns>the resulting repository object</returns>
   IGitRepository Clone(string url, string localPath, CloneOptions? options = null);
+
+  /// <summary>
+  /// Determine if the given content is most certainly binary or not; this is the same 
+  /// mechanism used by <see cref="IGitBlob.IsBinary()"/> but only looking at raw data.
+  /// </summary>
+  /// <param name="blobData"></param>
+  /// <returns>true if the content of the blob is detected as binary; false otherwise.</returns>
+  bool BlobDataIsBinary(byte[] blobData);
 }

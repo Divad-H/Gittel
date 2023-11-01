@@ -271,6 +271,73 @@ internal sealed class GitRepository : IGitRepository
     return new GitDiff(nativeDiff);
   }
 
+  public IGitBlob LookupBlob(GitOid oid)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.blob.GitBlobLookup(out var nativeBlob, _nativeGitRepository, nativeOid);
+    CheckLibgit2.Check(res, "Unable to lookup blob");
+    return new GitBlob(nativeBlob);
+  }
+
+  public IGitBlob LookupBlobByPrefix(byte[] shortId)
+  {
+    var gitOid = GitOidMapper.FromShortId(shortId);
+    using var nativeOid = GitOidMapper.ToNative(gitOid);
+    var res = libgit2.blob.GitBlobLookupPrefix(
+      out var nativeBlob, _nativeGitRepository, nativeOid, (UInt64)shortId.Length);
+    CheckLibgit2.Check(res, "Unable to lookup blob");
+    return new GitBlob(nativeBlob);
+  }
+
+  public IGitBlob LookupBlobByPrefix(string shortSha)
+  {
+    if (shortSha.Length % 2 != 0)
+    {
+      shortSha += "0";
+    }
+    var shortId = Convert.FromHexString(shortSha);
+    return LookupBlobByPrefix(shortId);
+  }
+
+  public GitOid CreateBlob(byte[] data)
+  {
+    using PinnedBuffer pinnedBuffer = new(data);
+    var res = libgit2.blob.GitBlobCreateFromBuffer(
+      out var nativeId, _nativeGitRepository, pinnedBuffer.Pointer, (UInt64)pinnedBuffer.Length);
+    CheckLibgit2.Check(res, "Unable to create blob");
+    using (nativeId)
+    {
+      return GitOidMapper.FromNative(nativeId);
+    }
+  }
+
+  public GitOid CreateBlobFromDisk(string path)
+  {
+    var res = libgit2.blob.GitBlobCreateFromDisk(out var nativeId, _nativeGitRepository, path);
+    CheckLibgit2.Check(res, "Unable to create blob from disk");
+    using (nativeId)
+    {
+      return GitOidMapper.FromNative(nativeId);
+    }
+  }
+
+  public AbstractGitWriteStream CreateBlobFromStream(string? hintpath)
+  {
+    var res = libgit2.blob.GitBlobCreateFromStream(out var nativeStream, _nativeGitRepository, hintpath);
+    CheckLibgit2.Check(res, "Unable to create blob from stream");
+    return new GitWriteStream(nativeStream);
+  }
+
+  public GitOid CreateBlobFromWorkdir(string relativePath)
+  {
+    var res = libgit2.blob.GitBlobCreateFromWorkdir(out var nativeId, _nativeGitRepository, relativePath);
+    CheckLibgit2.Check(res, "Unable to create blob from workdir");
+    using (nativeId)
+    {
+      return GitOidMapper.FromNative(nativeId);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -283,4 +283,71 @@ public interface IGitRepository : IDisposable
   /// <param name="options">Structure with options to influence diff or null for defaults.</param>
   /// <returns>The diff</returns>
   IGitDiff DiffTreeToWorkdir(IGitTree? oldTree, GitDiffOptions? options = null);
+
+  /// <summary>
+  /// Lookup a blob object from a repository.
+  /// </summary>
+  /// <param name="oid">identity of the blob to locate.</param>
+  /// <returns>the looked up blob</returns>
+  IGitBlob LookupBlob(GitOid oid);
+
+  /// <summary>
+  /// Lookup a blob object from a repository, given a prefix of its identifier (short id).
+  /// </summary>
+  /// <param name="id">identity of the blob to locate.</param>
+  /// <returns>the looked up blob</returns>
+  IGitBlob LookupBlobByPrefix(byte[] shortId);
+
+  /// <summary>
+  /// Lookup a blob object from a repository, given a prefix of its identifier (short id).
+  /// </summary>
+  /// <param name="id">identity of the blob to locate.</param>
+  /// <returns>the looked up blob</returns>
+  IGitBlob LookupBlobByPrefix(string shortSha);
+
+  /// <summary>
+  /// Write an in-memory buffer to the ODB as a blob
+  /// </summary>
+  /// <param name="data">data to be written into the blob</param>
+  /// <returns>the id of the written blob</returns>
+  GitOid CreateBlob(byte[] data);
+
+  /// <summary>
+  /// Read a file from the filesystem and write its content to the Object Database as a loose blob
+  /// </summary>
+  /// <param name="path">file from which the blob will be created</param>
+  /// <returns>the id of the written blob</returns>
+  GitOid CreateBlobFromDisk(string path);
+
+  /// <summary>
+  /// Create a stream to write a new blob into the object db
+  /// </summary>
+  /// <remarks>
+  /// This function may need to buffer the data on disk and will in general not be the 
+  /// right choice if you know the size of the data to write. If you have data in memory, 
+  /// use <see cref="CreateBlob(byte[])"/>. If you do not, but know the size of the 
+  /// contents (and don't want/need to perform filtering), use git_odb_open_wstream().
+  /// <para/>
+  /// Call <see cref="AbstractGitWriteStream.Commit()"/> to commit the write to the object 
+  /// db and get the object id. This operation will close the stream.
+  /// <para/>
+  /// If the hintpath parameter is filled, it will be used to determine what git filters 
+  /// should be applied to the object before it is written to the object database.
+  /// <para/>
+  /// </remarks>
+  /// <param name="hintpath">If not null, will be used to select data filters to apply onto the 
+  /// content of the blob to be created.</param>
+  /// <returns>the stream into which to write</returns>
+  AbstractGitWriteStream CreateBlobFromStream(string? hintpath);
+
+  /// <summary>
+  /// Read a file from the working folder of a repository and write it to 
+  /// the Object Database as a loose blob
+  /// </summary>
+  /// <param name="relativePath">file from which the blob will be created, relative 
+  /// to the repository's working dir</param>
+  /// <returns>the id of the written blob</returns>
+  GitOid CreateBlobFromWorkdir(string relativePath);
+
+
 }

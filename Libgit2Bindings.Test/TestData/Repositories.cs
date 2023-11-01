@@ -51,3 +51,25 @@ internal class RepoWithOneCommit : IDisposable
     Libgit2.Dispose();
   }
 }
+
+internal class EmptyRepo : IDisposable
+{
+  public Libgit2 Libgit2 { get; }
+  public TemporaryDirectory TempDirectory { get; }
+  public IGitRepository Repo { get; }
+
+  public EmptyRepo()
+  {
+    Libgit2 = new Libgit2();
+    TempDirectory = new TemporaryDirectory();
+
+    Repo = Libgit2.InitRepository(TempDirectory.DirectoryPath, false);
+  }
+
+  public void Dispose()
+  {
+    Repo.Dispose();
+    TempDirectory.Dispose();
+    Libgit2.Dispose();
+  }
+}

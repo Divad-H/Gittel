@@ -149,6 +149,14 @@ internal class Libgit2 : ILibgit2, IDisposable
     }
   }
 
+  public bool BlobDataIsBinary(byte[] blobData)
+  {
+    using var pinnedBuffer = new PinnedBuffer(blobData);
+    var res = libgit2.blob.GitBlobDataIsBinary(pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length);
+    CheckLibgit2.Check(res, "Unable to check if blob data is binary");
+    return res != 0;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

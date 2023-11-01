@@ -23,8 +23,13 @@ internal static class StringUtil
 
   public static unsafe byte[] ToArray(libgit2.GitBuf buf)
   {
-    var bytes = new byte[buf.Size];
-    Marshal.Copy((IntPtr)buf.Ptr, bytes, 0, (int)buf.Size);
+    return ToArray((IntPtr)buf.Ptr, (UIntPtr)buf.Size);
+  }
+
+  public static byte[] ToArray(IntPtr ptr, UIntPtr size)
+  {
+    var bytes = new byte[(int)size];
+    Marshal.Copy(ptr, bytes, 0, (int)size);
     return bytes;
   }
 }
