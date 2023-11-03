@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.Helpers;
+using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -77,7 +78,66 @@ public class GitBlobTest
     var filtertText = Encoding.ASCII.GetString(filteredContent);
     Assert.Equal("some content\n", filtertText);
     File.WriteAllText(Path.Combine(repo.Repo.GetWorkdir()!, ".gitattributes"), "*.txt eol=crlf");
-    filteredContent = blob.Filter("foo.txt", null);
+    filteredContent = blob.Filter("foo.txt", new GitBlobFilterOptions());
+    filtertText = Encoding.ASCII.GetString(filteredContent);
+    Assert.Equal("some content\r\n", filtertText);
+  }
+
+  [Fact]
+  public void CanApplyCheckoutFilterFromCommit()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    File.WriteAllText(Path.Combine(repo.Repo.GetWorkdir()!, ".gitattributes"), "*.txt eol=lf");
+
+    using var index = repo.Repo.GetIndex();
+
+    index.AddByPath(".gitattributes");
+    var treeOid = index.WriteTree();
+    index.Write();
+
+    using var secondTree = repo.Repo.LookupTree(treeOid);
+    using var firstCommit = repo.Repo.LookupCommit(repo.CommitOid);
+    var secondCommitOid = repo.Repo.CreateCommit(
+      "HEAD", repo.Signature, repo.Signature, "commit", secondTree, new[] { firstCommit });
+
+    File.WriteAllText(Path.Combine(repo.Repo.GetWorkdir()!, ".gitattributes"), "*.txt eol=crlf");
+    index.AddByPath(".gitattributes");
+    treeOid = index.WriteTree();
+    index.Write();
+
+    using var thirdTree = repo.Repo.LookupTree(treeOid);
+    using var secondCommit = repo.Repo.LookupCommit(secondCommitOid);
+    var thirdCommitOid = repo.Repo.CreateCommit(
+      "HEAD", repo.Signature, repo.Signature, "commit", thirdTree, new[] { secondCommit });
+
+    File.Delete(Path.Combine(repo.Repo.GetWorkdir()!, ".gitattributes"));
+
+    using var tempDirectory = new TemporaryDirectory();
+    using var clonedRepo = repo.Libgit2.Clone(
+      repo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new CloneOptions
+      {
+        Bare = true,
+      });
+
+    var content = Encoding.ASCII.GetBytes("some content\n");
+    var blobId = clonedRepo.CreateBlob(content);
+    Assert.NotNull(blobId);
+    var blob = clonedRepo.LookupBlob(blobId);
+    Assert.NotNull(blob);
+
+    var filteredContent = blob.Filter("foo.txt", new GitBlobFilterOptions()
+    {
+      Flags = GitBlobFilterFlags.AttributesFromCommit | GitBlobFilterFlags.NoSystemAttributes,
+      AttributesCommitId = secondCommitOid,
+    });
+    var filtertText = Encoding.ASCII.GetString(filteredContent);
+    Assert.Equal("some content\n", filtertText);
+    filteredContent = blob.Filter("foo.txt", new GitBlobFilterOptions()
+    {
+      Flags = GitBlobFilterFlags.AttributesFromCommit | GitBlobFilterFlags.NoSystemAttributes,
+      AttributesCommitId = thirdCommitOid,
+    });
     filtertText = Encoding.ASCII.GetString(filteredContent);
     Assert.Equal("some content\r\n", filtertText);
   }
@@ -121,7 +181,7 @@ public class GitBlobTest
   public void CanCreateBlobFromStream()
   {
     using var repo = new EmptyRepo();
-    
+
     using var stream = repo.Repo.CreateBlobFromStream("foo.txt");
     using var writer = new StreamWriter(stream);
     writer.Write("some content");

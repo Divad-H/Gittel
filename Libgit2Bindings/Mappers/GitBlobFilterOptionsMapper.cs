@@ -8,8 +8,7 @@ internal static class GitBlobFilterOptionsMapper
     DisposableCollection disposables)
   {
     libgit2.GitBlobFilterOptions res = new();
-    libgit2.blob.GitBlobFilterOptionsInit(
-      res, (UInt32)libgit2.GitBlobFilterOptionsVersion.GIT_BLOB_FILTER_OPTIONS_VERSION);
+    res.Version = (Int32)libgit2.GitBlobFilterOptionsVersion.GIT_BLOB_FILTER_OPTIONS_VERSION;
     if (options.Flags.HasFlag(GitBlobFilterFlags.CheckForBinary))
       res.Flags |= (uint)libgit2.GitBlobFilterFlagT.GIT_BLOB_FILTER_CHECK_FOR_BINARY;
     if (options.Flags.HasFlag(GitBlobFilterFlags.NoSystemAttributes))
