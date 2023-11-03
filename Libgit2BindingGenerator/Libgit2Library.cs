@@ -23,6 +23,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitProxyOptionsVersion", "GIT_PROXY_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitDiffOptionsVersion", "GIT_DIFF_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitBlobFilterOptionsVersion", "GIT_BLOB_FILTER_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitBlameOptionsVersion", "GIT_BLAME_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
@@ -216,6 +217,18 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
       foreach (var parameter in function.Parameters)
       {
         if (parameter.Name == "data")
+        {
+          parameter.QualifiedType = new QualifiedType(
+            new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
+            new TypeQualifiers() { IsConst = true });
+        }
+      }
+    }
+    if (function.Name == "git_blame_buffer")
+    {
+      foreach (var parameter in function.Parameters)
+      {
+        if (parameter.Name == "buffer")
         {
           parameter.QualifiedType = new QualifiedType(
             new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),

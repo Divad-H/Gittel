@@ -349,5 +349,11 @@ public interface IGitRepository : IDisposable
   /// <returns>the id of the written blob</returns>
   GitOid CreateBlobFromWorkdir(string relativePath);
 
-
+  /// <summary>
+  /// Get the blame for a single file
+  /// </summary>
+  /// <param name="path">path to file to consider</param>
+  /// <param name="options">options for the blame operation</param>
+  /// <returns>the blame object</returns>
+  IGitBlame BlameFile(string path, GitBlameOptions? options = null);
 }

@@ -29,7 +29,7 @@ internal class RepoWithOneCommit : IDisposable
     Signature = Repo.GitSignatureNow(AuthorName, AuthorEmail);
 
     var fileFullPath = Path.Combine(TempDirectory.DirectoryPath, filename);
-    File.WriteAllLines(fileFullPath, Array.Empty<string>());
+    File.WriteAllLines(fileFullPath, new[] { "my content" });
 
     using var index = Repo.GetIndex();
 

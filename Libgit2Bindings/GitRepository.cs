@@ -338,6 +338,15 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public IGitBlame BlameFile(string path, GitBlameOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var res = libgit2.blame.GitBlameFile(out var nativeBlame, _nativeGitRepository, path, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to blame file");
+    return new GitBlame(nativeBlame);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -1,5 +1,4 @@
 ﻿using Libgit2Bindings.Util;
-using System.Runtime.InteropServices;
 
 namespace Libgit2Bindings;
 
@@ -7,6 +6,7 @@ internal class GitSignature : IGitSignature
 {
   private readonly libgit2.GitSignature _nativeGitSignature;
   public libgit2.GitSignature NativeGitSignature => _nativeGitSignature;
+  private readonly bool _ownsNativeInstance;
 
   public unsafe string Name => StringUtil.ToString(_nativeGitSignature.Name);
 
@@ -15,9 +15,10 @@ internal class GitSignature : IGitSignature
   public DateTimeOffset When => FromEpochAndOffset(
     _nativeGitSignature.When.Time, _nativeGitSignature.When.Offset);
 
-  public GitSignature(libgit2.GitSignature nativeGitSignature)
+  public GitSignature(libgit2.GitSignature nativeGitSignature, bool ownsNativeInstance = true)
   {
-    _nativeGitSignature = nativeGitSignature;
+    _nativeGitSignature = nativeGitSignature ?? throw new ArgumentNullException(nameof(nativeGitSignature));
+    _ownsNativeInstance = ownsNativeInstance;
   }
 
   public static DateTimeOffset FromEpochAndOffset(long secondsSinceEpoch, int offsetMinutesFromUtc)
@@ -33,7 +34,11 @@ internal class GitSignature : IGitSignature
   {
     if (!_disposedValue)
     {
-      libgit2.signature.GitSignatureFree(_nativeGitSignature);
+      if (_ownsNativeInstance)
+      {
+        libgit2.signature.GitSignatureFree(_nativeGitSignature);
+      }
+      _nativeGitSignature.Dispose();
       _disposedValue = true;
     }
   }
