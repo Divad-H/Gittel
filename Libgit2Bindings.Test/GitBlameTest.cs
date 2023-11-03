@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Test.TestData;
+﻿using libgit2;
+using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -55,5 +56,39 @@ public class GitBlameTest
 
     Assert.NotNull(hunk);
     Assert.Equal(1ul, hunk.LinesInHunk);
+  }
+
+  [Fact]
+  public void CanBlameWithOptions()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, new[] { "different content", "and one more line" });
+
+    using var index = repo.Repo.GetIndex();
+
+    index.AddByPath(RepoWithOneCommit.Filename);
+    var treeOid = index.WriteTree();
+    index.Write();
+
+    using var tree = repo.Repo.LookupTree(treeOid);
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+
+    var secondCommitOid = repo.Repo.CreateCommit(
+      "HEAD", repo.Signature, repo.Signature, "second commit", tree, new[] { commit });
+
+    using var blame = repo.Repo.BlameFile(RepoWithOneCommit.Filename, new GitBlameOptions
+    {
+      NewestCommit = repo.CommitOid,
+    });
+
+    Assert.NotNull(blame);
+    Assert.Equal(1u, blame.GetHunkCount());
+
+    using var hunk = blame.GetHunkByIndex(0);
+    Assert.NotNull(hunk);
+    Assert.Equal(1ul, hunk.LinesInHunk);
+    Assert.Equal(repo.CommitOid, hunk.FinalCommitId);
   }
 }
