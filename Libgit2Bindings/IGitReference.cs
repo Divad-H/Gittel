@@ -13,6 +13,6 @@ public interface IGitReference : IDisposable
   /// <summary>
   /// Get the branch name
   /// </summary>
-  /// <returns>the abbreviated reference nam</returns>
+  /// <returns>the abbreviated reference name</returns>
   string BranchName();
 }

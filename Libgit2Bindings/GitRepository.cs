@@ -61,9 +61,18 @@ internal sealed class GitRepository : IGitRepository
 
   public IGitReference CreateBranch(string branchName, IGitCommit target, bool force)
   {
-    var concreteTarget = target as GitCommit ?? throw new ArgumentException($"{nameof(target)} must be created by Gittel");
+    var concreteTarget = GittelObjects.DowncastNonNull<GitCommit>(target);
     var res = libgit2.branch.GitBranchCreate(
       out var branch, _nativeGitRepository, branchName, concreteTarget.NativeGitCommit, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to create branch '{0}'", branchName);
+    return new GitReference(branch);
+  }
+
+  public IGitReference CreateBranch(string branchName, IGitAnnotatedCommit target, bool force)
+  {
+    var concreteTarget = GittelObjects.DowncastNonNull<GitAnnotatedCommit>(target);
+    var res = libgit2.branch.GitBranchCreateFromAnnotated(
+      out var branch, _nativeGitRepository, branchName, concreteTarget.NativeAnnotatedCommit, force ? 1 : 0);
     CheckLibgit2.Check(res, "Unable to create branch '{0}'", branchName);
     return new GitReference(branch);
   }

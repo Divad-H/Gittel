@@ -5,6 +5,7 @@ namespace Libgit2Bindings;
 internal sealed class GitAnnotatedCommit : IGitAnnotatedCommit
 {
   private readonly libgit2.GitAnnotatedCommit _nativeAnnotatedCommit;
+  public libgit2.GitAnnotatedCommit NativeAnnotatedCommit => _nativeAnnotatedCommit;
 
   public GitAnnotatedCommit(libgit2.GitAnnotatedCommit nativeAnnotatedCommit)
   {

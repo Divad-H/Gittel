@@ -60,6 +60,21 @@ public interface IGitRepository : IDisposable
   IGitReference CreateBranch(string branchName, IGitCommit target, bool force);
 
   /// <summary>
+  /// Create a new branch pointing at a target commit
+  /// </summary>
+  /// <remarks>
+  /// This behaves like <see cref="CreateBranch(string, IGitCommit, bool)"/> but takes an annotated commit, 
+  /// which lets you specify which extended sha syntax string was 
+  /// specified by a user, allowing for more exact reflog messages.
+  /// </remarks>
+  /// <param name="branchName">Name for the branch; this name is validated for consistency. 
+  /// It should also not conflict with an already existing branch name.</param>
+  /// <param name="target">Commit to which this branch should point. This object must belong to this <see cref="IGitRepository"/>.</param>
+  /// <param name="force">Overwrite existing branch.</param>
+  /// <returns>The branch</returns>
+  IGitReference CreateBranch(string branchName, IGitAnnotatedCommit target, bool force);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>

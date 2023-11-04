@@ -76,6 +76,22 @@ public class GitRepositoryTest
   }
 
   [Fact]
+  public void CanCreateBranchFromAnnotated()
+  {
+    const string branchName = "test-branch";
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    using var head = repo.Repo.GetHead();
+    using var annotatedCommit = repo.Repo.GetAnnotatedCommitFromRef(head);
+
+    using var branch = repo.Repo.CreateBranch(branchName, annotatedCommit, false);
+
+    Assert.NotNull(branch);
+    Assert.Equal(branchName, branch.BranchName());
+  }
+
+  [Fact]
   public void CanLookupBranch()
   {
     const string branchName = "test-branch";
