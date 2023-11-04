@@ -16,6 +16,12 @@ internal class GitReference : IGitReference
     return name;
   }
 
+  public void DeleteBranch()
+  {
+    var res = libgit2.branch.GitBranchDelete(NativeGitReference);
+    CheckLibgit2.Check(res, "Unable to delete branch");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
