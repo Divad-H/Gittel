@@ -26,4 +26,15 @@ public interface IGitReference : IDisposable
   /// The reference must be representing a branch
   /// </remarks>
   void DeleteBranch();
+
+  /// <summary>
+  /// Determine if any HEAD points to the current branch
+  /// </summary>
+  /// <remarks>
+  /// This will iterate over all known linked repositories 
+  /// (usually in the form of worktrees) 
+  /// and report whether any HEAD is pointing at the current branch.
+  /// </remarks>
+  /// <returns>true, if the branch is checked out</returns>
+  bool IsBranchCheckedOut();
 }

@@ -22,6 +22,16 @@ internal class GitReference : IGitReference
     CheckLibgit2.Check(res, "Unable to delete branch");
   }
 
+  public bool IsBranchCheckedOut()
+  {
+    var res = libgit2.branch.GitBranchIsCheckedOut(NativeGitReference);
+    if (res < 0)
+    {
+      CheckLibgit2.Check(res, "Unable to check if branch is checked out");
+    }
+    return res == 1;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
