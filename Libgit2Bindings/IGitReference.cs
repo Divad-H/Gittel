@@ -39,4 +39,10 @@ public interface IGitReference : IDisposable
   /// </remarks>
   /// <returns>true, if the branch is checked out</returns>
   bool IsBranchCheckedOut();
+
+  /// <summary>
+  /// Determine if HEAD points to this branch
+  /// </summary>
+  /// <returns>true, if the branch is checked out</returns>
+  bool IsBranchHead();
 }

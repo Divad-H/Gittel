@@ -28,7 +28,7 @@ public class GitBranchTest
   }
 
   [Fact]
-  public void CanTestIfBranchIsNotCheckedOut()
+  public void CanTestIfBranchIsNotCheckedOutOrHead()
   {
     const string branchName = "test-branch";
 
@@ -37,6 +37,7 @@ public class GitBranchTest
     using var branch = repo.Repo.CreateBranch(branchName, commit, false);
 
     Assert.False(branch.IsBranchCheckedOut());
+    Assert.False(branch.IsBranchHead());
   }
 
   [Fact]
@@ -54,5 +55,6 @@ public class GitBranchTest
     repo.Repo.SetHead(canonicalName);
 
     Assert.True(branch.IsBranchCheckedOut());
+    Assert.True(branch.IsBranchHead());
   }
 }

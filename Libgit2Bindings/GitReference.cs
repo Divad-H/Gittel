@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 internal class GitReference : IGitReference
 {
@@ -28,6 +28,16 @@ internal class GitReference : IGitReference
     if (res < 0)
     {
       CheckLibgit2.Check(res, "Unable to check if branch is checked out");
+    }
+    return res == 1;
+  }
+
+  public bool IsBranchHead()
+  {
+    var res = libgit2.branch.GitBranchIsHead(NativeGitReference);
+    if (res < 0)
+    {
+      CheckLibgit2.Check(res, "Unable to check if branch is head");
     }
     return res == 1;
   }
