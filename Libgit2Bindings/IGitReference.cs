@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 [Flags]
 public enum BranchType
@@ -10,6 +10,8 @@ public enum BranchType
 
 public interface IGitReference : IDisposable
 {
+  public static string LocalBranchPrefix => "refs/heads/";
+
   /// <summary>
   /// Get the branch name
   /// </summary>

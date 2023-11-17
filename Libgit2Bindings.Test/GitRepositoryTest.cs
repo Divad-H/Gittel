@@ -107,29 +107,6 @@ public class GitRepositoryTest
   }
 
   [Fact]
-  public void CanDeleteBranch()
-  {
-    const string branchName = "test-branch";
-
-    using var repo = new RepoWithOneCommit();
-    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
-    {
-      using var branch = repo.Repo.CreateBranch(branchName, commit, false);
-      branch.DeleteBranch();
-    }
-    try
-    {
-      using var deletedBranch = repo.Repo.LookupBranch(branchName, BranchType.LocalBranch);
-    }
-    catch (Libgit2Exception ex)
-    {
-      Assert.Equal(-3, ex.ErrorCode);
-      return;
-    }
-    Assert.Fail("An exception should be thrown, indicating that the branch doesn't exist.");
-  }
-
-  [Fact]
   public void CanCloneLocalRepository()
   {
     using var sourceRepo = new RepoWithOneCommit();

@@ -8,6 +8,12 @@ public interface IGitRepository : IDisposable
   IGitReference GetHead();
 
   /// <summary>
+  /// Make the HEAD point to the specified reference.
+  /// </summary>
+  /// <param name="refName">Canonical name of the reference the HEAD should point at</param>
+  void SetHead(string refName);
+
+  /// <summary>
   /// Get the path of this repository
   /// </summary>
   /// <returns>The path of the repository</returns>

@@ -27,6 +27,12 @@ internal sealed class GitRepository : IGitRepository
     return new GitReference(head);
   }
 
+  public void SetHead(string refName)
+  {
+    var res = libgit2.repository.GitRepositorySetHead(_nativeGitRepository, refName);
+    CheckLibgit2.Check(res, "Unable to set HEAD");
+  }
+
   public string GetPath()
   {
     return libgit2.repository.GitRepositoryPath(_nativeGitRepository);
