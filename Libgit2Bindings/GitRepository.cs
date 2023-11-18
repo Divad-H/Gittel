@@ -65,6 +65,42 @@ internal sealed class GitRepository : IGitRepository
     return new GitReference(branch);
   }
 
+  public IEnumerable<GitReferenceBox> LookupBranches(BranchType filterTypes)
+  {
+    var res = libgit2.branch.GitBranchIteratorNew(
+      out var iterator, _nativeGitRepository, BranchTypeMapper.ToNative(filterTypes));
+    CheckLibgit2.Check(res, "Unable to create branch iterator");
+    try
+    {
+      while (true)
+      {
+        libgit2.GitBranchT branchType = 0;
+        res = libgit2.branch.GitBranchNext(out var branch, ref branchType, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to iterate over branches");
+        var referenceBox = new GitReferenceBox() { Reference = new GitReference(branch) };
+        try
+        {
+          yield return referenceBox;
+        }
+        finally
+        {
+          if (referenceBox.AutoDispose)
+          {
+            referenceBox.Reference.Dispose();
+          }
+        }
+      }
+    }
+    finally
+    {
+      libgit2.branch.GitBranchIteratorFree(iterator);
+    }
+  }
+
   public IGitReference CreateBranch(string branchName, IGitCommit target, bool force)
   {
     var concreteTarget = GittelObjects.DowncastNonNull<GitCommit>(target);

@@ -57,4 +57,33 @@ public class GitBranchTest
     Assert.True(branch.IsBranchCheckedOut());
     Assert.True(branch.IsBranchHead());
   }
+
+  [Fact]
+  public void CanIterateBranches()
+  {
+    const string branchName = "test-branch";
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    using var branch = repo.Repo.CreateBranch(branchName, commit, false);
+
+    foreach (var b in repo.Repo.LookupBranches(BranchType.All).DoNotAutoDisposeAfterIteration())
+    {
+      using (b)
+        Assert.NotNull(b.BranchName());
+    }
+  }
+
+  [Fact]
+  public void CanIterateBranchesWithAutoDispose()
+  {
+    const string branchName = "test-branch";
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    using var branch = repo.Repo.CreateBranch(branchName, commit, false);
+
+    var branchCount = repo.Repo.LookupBranches(BranchType.All).Count();
+    Assert.Equal(2, branchCount);
+  }
 }

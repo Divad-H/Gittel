@@ -56,6 +56,16 @@ public interface IGitRepository : IDisposable
   IGitReference LookupBranch(string branchName, BranchType branchType);
 
   /// <summary>
+  /// Returns an iterable of all requested branches in the repository.
+  /// </summary>
+  /// <remarks>
+  /// See <see cref="GitReferenceBox"/> for information about how to control the lifetime of the iterated branches.
+  /// </remarks>
+  /// <param name="filterTypes">Filtering flags for the branch listing</param>
+  /// <returns>The iterable</returns>
+  IEnumerable<GitReferenceBox> LookupBranches(BranchType filterTypes);
+
+  /// <summary>
   /// Create a new branch pointing at a target commit
   /// </summary>
   /// <param name="branchName">Name for the branch; this name is validated for consistency. 
