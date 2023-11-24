@@ -155,4 +155,13 @@ public interface ILibgit2
   /// <param name="blobData"></param>
   /// <returns>true if the content of the blob is detected as binary; false otherwise.</returns>
   bool BlobDataIsBinary(byte[] blobData);
+
+  /// <summary>
+  /// Determine whether a branch name is valid, meaning that (when prefixed with refs/heads/)
+  /// that it is a valid reference name, and that any additional branch name restrictions are 
+  /// imposed (eg, it cannot start with a -).
+  /// </summary>
+  /// <param name="branchName">a branch name to test</param>
+  /// <returns>validity of given branch name</returns>
+  bool BranchNameIsValid(string branchName);
 }

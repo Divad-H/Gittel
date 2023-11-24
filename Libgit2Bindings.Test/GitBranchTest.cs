@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -99,5 +99,16 @@ public class GitBranchTest
 
     branch.MoveBranch(newBranchName, false);
     Assert.Equal(newBranchName, branch.BranchName());
+  }
+
+  [Fact]
+  public void CanCheckIfBranchNameIsValid()
+  {
+    using Libgit2 libgit2 = new();
+
+    Assert.True(libgit2.BranchNameIsValid("foo"));
+    Assert.True(libgit2.BranchNameIsValid("refs/heads/main"));
+    Assert.False(libgit2.BranchNameIsValid("refs/heads/"));
+    Assert.False(libgit2.BranchNameIsValid("-foo"));
   }
 }

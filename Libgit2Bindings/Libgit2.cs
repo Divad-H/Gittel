@@ -157,6 +157,14 @@ internal class Libgit2 : ILibgit2, IDisposable
     return res != 0;
   }
 
+  public bool BranchNameIsValid(string branchName)
+  {
+    int valid = 0;
+    var res = libgit2.branch.GitBranchNameIsValid(ref valid, branchName);
+    CheckLibgit2.Check(res, "Unable to check if branch name is valid");
+    return valid != 0;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
