@@ -101,6 +101,16 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public string GetRemoteNameFromBranch(string completeTrackingBranchName)
+  {
+    var res = libgit2.branch.GitBranchRemoteName(out var remoteName, _nativeGitRepository, completeTrackingBranchName);
+    using (remoteName.GetDisposer())
+    {
+      CheckLibgit2.Check(res, "Unable to get remote name from branch '{0}'", completeTrackingBranchName);
+      return StringUtil.ToString(remoteName);
+    }
+  }
+
   public IGitReference CreateBranch(string branchName, IGitCommit target, bool force)
   {
     var concreteTarget = GittelObjects.DowncastNonNull<GitCommit>(target);

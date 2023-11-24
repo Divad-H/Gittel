@@ -66,6 +66,18 @@ public interface IGitRepository : IDisposable
   IEnumerable<GitReferenceBox> LookupBranches(BranchType filterTypes);
 
   /// <summary>
+  /// Find the remote name of a remote-tracking branch
+  /// </summary>
+  /// <remarks>
+  /// This will return the name of the remote whose fetch refspec is matching the given branch. 
+  /// E.g. given a branch "refs/remotes/test/master", it will extract the "test" part. If refspecs 
+  /// from multiple remotes match, the function will throw an error with code GIT_EAMBIGUOUS.
+  /// </remarks>
+  /// <param name="completeTrackingBranchName">complete name of the remote tracking branch.</param>
+  /// <returns>The remote name</returns>
+  string GetRemoteNameFromBranch(string completeTrackingBranchName);
+
+  /// <summary>
   /// Create a new branch pointing at a target commit
   /// </summary>
   /// <param name="branchName">Name for the branch; this name is validated for consistency. 

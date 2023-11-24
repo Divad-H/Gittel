@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.Helpers;
+using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -110,5 +111,18 @@ public class GitBranchTest
     Assert.True(libgit2.BranchNameIsValid("refs/heads/main"));
     Assert.False(libgit2.BranchNameIsValid("refs/heads/"));
     Assert.False(libgit2.BranchNameIsValid("-foo"));
+  }
+
+  [Fact]
+  public void CanGetRemoteNameFromRemoteTrackingBranchName()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+    using var tempDirectory = new TemporaryDirectory();
+
+    using var clonedRepo = sourceRepo.Libgit2.Clone(
+      sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath);
+
+    var remoteName = clonedRepo.GetRemoteNameFromBranch("refs/remotes/origin/main");
+    Assert.Equal("origin", remoteName);
   }
 }
