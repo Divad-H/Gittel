@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Test.Helpers;
+using Libgit2Bindings.Test.Helpers;
 using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
@@ -124,5 +124,21 @@ public class GitBranchTest
 
     var remoteName = clonedRepo.GetRemoteNameFromBranch("refs/remotes/origin/main");
     Assert.Equal("origin", remoteName);
+  }
+
+  [Fact]
+  public void CanSetUpstream()
+  {
+    const string branchName = "test-branch";
+    const string upstreamBranchName = "test-upstream-branch";
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    using var branch = repo.Repo.CreateBranch(branchName, commit, false);
+    using var upstreamBranch = repo.Repo.CreateBranch(upstreamBranchName, commit, false);
+
+    branch.SetUpstream(upstreamBranchName);
+    using var retrievedUpstreamBranch = branch.GetUpstream();
+    Assert.Equal(upstreamBranchName, retrievedUpstreamBranch.BranchName());
   }
 }

@@ -57,4 +57,24 @@ public interface IGitReference : IDisposable
   /// </summary>
   /// <returns>true, if the branch is checked out</returns>
   bool IsBranchHead();
+
+  /// <summary>
+  /// Get the upstream of a branch
+  /// </summary>
+  /// <remarks>
+  /// this will return a new reference object corresponding to its remote tracking branch.
+  /// The reference must be a local branch.
+  /// </remarks>
+  /// <returns>the retrieved reference.</returns>
+  IGitReference GetUpstream();
+
+  /// <summary>
+  /// Set a branch's upstream branch
+  /// </summary>
+  /// <remarks>
+  /// This will update the configuration to set the branch named branchName as the upstream of branch. 
+  /// Pass a null name to unset the upstream information.
+  /// </remarks>
+  /// <param name="branchName">remote-tracking or local branch to set as upstream.</param>
+  void SetUpstream(string? branchName);
 }

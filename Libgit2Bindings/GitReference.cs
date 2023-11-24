@@ -51,6 +51,19 @@ internal class GitReference : IGitReference
     return res == 1;
   }
 
+  public IGitReference GetUpstream()
+  {
+    var res = libgit2.branch.GitBranchUpstream(out var upstream, NativeGitReference);
+    CheckLibgit2.Check(res, "Unable to get upstream branch");
+    return new GitReference(upstream);
+  }
+
+  public void SetUpstream(string? branchName)
+  {
+    var res = libgit2.branch.GitBranchSetUpstream(NativeGitReference, branchName);
+    CheckLibgit2.Check(res, "Unable to set upstream branch");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
