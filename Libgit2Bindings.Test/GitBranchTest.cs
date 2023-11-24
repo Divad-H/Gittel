@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Test.TestData;
+using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -85,5 +85,19 @@ public class GitBranchTest
 
     var branchCount = repo.Repo.LookupBranches(BranchType.All).Count();
     Assert.Equal(2, branchCount);
+  }
+
+  [Fact]
+  public void CanMoveBranch()
+  {
+    const string branchName = "test-branch";
+    const string newBranchName = "test-branch-renamed";
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    using var branch = repo.Repo.CreateBranch(branchName, commit, false);
+
+    branch.MoveBranch(newBranchName, false);
+    Assert.Equal(newBranchName, branch.BranchName());
   }
 }

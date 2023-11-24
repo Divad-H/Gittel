@@ -2,7 +2,7 @@ namespace Libgit2Bindings;
 
 internal class GitReference : IGitReference
 {
-  public libgit2.GitReference NativeGitReference { get; }
+  public libgit2.GitReference NativeGitReference { get; private set; }
 
   public GitReference(libgit2.GitReference nativeGitReference)
   {
@@ -20,6 +20,15 @@ internal class GitReference : IGitReference
   {
     var res = libgit2.branch.GitBranchDelete(NativeGitReference);
     CheckLibgit2.Check(res, "Unable to delete branch");
+  }
+
+  public void MoveBranch(string newBranchName, bool force)
+  {
+    var res = libgit2.branch.GitBranchMove(
+      out var newReference, NativeGitReference, newBranchName, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to move branch");
+    libgit2.refs.GitReferenceFree(NativeGitReference);
+    NativeGitReference = newReference;
   }
 
   public bool IsBranchCheckedOut()

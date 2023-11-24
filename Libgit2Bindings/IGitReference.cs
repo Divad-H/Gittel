@@ -30,6 +30,18 @@ public interface IGitReference : IDisposable
   void DeleteBranch();
 
   /// <summary>
+  /// Move/rename an existing local branch reference.
+  /// </summary>
+  /// <remarks>
+  /// The new branch name will be checked for validity.
+  /// </remarks>
+  /// <param name="newBranchName">
+  /// Target name of the branch once the move is performed; this name is validated for consistency.
+  /// </param>
+  /// <param name="force">Overwrite existing branch.</param>
+  void MoveBranch(string newBranchName, bool force);
+
+  /// <summary>
   /// Determine if any HEAD points to the current branch
   /// </summary>
   /// <remarks>
