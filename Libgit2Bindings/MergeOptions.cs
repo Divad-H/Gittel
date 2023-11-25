@@ -44,7 +44,7 @@ public enum GitMergeFlags
   VirtualBase = (1 << 4),
 }
 
-public enum MergeFileFlavor
+public enum MergeFileFavor
 {
   /// <summary>
   /// When a region of a file is changed in both branches, a conflict
@@ -87,7 +87,7 @@ public enum MergeFileFlags
   Default = 0,
 
   /// <summary> Create standard conflicted merge files </summary>
-  StyleMergs = (1 << 0),
+  StyleMerge = (1 << 0),
 
   /// <summary> Create diff3-style files </summary>
   StyleDiff3 = (1 << 1),
@@ -209,11 +209,11 @@ public record MergeOptions
   public string? DefaultDriver { get; init; } = null;
 
   /// <summary>
-  /// <see cref="Libgit2Bindings.MergeFileFlavor"/>
+  /// <see cref="Libgit2Bindings.MergeFileFavor"/>
   /// Options for handling conflicting content, to be used with the standard
 	/// (`text`) merge driver.
   /// </summary>
-  public MergeFileFlavor MergeFileFlavor { get; init; } = MergeFileFlavor.Normal;
+  public MergeFileFavor MergeFileFavor { get; init; } = MergeFileFavor.Normal;
 
   /// <summary>
   /// <see cref="MergeFileFlags"/>

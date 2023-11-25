@@ -8,7 +8,7 @@ public record CherrypickOptions
   /// <summary>
   /// For merge commits, the "mainline" is treated as the parent. 
   /// </summary>
-  public int Mainline { get; init; } = 0;
+  public UInt32 Mainline { get; init; } = 0;
 
   /// <summary>
   /// Options for the merging
