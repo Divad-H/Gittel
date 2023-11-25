@@ -57,6 +57,17 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to checkout HEAD");
   }
 
+  public void CheckoutIndex(IGitIndex? index = null, CheckoutOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = CheckoutOptionsMapper.ToNative(options, scope);
+
+    var managedIndex = GittelObjects.Downcast<GitIndex>(index);
+    var res = libgit2.checkout.GitCheckoutIndex(
+      _nativeGitRepository, managedIndex?.NativeGitIndex, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to checkout index");
+  }
+
   public IGitReference LookupBranch(string branchName, BranchType branchType)
   {
     var branchTypeNative = BranchTypeMapper.ToNative(branchType);

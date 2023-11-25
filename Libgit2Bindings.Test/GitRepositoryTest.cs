@@ -33,19 +33,39 @@ public class GitRepositoryTest
   }
 
   [Fact]
-  public void CanCheckoutSimpleRepositoryHead()
+  public async Task CanCheckoutSimpleRepositoryHead()
   {
-    using var libgit2 = new Libgit2();
+    using var repo = new RepoWithOneCommit();
 
-    using var repo = libgit2.OpenRepository(@"G:\Projects\test-repo-worktree");
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    await File.WriteAllLinesAsync(fileFullPath, ["content"]);
 
-    CheckoutOptions checkoutOptions = new()
+    repo.Repo.CheckoutHead(new()
     {
-      Strategy = CheckoutStrategy.Force
-    };
-    repo.CheckoutHead(checkoutOptions);
+      Strategy = CheckoutStrategy.Force,
+    });
 
-    int sieben = 9;
+    var content = await File.ReadAllTextAsync(fileFullPath);
+
+    Assert.StartsWith("my content", content);
+  }
+
+  [Fact]
+  public async Task CanCheckoutSimpleRepositoryIndex()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    await File.WriteAllLinesAsync(fileFullPath, ["content"]);
+
+    repo.Repo.CheckoutIndex(null, new()
+    {
+      Strategy = CheckoutStrategy.Force,
+    });
+
+    var content = await File.ReadAllTextAsync(fileFullPath);
+
+    Assert.StartsWith("my content", content);
   }
 
   [Fact]

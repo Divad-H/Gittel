@@ -48,6 +48,13 @@ public interface IGitRepository : IDisposable
   void CheckoutHead(CheckoutOptions? options = null);
 
   /// <summary>
+  /// Updates files in the working tree to match the content of the index.
+  /// </summary>
+  /// <param name="index">index to be checked out (or null to use repository index)</param>
+  /// <param name="options">specifies checkout options</param>
+  void CheckoutIndex(IGitIndex? index = null, CheckoutOptions? options = null);
+
+  /// <summary>
   /// Lookup a branch by its name in a repository.
   /// </summary>
   /// <param name="branchName">Name of the branch to be looked up; this name is validated for consistency</param>
