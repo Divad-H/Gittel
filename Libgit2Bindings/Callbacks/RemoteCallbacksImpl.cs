@@ -198,7 +198,7 @@ internal class RemoteCallbacksImpl : IDisposable
     return func.ExecuteInTryCatch(nameof(RemoteCallbacks.PackProgress));
   }
 
-  public static int GitPushTransferProgressCb(uint current, uint total, ulong bytes, IntPtr payload)
+  public static int GitPushTransferProgressCb(uint current, uint total, UIntPtr bytes, IntPtr payload)
   {
     Func<GitOperationContinuation> func = () =>
     {
@@ -234,7 +234,7 @@ internal class RemoteCallbacksImpl : IDisposable
     return func.ExecuteInTryCatch(nameof(RemoteCallbacks.PushUpdateReference));
   }
 
-  public static int GitPushNegotiation(IntPtr updates, UInt64 len, IntPtr payload)
+  public static int GitPushNegotiation(IntPtr updates, UIntPtr len, IntPtr payload)
   {
     Func<GitOperationContinuation> func = () =>
     {

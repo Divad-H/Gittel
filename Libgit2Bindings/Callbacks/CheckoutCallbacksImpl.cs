@@ -43,7 +43,7 @@ internal sealed class CheckoutCallbacksImpl : IDisposable
     return func.ExecuteInTryCatch(nameof(GitCheckoutNotifyCb));
   }
 
-  public static void GitCheckoutProgressCb(string path, ulong completed_steps, ulong total_steps, IntPtr payload)
+  public static void GitCheckoutProgressCb(string path, UIntPtr completed_steps, UIntPtr total_steps, IntPtr payload)
   {
     try
     {

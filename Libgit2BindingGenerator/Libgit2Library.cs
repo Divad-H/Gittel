@@ -24,6 +24,8 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitDiffOptionsVersion", "GIT_DIFF_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitBlobFilterOptionsVersion", "GIT_BLOB_FILTER_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitBlameOptionsVersion", "GIT_BLAME_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitMergeOptionsVersion", "GIT_MERGE_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitCherrypickOptionsVersion", "GIT_CHERRYPICK_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
@@ -212,13 +214,23 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
 {
   public override bool VisitFunctionType(FunctionType function, TypeQualifiers quals)
   {
-    foreach(var param in function.Parameters)
+    foreach (var param in function.Parameters)
     {
-      if (param.Name == "buf" && param.QualifiedType.Type.IsConstCharString())
+      if ((param.Name == "buf" || param.Name == "buffer") && param.QualifiedType.Type.IsConstCharString())
       {
         param.QualifiedType = new QualifiedType(
           new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
           new TypeQualifiers() { IsConst = true });
+      }
+
+      if (param.QualifiedType.Type is TypedefType typeDefType)
+      {
+        if (typeDefType.Declaration.Name == "size_t")
+        {
+          param.QualifiedType = new QualifiedType(
+            new BuiltinType(PrimitiveType.UIntPtr),
+            param.QualifiedType.Qualifiers);
+        }
       }
     }
 
@@ -244,6 +256,19 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
       foreach (var parameter in function.Parameters)
       {
         if (parameter.Name == "buffer")
+        {
+          parameter.QualifiedType = new QualifiedType(
+            new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
+            new TypeQualifiers() { IsConst = true });
+        }
+      }
+    }
+
+    if (function.Name != "git_signature_from_buffer")
+    {
+      foreach (var parameter in function.Parameters)
+      {
+        if ((parameter.Name == "buf" || parameter.Name == "buffer") && parameter.QualifiedType.Type.IsConstCharString())
         {
           parameter.QualifiedType = new QualifiedType(
             new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
