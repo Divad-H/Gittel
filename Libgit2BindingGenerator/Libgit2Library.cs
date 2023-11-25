@@ -210,6 +210,21 @@ internal class FixOutVariablePass : TranslationUnitPass
 
 internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
 {
+  public override bool VisitFunctionType(FunctionType function, TypeQualifiers quals)
+  {
+    foreach(var param in function.Parameters)
+    {
+      if (param.Name == "buf" && param.QualifiedType.Type.IsConstCharString())
+      {
+        param.QualifiedType = new QualifiedType(
+          new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
+          new TypeQualifiers() { IsConst = true });
+      }
+    }
+
+    return base.VisitFunctionType(function, quals);
+  }
+
   public override bool VisitFunctionDecl(Function function)
   {
     if (function.Name == "git_blob_data_is_binary")
