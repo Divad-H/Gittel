@@ -111,6 +111,39 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public string GetBranchUpstreamMerge(string fullBranchName)
+  {
+    var res = libgit2.branch.GitBranchUpstreamMerge(
+      out var upstreamName, _nativeGitRepository, fullBranchName);
+    using (upstreamName.GetDisposer())
+    {
+      CheckLibgit2.Check(res, "Unable to get upstream merge for branch '{0}'", fullBranchName);
+      return StringUtil.ToString(upstreamName);
+    }
+  }
+
+  public string GetBranchUpstreamName(string localBranchName)
+  {
+    var res = libgit2.branch.GitBranchUpstreamName(
+      out var upstreamName, _nativeGitRepository, localBranchName);
+    using (upstreamName.GetDisposer())
+    {
+      CheckLibgit2.Check(res, "Unable to get upstream name for branch '{0}'", localBranchName);
+      return StringUtil.ToString(upstreamName);
+    }
+  }
+
+  public string GetBranchUpstreamRemote(string fullBranchName)
+  {
+    var res = libgit2.branch.GitBranchUpstreamRemote(
+      out var upstreamRemote, _nativeGitRepository, fullBranchName);
+    using (upstreamRemote.GetDisposer())
+    {
+      CheckLibgit2.Check(res, "Unable to get upstream remote for branch '{0}'", fullBranchName);
+      return StringUtil.ToString(upstreamRemote);
+    }
+  }
+
   public IGitReference CreateBranch(string branchName, IGitCommit target, bool force)
   {
     var concreteTarget = GittelObjects.DowncastNonNull<GitCommit>(target);

@@ -78,6 +78,39 @@ public interface IGitRepository : IDisposable
   string GetRemoteNameFromBranch(string completeTrackingBranchName);
 
   /// <summary>
+  /// Retrieve the upstream merge of a local branch
+  /// </summary>
+  /// <remarks>
+  /// This will return the currently configured "branch.*.merge" for a given branch. This branch must be local.
+  /// </remarks>
+  /// <param name="fullBranchName">the full name of the branch</param>
+  /// <returns>the name of the upsream merge</returns>
+  string GetBranchUpstreamMerge(string fullBranchName);
+
+  /// <summary>
+  /// Get the upstream name of a branch
+  /// </summary>
+  /// <remarks>
+  /// Given a local branch, this will return its remote-tracking branch information, 
+  /// as a full reference name, ie. "feature/nice" would become "refs/remote/origin/feature/nice", 
+  /// depending on that branch's configuration.
+  /// </remarks>
+  /// <param name="localBranchName">reference name of the local branch.</param>
+  /// <returns>the name of the upstream</returns>
+  string GetBranchUpstreamName(string localBranchName);
+
+  /// <summary>
+  /// Retrieve the upstream remote of a local branch
+  /// </summary>
+  /// <remarks>
+  /// This will return the currently configured "branch.*.remote" for a given branch.
+  /// This branch must be local.
+  /// </remarks>
+  /// <param name="fullBranchName">the full name of the branch</param>
+  /// <returns>The name of the remote</returns>
+  string GetBranchUpstreamRemote(string fullBranchName);
+
+  /// <summary>
   /// Create a new branch pointing at a target commit
   /// </summary>
   /// <param name="branchName">Name for the branch; this name is validated for consistency. 

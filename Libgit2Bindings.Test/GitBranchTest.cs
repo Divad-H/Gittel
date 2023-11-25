@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.Helpers;
+﻿using Libgit2Bindings.Test.Helpers;
 using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
@@ -140,5 +140,50 @@ public class GitBranchTest
     branch.SetUpstream(upstreamBranchName);
     using var retrievedUpstreamBranch = branch.GetUpstream();
     Assert.Equal(upstreamBranchName, retrievedUpstreamBranch.BranchName());
+  }
+
+  [Fact]
+  public void CanGetBranchUpstreamMerge()
+  {
+    const string branchName = "test-branch";
+    const string upstreamBranchName = "test-upstream-branch";
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    using var branch = repo.Repo.CreateBranch(branchName, commit, false);
+    using var upstreamBranch = repo.Repo.CreateBranch(upstreamBranchName, commit, false);
+
+    branch.SetUpstream(upstreamBranchName);
+
+    var retrievedUpstreamBranchName = repo.Repo.GetBranchUpstreamMerge(
+      $"{IGitReference.LocalBranchPrefix}{branchName}");
+    Assert.Equal($"{IGitReference.LocalBranchPrefix}{upstreamBranchName}", retrievedUpstreamBranchName);
+  }
+
+  [Fact]
+  public void CanGetUpstreamRemote()
+  {
+    const string branchName = "test-branch";
+
+    using var sourceRepo = new RepoWithOneCommit();
+    using var commit = sourceRepo.Repo.LookupCommit(sourceRepo.CommitOid);
+    using var branch = sourceRepo.Repo.CreateBranch(branchName, commit, false);
+    using var tempDirectory = new TemporaryDirectory();
+
+
+    using var clonedRepo = sourceRepo.Libgit2.Clone(
+      sourceRepo.TempDirectory.DirectoryPath, tempDirectory.DirectoryPath, new()
+      {
+        CheckoutBranch = branchName,
+      });
+
+    using var downstreamBranch = clonedRepo.LookupBranch(branchName, BranchType.All);
+
+    var retrievedUpstreamRemoteName = clonedRepo.GetBranchUpstreamRemote(
+      $"{IGitReference.LocalBranchPrefix}{branchName}");
+    Assert.Equal("origin", retrievedUpstreamRemoteName);
+
+    var name = clonedRepo.GetBranchUpstreamName($"{IGitReference.LocalBranchPrefix}{branchName}");
+    Assert.Equal($"refs/remotes/origin/{branchName}", name);
   }
 }
