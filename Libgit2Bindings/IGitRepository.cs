@@ -143,6 +143,13 @@ public interface IGitRepository : IDisposable
   IGitReference CreateBranch(string branchName, IGitAnnotatedCommit target, bool force);
 
   /// <summary>
+  /// Cherry-pick the given commit, producing changes in the index and working directory.
+  /// </summary>
+  /// <param name="commit">the commit to cherry-pick</param>
+  /// <param name="options">the cherry-pick options (or null for defaults)</param>
+  void Cherrypick(IGitCommit commit, CherrypickOptions? options = null);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>

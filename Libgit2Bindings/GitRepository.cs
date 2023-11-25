@@ -173,6 +173,16 @@ internal sealed class GitRepository : IGitRepository
     return new GitReference(branch);
   }
 
+  public void Cherrypick(IGitCommit commit, CherrypickOptions? options = null)
+  {
+    var managedCommit = GittelObjects.DowncastNonNull<GitCommit>(commit);
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var res = libgit2.cherrypick.GitCherrypick(
+       _nativeGitRepository, managedCommit.NativeGitCommit, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to cherrypick commit");
+  }
+
   public IGitSignature DefaultGitSignature()
   {
     var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);
