@@ -33,4 +33,14 @@ public interface IGitObject : IDisposable
   /// Get the repository that contains this object
   /// </summary>
   IGitRepository Owner { get; }
+
+  /// <summary>
+  /// Get a short abbreviated OID string for the object
+  /// </summary>
+  /// <remarks>
+  /// This starts at the "core.abbrev" length (default 7 characters) and iteratively 
+  /// extends to a longer string if that length is ambiguous. The result will be 
+  /// unambiguous (at least until new objects are added to the repository).
+  /// </remarks>
+  string ShortId { get; }
 }

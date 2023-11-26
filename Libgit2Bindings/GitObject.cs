@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -23,6 +24,19 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
     {
       var res = libgit2.@object.GitObjectOwner(NativeGitObject);
       return new GitRepository(res, true);
+    }
+  }
+
+  public string ShortId
+  {
+    get
+    {
+      var res = libgit2.@object.GitObjectShortId(out var buf, NativeGitObject);
+      using (buf)
+      {
+        CheckLibgit2.Check(res, "Unable to get short id");
+        return StringUtil.ToString(buf);
+      }
     }
   }
 

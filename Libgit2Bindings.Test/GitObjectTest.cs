@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -76,5 +76,15 @@ public class GitObjectTest
     byte[] rawInvalidCommit = Encoding.UTF8.GetBytes(invalidCommit);
     valid = libgit2.GitObjectRawContentIsValid(rawInvalidCommit, GitObjectType.Commit);
     Assert.False(valid);
+  }
+
+  [Fact]
+  public void CanGetShortId()
+  {
+    using var repo = new EmptyRepo();
+    var oid = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("my content"));
+    using var blob = repo.Repo.LookupObject(oid, GitObjectType.Blob);
+    var shortId = blob.ShortId;
+    Assert.StartsWith(shortId, oid.Sha);
   }
 }
