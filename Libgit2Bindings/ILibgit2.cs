@@ -164,4 +164,11 @@ public interface ILibgit2
   /// <param name="branchName">a branch name to test</param>
   /// <returns>validity of given branch name</returns>
   bool BranchNameIsValid(string branchName);
+
+  /// <summary>
+  /// Determine if the given <see cref="GitObjectType"/> is a valid loose object type.
+  /// </summary>
+  /// <param name="type">object type to test.</param>
+  /// <returns>true if the type represents a valid loose object type, false otherwise.</returns>
+  bool GitObjectTypeIsLoose(GitObjectType type);
 }

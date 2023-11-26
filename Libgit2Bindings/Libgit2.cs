@@ -165,6 +165,11 @@ internal class Libgit2 : ILibgit2, IDisposable
     return valid != 0;
   }
 
+  public bool GitObjectTypeIsLoose(GitObjectType type)
+  {
+    return libgit2.@object.GitObjectTypeisloose(type.ToNative()) != 0;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

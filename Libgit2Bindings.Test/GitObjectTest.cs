@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -32,6 +32,20 @@ public class GitObjectTest
     using var blobObject = treeObject.LookupByPath(RepoWithOneCommit.Filename, GitObjectType.Blob);
     var type = blobObject.Type;
     Assert.Equal(GitObjectType.Blob, type);
+  }
+
+  [Fact]
+  public void CanDetermineLooseObjectTypes()
+  {
+    using var libgit2 = new Libgit2();
+    Assert.True(libgit2.GitObjectTypeIsLoose(GitObjectType.Tag));
+    Assert.True(libgit2.GitObjectTypeIsLoose(GitObjectType.Blob));
+    Assert.True(libgit2.GitObjectTypeIsLoose(GitObjectType.Tree));
+    Assert.True(libgit2.GitObjectTypeIsLoose(GitObjectType.Commit));
+    Assert.False(libgit2.GitObjectTypeIsLoose(GitObjectType.OffsetDelta));
+    Assert.False(libgit2.GitObjectTypeIsLoose(GitObjectType.RefDelta));
+    Assert.False(libgit2.GitObjectTypeIsLoose(GitObjectType.Any));
+    Assert.False(libgit2.GitObjectTypeIsLoose(GitObjectType.Invalid));
   }
 
   [Fact]
