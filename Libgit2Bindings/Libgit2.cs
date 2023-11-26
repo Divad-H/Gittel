@@ -170,6 +170,16 @@ internal class Libgit2 : ILibgit2, IDisposable
     return libgit2.@object.GitObjectTypeisloose(type.ToNative()) != 0;
   }
 
+  public bool GitObjectRawContentIsValid(byte[] rawContent, GitObjectType type)
+  {
+    using var pinnedBuffer = new PinnedBuffer(rawContent);
+    int valid = 0;
+    var res = libgit2.@object.GitObjectRawcontentIsValid(
+      ref valid, pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length, type.ToNative());
+    CheckLibgit2.Check(res, "Unable to check if raw content is valid");
+    return valid != 0;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -171,4 +171,15 @@ public interface ILibgit2
   /// <param name="type">object type to test.</param>
   /// <returns>true if the type represents a valid loose object type, false otherwise.</returns>
   bool GitObjectTypeIsLoose(GitObjectType type);
+
+  /// <summary>
+  /// Analyzes a buffer of raw object content and determines its validity. 
+  /// Tree, commit, and tag objects will be parsed and ensured that they are valid,
+  /// parseable content. (Blobs are always valid by definition.) 
+  /// An error message will be set with an informative message if the object is not valid.
+  /// </summary>
+  /// <param name="rawContent">The contents to validate</param>
+  /// <param name="type">The type of the object in the buffer</param>
+  /// <returns>true, if the content is valid, false othewise</returns>
+  bool GitObjectRawContentIsValid(byte[] rawContent, GitObjectType type);
 }

@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Test.TestData;
+using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -55,5 +55,26 @@ public class GitObjectTest
     var oid = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("my content"));
     using var blob = repo.Repo.LookupObject(oid, GitObjectType.Blob);
     Assert.Equal(repo.Repo.GetPath(), blob.Owner.GetPath());
+  }
+
+  [Fact]
+  public void CanTestIfRawContentIsValid()
+  {
+    using var libgit2 = new Libgit2();
+
+    const string commit = "tree 4b825dc642cb6eb9a060e54bf8d69288fbee4904\n" +
+      "author David Hübscher <huebschersdavid@gmail.com> 1696283371 +0200\n" +
+      "committer David Hübscher <huebschersdavid@gmail.com> 1696283371 +0200\n" +
+      "\n" +
+      "an empty but signed commit\n";
+
+    byte[] rawCommit = Encoding.UTF8.GetBytes(commit);
+    var valid = libgit2.GitObjectRawContentIsValid(rawCommit, GitObjectType.Commit);
+    Assert.True(valid);
+
+    const string invalidCommit = "rubbish";
+    byte[] rawInvalidCommit = Encoding.UTF8.GetBytes(invalidCommit);
+    valid = libgit2.GitObjectRawContentIsValid(rawInvalidCommit, GitObjectType.Commit);
+    Assert.False(valid);
   }
 }
