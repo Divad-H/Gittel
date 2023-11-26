@@ -15,6 +15,13 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
     }
   }
 
+  public IGitObject Duplicate()
+  {
+    var res = libgit2.@object.GitObjectDup(out var nativeGitObject, NativeGitObject);
+    CheckLibgit2.Check(res, "Unable to duplicate object");
+    return new GitObject(nativeGitObject);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
