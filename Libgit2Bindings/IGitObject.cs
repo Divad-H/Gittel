@@ -1,5 +1,6 @@
 ﻿namespace Libgit2Bindings;
 
-public interface IGitObject
+public interface IGitObject : IDisposable
 {
+  public GitOid Id { get; }
 }

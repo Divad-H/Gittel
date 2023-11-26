@@ -464,4 +464,17 @@ public interface IGitRepository : IDisposable
   /// <param name="options">options for the blame operation</param>
   /// <returns>the blame object</returns>
   IGitBlame BlameFile(string path, GitBlameOptions? options = null);
+
+  /// <summary>
+  /// Lookup a reference to one of the objects in a repository.
+  /// </summary>
+  /// <remarks>
+  /// The 'type' parameter must match the type of the object in the odb; 
+  /// the method will fail otherwise.The special value <see cref="GitObjectType.Any"/> 
+  /// may be passed to let the method guess the object's type.
+  /// </remarks>
+  /// <param name="oid">the unique identifier for the object</param>
+  /// <param name="type">the type of the object</param>
+  /// <returns>the looked-up object</returns>
+  IGitObject LookupObject(GitOid oid, GitObjectType type);
 }

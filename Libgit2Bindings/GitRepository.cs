@@ -478,6 +478,15 @@ internal sealed class GitRepository : IGitRepository
     return new GitBlame(nativeBlame);
   }
 
+  public IGitObject LookupObject(GitOid oid, GitObjectType type)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.@object.GitObjectLookup(
+      out var nativeObject, _nativeGitRepository, nativeOid, type.ToNative());
+    CheckLibgit2.Check(res, "Unable to lookup object");
+    return new GitObject(nativeObject);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
