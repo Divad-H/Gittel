@@ -16,6 +16,7 @@ internal class RepoWithOneCommit : IDisposable
   public IGitSignature Signature { get; }
   public GitOid CommitOid { get; }
   public IGitTree Tree { get; }
+  public GitOid TreeOid { get; }
 
   public RepoWithOneCommit()
   {
@@ -34,10 +35,10 @@ internal class RepoWithOneCommit : IDisposable
     using var index = Repo.GetIndex();
 
     index.AddByPath(filename);
-    var treeOid = index.WriteTree();
+    TreeOid = index.WriteTree();
     index.Write();
 
-    Tree = Repo.LookupTree(treeOid);
+    Tree = Repo.LookupTree(TreeOid);
 
     CommitOid = Repo.CreateCommit("HEAD", Signature, Signature, CommitMessage, Tree, null);
   }

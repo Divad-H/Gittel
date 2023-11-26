@@ -2,7 +2,7 @@
 
 internal static class GitObjectTypeMapper
 {
-  public static GitObjectType FromNative(libgit2.GitObjectT nativeGitObjectType)
+  public static GitObjectType ToManaged(this libgit2.GitObjectT nativeGitObjectType)
   {
     return nativeGitObjectType switch
     {

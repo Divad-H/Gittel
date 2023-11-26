@@ -23,4 +23,14 @@ public class GitObjectTest
     using var duplicate = blob.Duplicate();
     Assert.Equal(oid, duplicate.Id);
   }
+
+  [Fact]
+  public void CanLookupObjectByPath()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var treeObject = repo.Repo.LookupObject(repo.TreeOid, GitObjectType.Tree);
+    using var blobObject = treeObject.LookupByPath(RepoWithOneCommit.Filename, GitObjectType.Blob);
+    var type = blobObject.Type;
+    Assert.Equal(GitObjectType.Blob, type);
+  }
 }

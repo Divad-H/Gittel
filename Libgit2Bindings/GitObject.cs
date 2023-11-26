@@ -15,10 +15,20 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
     }
   }
 
+  public GitObjectType Type => libgit2.@object.GitObjectType(NativeGitObject).ToManaged();
+
   public IGitObject Duplicate()
   {
     var res = libgit2.@object.GitObjectDup(out var nativeGitObject, NativeGitObject);
     CheckLibgit2.Check(res, "Unable to duplicate object");
+    return new GitObject(nativeGitObject);
+  }
+
+  public IGitObject LookupByPath(string path, GitObjectType type)
+  {
+    var res = libgit2.@object.GitObjectLookupBypath(
+      out var nativeGitObject, NativeGitObject, path, type.ToNative());
+    CheckLibgit2.Check(res, "Unable to lookup object by path '{0}'", path);
     return new GitObject(nativeGitObject);
   }
 

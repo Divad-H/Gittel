@@ -2,19 +2,14 @@
 
 namespace Libgit2Bindings;
 
-internal class GitTree : IGitTree
+internal class GitTree(libgit2.GitTree nativeGitTree) : IGitTree
 {
-  private readonly libgit2.GitTree _nativeGitTree;
+  private readonly libgit2.GitTree _nativeGitTree = nativeGitTree;
   public libgit2.GitTree NativeGitTree => _nativeGitTree;
-
-  public GitTree(libgit2.GitTree nativeGitTree)
-  {
-    _nativeGitTree = nativeGitTree;
-  }
 
   public GitOid GetId()
   {
-    var res = libgit2.tree.GitTreeId(_nativeGitTree);
+    using var res = libgit2.tree.GitTreeId(_nativeGitTree);
     return GitOidMapper.FromNative(res);
   }
 
