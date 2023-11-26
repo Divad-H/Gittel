@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Test.TestData;
+using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -32,5 +32,14 @@ public class GitObjectTest
     using var blobObject = treeObject.LookupByPath(RepoWithOneCommit.Filename, GitObjectType.Blob);
     var type = blobObject.Type;
     Assert.Equal(GitObjectType.Blob, type);
+  }
+
+  [Fact]
+  public void CanGetOwner()
+  {
+    using var repo = new EmptyRepo();
+    var oid = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("my content"));
+    using var blob = repo.Repo.LookupObject(oid, GitObjectType.Blob);
+    Assert.Equal(repo.Repo.GetPath(), blob.Owner.GetPath());
   }
 }

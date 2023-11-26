@@ -17,6 +17,15 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
 
   public GitObjectType Type => libgit2.@object.GitObjectType(NativeGitObject).ToManaged();
 
+  public IGitRepository Owner
+  {
+    get
+    {
+      var res = libgit2.@object.GitObjectOwner(NativeGitObject);
+      return new GitRepository(res, true);
+    }
+  }
+
   public IGitObject Duplicate()
   {
     var res = libgit2.@object.GitObjectDup(out var nativeGitObject, NativeGitObject);

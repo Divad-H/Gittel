@@ -28,4 +28,9 @@ public interface IGitObject : IDisposable
   /// Get the object type of an object
   /// </summary>
   GitObjectType Type { get; }
+
+  /// <summary>
+  /// Get the repository that contains this object
+  /// </summary>
+  IGitRepository Owner { get; }
 }
