@@ -24,6 +24,13 @@ public interface IGitIndex : IDisposable
   GitOid WriteTree();
 
   /// <summary>
+  /// Write the index as a tree to the given repository
+  /// </summary>
+  /// <param name="repository">Repository where to write the tree</param>
+  /// <returns>OID of the written tree</returns>
+  GitOid WriteTreeTo(IGitRepository repository);
+
+  /// <summary>
   /// Write an existing index object from memory back to disk using an atomic file lock.
   /// </summary>
   void Write();

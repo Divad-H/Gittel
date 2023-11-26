@@ -183,6 +183,22 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to cherrypick commit");
   }
 
+  public IGitIndex CherrypickCommit(
+    IGitCommit cherrypickCommit, IGitCommit ourCommit, uint mainline, MergeOptions? options = null)
+  {
+    var managedCherrypickCommit = GittelObjects.DowncastNonNull<GitCommit>(cherrypickCommit);
+    var managedOurCommit = GittelObjects.DowncastNonNull<GitCommit>(ourCommit);
+
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var res = libgit2.cherrypick.GitCherrypickCommit(
+      out var index, _nativeGitRepository, managedCherrypickCommit.NativeGitCommit,
+      managedOurCommit.NativeGitCommit, mainline, nativeOptions);
+
+    CheckLibgit2.Check(res, "Unable to cherrypick commit");
+    return new GitIndex(index);
+  }
+
   public IGitSignature DefaultGitSignature()
   {
     var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);

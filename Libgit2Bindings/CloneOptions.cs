@@ -44,7 +44,7 @@ public delegate int RepositoryCreateHandler(out IGitRepository? repository, stri
 /// <returns>0, or a negative value to indicate an error</returns>
 public delegate int RemoteCreateHandler(out IGitRemote? remote, IGitRepository repository, string name, string url);
 
-public class CloneOptions
+public record CloneOptions
 {
   /// <summary>
   /// These options are passed to the checkout step.

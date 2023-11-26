@@ -145,9 +145,27 @@ public interface IGitRepository : IDisposable
   /// <summary>
   /// Cherry-pick the given commit, producing changes in the index and working directory.
   /// </summary>
+  /// <remarks>
+  /// This operation does not create a commit.
+  /// </remarks>
   /// <param name="commit">the commit to cherry-pick</param>
   /// <param name="options">the cherry-pick options (or null for defaults)</param>
   void Cherrypick(IGitCommit commit, CherrypickOptions? options = null);
+
+  /// <summary>
+  /// Cherry-picks the given commit against the given "our" commit,
+  /// producing an index that reflects the result of the cherry-pick.
+  /// </summary>
+  /// <remarks>
+  /// The returned index must be diposed
+  /// </remarks>
+  /// <param name="cherrypickCommit">the commit to cherry-pick</param>
+  /// <param name="ourCommit">the commit to cherry-pick against (eg, HEAD)</param>
+  /// <param name="mainline">the parent of the `cherrypickCommit`, if it is a merge</param>
+  /// <param name="options">the merge options (or null for defaults)</param>
+  /// <returns>the index result</returns>
+  IGitIndex CherrypickCommit(
+    IGitCommit cherrypickCommit, IGitCommit ourCommit, UInt32 mainline, MergeOptions? options = null);
 
   /// <summary>
   /// Create a new action signature with default user and now timestamp.
@@ -201,7 +219,7 @@ public interface IGitRepository : IDisposable
   /// The parents that will be used for this commit. The parent commits must be owned by the repo.
   /// </param>
   /// <returns>The object id of the new commit</returns>
-  GitOid CreateCommit(string? updateRef, IGitSignature author, IGitSignature committer, 
+  GitOid CreateCommit(string? updateRef, IGitSignature author, IGitSignature committer,
     string message, IGitTree tree, IReadOnlyCollection<IGitCommit>? parents);
 
   /// <summary>

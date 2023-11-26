@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -20,6 +21,18 @@ internal sealed class GitIndex : IGitIndex
   public GitOid WriteTree()
   {
     var res = libgit2.index.GitIndexWriteTree(out var treeOid, NativeGitIndex);
+    using (treeOid)
+    {
+      CheckLibgit2.Check(res, "Unable to write tree");
+      return GitOidMapper.FromNative(treeOid);
+    }
+  }
+
+  public GitOid WriteTreeTo(IGitRepository repository)
+  {
+    var managedRepository = GittelObjects.DowncastNonNull<GitRepository>(repository);
+    var res = libgit2.index.GitIndexWriteTreeTo(
+      out var treeOid, NativeGitIndex, managedRepository.NativeGitRepository);
     using (treeOid)
     {
       CheckLibgit2.Check(res, "Unable to write tree");
