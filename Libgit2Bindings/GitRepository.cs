@@ -487,6 +487,19 @@ internal sealed class GitRepository : IGitRepository
     return new GitObject(nativeObject);
   }
 
+  public IGitObject LookupObjectByPrefix(string shortId, GitObjectType type)
+  {
+    if (shortId.Length % 2 != 0)
+    {
+      shortId += "0";
+    }
+    using var nativeShortId = GitOidMapper.ToNative(GitOidMapper.FromShortId(Convert.FromHexString(shortId)));
+    var res = libgit2.@object.GitObjectLookupPrefix(
+      out var nativeObject, _nativeGitRepository, nativeShortId, (UIntPtr)shortId.Length / 2, type.ToNative());
+    CheckLibgit2.Check(res, "Unable to lookup object");
+    return new GitObject(nativeObject);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

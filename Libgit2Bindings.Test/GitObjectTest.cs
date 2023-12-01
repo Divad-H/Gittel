@@ -15,6 +15,15 @@ public class GitObjectTest
   }
 
   [Fact]
+  public void CanLookupObjectByShortId()
+  {
+    using var repo = new EmptyRepo();
+    var oid = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("my content"));
+    using var blob = repo.Repo.LookupObjectByPrefix(oid.Sha.Substring(0, 7), GitObjectType.Blob);
+    Assert.Equal(oid, blob.Id);
+  }
+
+  [Fact]
   public void CanDuplicateObject()
   {
     using var repo = new EmptyRepo();

@@ -477,4 +477,17 @@ public interface IGitRepository : IDisposable
   /// <param name="type">the type of the object</param>
   /// <returns>the looked-up object</returns>
   IGitObject LookupObject(GitOid oid, GitObjectType type);
+
+  /// <summary>
+  /// Lookup a reference to one of the objects in a repository, given a prefix of its identifier (short id).
+  /// </summary>
+  /// <remarks>
+  /// The 'type' parameter must match the type of the object in the odb; 
+  /// the method will fail otherwise.The special value <see cref="GitObjectType.Any"/> 
+  /// may be passed to let the method guess the object's type.
+  /// </remarks>
+  /// <param name="shortId">a short identifier for the object</param>
+  /// <param name="type">the type of the object</param>
+  /// <returns>The looked-up object</returns>
+  IGitObject LookupObjectByPrefix(string shortId, GitObjectType type);
 }
