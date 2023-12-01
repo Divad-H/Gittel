@@ -43,4 +43,20 @@ public interface IGitObject : IDisposable
   /// unambiguous (at least until new objects are added to the repository).
   /// </remarks>
   string ShortId { get; }
+
+  /// <summary>
+  /// Recursively peel an object until an object of the specified type is met.
+  /// </summary>
+  /// <remarks>
+  /// If the query cannot be satisfied due to the object model, en exception will be thrown.
+  /// (e.g. trying to peel a blob to a tree).
+  /// <para/>
+  /// If you pass <see cref="GitObjectType.Any"/> as the target type, then the object will 
+  /// be peeled until the type changes. A tag will be peeled until the referenced object is 
+  /// no longer a tag, and a commit will be peeled to a tree. Any other object type will 
+  /// throw an exception.
+  /// </remarks>
+  /// <param name="type">The type of the requested object</param>
+  /// <returns>the peeled <see cref="IGitObject"/></returns>
+  IGitObject Peel(GitObjectType type);
 }

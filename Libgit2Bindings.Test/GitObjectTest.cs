@@ -87,4 +87,14 @@ public class GitObjectTest
     var shortId = blob.ShortId;
     Assert.StartsWith(shortId, oid.Sha);
   }
+
+  [Fact]
+  public void CanPeelObject()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var commitObject = repo.Repo.LookupObject(repo.CommitOid, GitObjectType.Commit);
+    using var treeObject = repo.Repo.LookupObject(repo.TreeOid, GitObjectType.Tree);
+    using var peeledObject = commitObject.Peel(GitObjectType.Tree);
+    Assert.Equal(treeObject.Id, peeledObject.Id);
+  }
 }

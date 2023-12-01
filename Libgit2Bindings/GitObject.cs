@@ -55,6 +55,13 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
     return new GitObject(nativeGitObject);
   }
 
+  public IGitObject Peel(GitObjectType type)
+  {
+    var res = libgit2.@object.GitObjectPeel(out var nativeGitObject, NativeGitObject, type.ToNative());
+    CheckLibgit2.Check(res, "Unable to peel object");
+    return new GitObject(nativeGitObject);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
