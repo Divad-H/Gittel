@@ -22,7 +22,7 @@ internal class GitBlame : IGitBlame
 
   public GitBlameHunk? GetHunkByLine(ulong lineNumber)
   {
-    using var nativeHunk = libgit2.blame.GitBlameGetHunkByline(_nativeGitBlame, lineNumber);
+    using var nativeHunk = libgit2.blame.GitBlameGetHunkByline(_nativeGitBlame, (UIntPtr)lineNumber);
     return GitBlameHunkMapper.FromNative(nativeHunk);
   }
 

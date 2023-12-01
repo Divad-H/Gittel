@@ -277,6 +277,19 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
       }
     }
 
+    foreach (var param in function.Parameters)
+    {
+      if (param.QualifiedType.Type is TypedefType typeDefType)
+      {
+        if (typeDefType.Declaration.Name == "size_t")
+        {
+          param.QualifiedType = new QualifiedType(
+            new BuiltinType(PrimitiveType.UIntPtr),
+            param.QualifiedType.Qualifiers);
+        }
+      }
+    }
+
     return base.VisitFunctionDecl(function);
   }
 }

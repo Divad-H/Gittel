@@ -15,7 +15,7 @@ internal class GitDiff : IGitDiff
 
   public GitDiffDelta? GetDelta(UInt64 index)
   {
-    var nativeDelta = libgit2.diff.GitDiffGetDelta(NativeGitDiff, index);
+    var nativeDelta = libgit2.diff.GitDiffGetDelta(NativeGitDiff, (UIntPtr)index);
     if (nativeDelta is null)
     {
       return null;

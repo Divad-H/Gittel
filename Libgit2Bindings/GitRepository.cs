@@ -236,7 +236,7 @@ internal sealed class GitRepository : IGitRepository
     var res = libgit2.commit.GitCommitCreate(
       commitOid, _nativeGitRepository, updateRef, managedAuthor.NativeGitSignature,
       managedCommitter.NativeGitSignature, null, message, managedTree.NativeGitTree,
-      (UInt64)(nativeParents?.Length ?? 0), nativeParents);
+      (UIntPtr)(nativeParents?.Length ?? 0), nativeParents);
     CheckLibgit2.Check(res, "Unable to create commit");
     return GitOidMapper.FromNative(commitOid);
   }
@@ -254,7 +254,7 @@ internal sealed class GitRepository : IGitRepository
     var res = libgit2.commit.GitCommitCreateBuffer(
       out var commitBuffer, _nativeGitRepository, managedAuthor.NativeGitSignature,
       managedCommitter.NativeGitSignature, null, message, managedTree.NativeGitTree,
-      (UInt64)(parents?.Count ?? 0), nativeParents);
+      (UIntPtr)(parents?.Count ?? 0), nativeParents);
     using (commitBuffer.GetDisposer())
     {
       CheckLibgit2.Check(res, "Unable to create commit object");
@@ -299,7 +299,7 @@ internal sealed class GitRepository : IGitRepository
     GitOid gitOid = GitOidMapper.FromShortId(shortId);
     using var nativeOid = GitOidMapper.ToNative(gitOid);
     var res = libgit2.commit.GitCommitLookupPrefix(out var commit,
-      _nativeGitRepository, nativeOid, (UInt64)shortId.Length);
+      _nativeGitRepository, nativeOid, (UIntPtr)shortId.Length);
     CheckLibgit2.Check(res, "Unable to lookup commit");
     return new GitCommit(commit, this);
   }
@@ -415,7 +415,7 @@ internal sealed class GitRepository : IGitRepository
     var gitOid = GitOidMapper.FromShortId(shortId);
     using var nativeOid = GitOidMapper.ToNative(gitOid);
     var res = libgit2.blob.GitBlobLookupPrefix(
-      out var nativeBlob, _nativeGitRepository, nativeOid, (UInt64)shortId.Length);
+      out var nativeBlob, _nativeGitRepository, nativeOid, (UIntPtr)shortId.Length);
     CheckLibgit2.Check(res, "Unable to lookup blob");
     return new GitBlob(nativeBlob);
   }
@@ -434,7 +434,7 @@ internal sealed class GitRepository : IGitRepository
   {
     using PinnedBuffer pinnedBuffer = new(data);
     var res = libgit2.blob.GitBlobCreateFromBuffer(
-      out var nativeId, _nativeGitRepository, pinnedBuffer.Pointer, (UInt64)pinnedBuffer.Length);
+      out var nativeId, _nativeGitRepository, pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length);
     CheckLibgit2.Check(res, "Unable to create blob");
     using (nativeId)
     {
