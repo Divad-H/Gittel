@@ -62,6 +62,14 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
     return new GitObject(nativeGitObject);
   }
 
+  public IGitDescribeResult DescribeCommit(GitDescribeOptions? options)
+  {
+    var res = libgit2.describe.GitDescribeCommit(
+      out var nativeDescribeResult, NativeGitObject, options?.ToNative());
+    CheckLibgit2.Check(res, "Unable to describe commit");
+    return new GitDescribeResult(nativeDescribeResult);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

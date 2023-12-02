@@ -59,4 +59,11 @@ public interface IGitObject : IDisposable
   /// <param name="type">The type of the requested object</param>
   /// <returns>the peeled <see cref="IGitObject"/></returns>
   IGitObject Peel(GitObjectType type);
+
+  /// <summary>
+  /// Describe a commit.
+  /// </summary>
+  /// <param name="options">the lookup options (or null for defaults)</param>
+  /// <returns>The describe result</returns>
+  IGitDescribeResult DescribeCommit(GitDescribeOptions? options);
 }
