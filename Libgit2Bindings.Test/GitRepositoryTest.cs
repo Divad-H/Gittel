@@ -69,6 +69,26 @@ public class GitRepositoryTest
   }
 
   [Fact]
+  public async Task CanCheckoutSimpleRepositoryTree()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    await File.WriteAllLinesAsync(fileFullPath, ["content"]);
+
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+    var commitObject = repo.Repo.LookupObject(commit.GetId(), GitObjectType.Commit);
+    repo.Repo.CheckoutTree(commitObject, new()
+    {
+      Strategy = CheckoutStrategy.Force,
+    });
+
+    var content = await File.ReadAllTextAsync(fileFullPath);
+
+    Assert.StartsWith("my content", content);
+  }
+
+  [Fact]
   public void CanGetRepositoryConfig()
   {
     using var libgit2 = new Libgit2();

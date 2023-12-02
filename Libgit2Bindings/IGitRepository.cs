@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitRepository : IDisposable
 {
@@ -53,6 +53,13 @@ public interface IGitRepository : IDisposable
   /// <param name="index">index to be checked out (or null to use repository index)</param>
   /// <param name="options">specifies checkout options</param>
   void CheckoutIndex(IGitIndex? index = null, CheckoutOptions? options = null);
+
+  /// <summary>
+  /// Updates files in the index and working tree to match the content of the tree pointed at by the treeish
+  /// </summary>
+  /// <param name="treeish"></param>
+  /// <param name="options"></param>
+  void CheckoutTree(IGitObject? treeish, CheckoutOptions? options = null);
 
   /// <summary>
   /// Lookup a branch by its name in a repository.

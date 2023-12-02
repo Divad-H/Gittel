@@ -68,6 +68,17 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to checkout index");
   }
 
+  public void CheckoutTree(IGitObject? treeish, CheckoutOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = CheckoutOptionsMapper.ToNative(options, scope);
+
+    var managedTreeish = GittelObjects.Downcast<GitObject>(treeish);
+    var res = libgit2.checkout.GitCheckoutTree(
+      _nativeGitRepository, managedTreeish?.NativeGitObject, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to checkout tree");
+  }
+
   public IGitReference LookupBranch(string branchName, BranchType branchType)
   {
     var branchTypeNative = BranchTypeMapper.ToNative(branchType);
