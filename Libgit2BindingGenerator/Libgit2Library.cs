@@ -26,6 +26,8 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitBlameOptionsVersion", "GIT_BLAME_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitMergeOptionsVersion", "GIT_MERGE_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitCherrypickOptionsVersion", "GIT_CHERRYPICK_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitDescribeOptionsVersion", "GIT_DESCRIBE_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitDescribeFormatOptionsVersion", "GIT_DESCRIBE_FORMAT_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
