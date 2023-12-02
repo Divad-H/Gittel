@@ -500,6 +500,15 @@ internal sealed class GitRepository : IGitRepository
     return new GitObject(nativeObject);
   }
 
+  public IGitDescribeResult DescribeWorkdir(GitDescribeOptions? options = null)
+  {
+    using var nativeOptions = options?.ToNative();
+    var res = libgit2.describe.GitDescribeWorkdir(
+      out var nativeDescribeResult, _nativeGitRepository, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to describe workdir");
+    return new GitDescribeResult(nativeDescribeResult);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

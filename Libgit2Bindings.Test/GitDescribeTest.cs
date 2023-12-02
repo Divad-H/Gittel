@@ -18,4 +18,19 @@ public class GitDescribeTest
     var text = description.Format();
     Assert.Contains("master", text);
   }
+
+  [Fact]
+  public void CanDescribeCommitFromWorkdir()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var description = repo.Repo.DescribeWorkdir(new()
+    {
+      DescribeStrategy = GitDescribeStrategy.All,
+    });
+    var text = description.Format(new()
+    {
+      AlwaysUseLongFormat = true,
+    });
+    Assert.Contains("master", text);
+  }
 }

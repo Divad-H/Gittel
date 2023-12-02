@@ -64,8 +64,9 @@ internal class GitObject(libgit2.GitObject nativeGitObject) : IGitObject
 
   public IGitDescribeResult DescribeCommit(GitDescribeOptions? options)
   {
+    using var nativeOptions = options?.ToNative();
     var res = libgit2.describe.GitDescribeCommit(
-      out var nativeDescribeResult, NativeGitObject, options?.ToNative());
+      out var nativeDescribeResult, NativeGitObject, nativeOptions);
     CheckLibgit2.Check(res, "Unable to describe commit");
     return new GitDescribeResult(nativeDescribeResult);
   }

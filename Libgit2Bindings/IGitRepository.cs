@@ -490,4 +490,16 @@ public interface IGitRepository : IDisposable
   /// <param name="type">the type of the object</param>
   /// <returns>The looked-up object</returns>
   IGitObject LookupObjectByPrefix(string shortId, GitObjectType type);
+
+  /// <summary>
+  /// Describe a commit
+  /// </summary>
+  /// <remarks>
+  /// Perform the describe operation on the current commit and the worktree. 
+  /// After performing describe on HEAD, a status is run and the description 
+  /// is considered to be dirty if there are.
+  /// </remarks>
+  /// <param name="options">the lookup options (or null for defaults)</param>
+  /// <returns>The describe result</returns>
+  IGitDescribeResult DescribeWorkdir(GitDescribeOptions? options = null);
 }
