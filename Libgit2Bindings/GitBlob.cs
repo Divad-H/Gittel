@@ -3,25 +3,19 @@ using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
-internal class GitBlob : IGitBlob
+internal class GitBlob(libgit2.GitBlob nativeGitBlob, bool ownsNativeInstance = true) : IGitBlob
 {
-  private readonly libgit2.GitBlob _nativeGitBlob;
-  private bool _ownsNativeInstance;
-
-  public GitBlob(libgit2.GitBlob nativeGitBlob, bool ownsNativeInstance = true)
-  {
-    _nativeGitBlob = nativeGitBlob;
-    _ownsNativeInstance = ownsNativeInstance;
-  }
+  public libgit2.GitBlob NativeGitBlob { get; } = nativeGitBlob;
+  private readonly bool _ownsNativeInstance = ownsNativeInstance;
 
   public bool IsBinary()
   {
-    return libgit2.blob.GitBlobIsBinary(_nativeGitBlob) != 0;
+    return libgit2.blob.GitBlobIsBinary(NativeGitBlob) != 0;
   }
 
   public IGitBlob Duplicate()
   {
-    var res = libgit2.blob.GitBlobDup(out var nativeDuplicate, _nativeGitBlob);
+    var res = libgit2.blob.GitBlobDup(out var nativeDuplicate, NativeGitBlob);
     CheckLibgit2.Check(res, "Unable to duplicate blob");
     return new GitBlob(nativeDuplicate);
   }
@@ -30,7 +24,7 @@ internal class GitBlob : IGitBlob
   {
     using var scope = new DisposableCollection();
     var nativeOptions = options?.ToNative(scope);
-    var res = libgit2.blob.GitBlobFilter(out var nativeBuf, _nativeGitBlob, asPath, nativeOptions);
+    var res = libgit2.blob.GitBlobFilter(out var nativeBuf, NativeGitBlob, asPath, nativeOptions);
     CheckLibgit2.Check(res, "Unable to filter blob");
     using var gitBufDisposer = new GitBufDisposer(nativeBuf);
     return StringUtil.ToArray(nativeBuf);
@@ -38,20 +32,20 @@ internal class GitBlob : IGitBlob
 
   public GitOid Id()
   {
-    using var nativeOid = libgit2.blob.GitBlobId(_nativeGitBlob);
+    using var nativeOid = libgit2.blob.GitBlobId(NativeGitBlob);
     return GitOidMapper.FromNative(nativeOid);
   }
 
   public IGitRepository Owner()
   {
-    var nativeRepo = libgit2.blob.GitBlobOwner(_nativeGitBlob);
+    var nativeRepo = libgit2.blob.GitBlobOwner(NativeGitBlob);
     return new GitRepository(nativeRepo, false);
   }
 
   public byte[] RawContent()
   {
-    var bufferPtr = libgit2.blob.GitBlobRawcontent(_nativeGitBlob);
-    var bufferSize = libgit2.blob.GitBlobRawsize(_nativeGitBlob);
+    var bufferPtr = libgit2.blob.GitBlobRawcontent(NativeGitBlob);
+    var bufferSize = libgit2.blob.GitBlobRawsize(NativeGitBlob);
     return StringUtil.ToArray(bufferPtr, (UIntPtr)bufferSize);
   }
 
@@ -63,7 +57,7 @@ internal class GitBlob : IGitBlob
     {
       if (_ownsNativeInstance)
       {
-        libgit2.blob.GitBlobFree(_nativeGitBlob);
+        libgit2.blob.GitBlobFree(NativeGitBlob);
       }
       _disposedValue = true;
     }
