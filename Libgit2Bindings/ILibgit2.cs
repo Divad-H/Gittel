@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using libgit2;
+
+namespace Libgit2Bindings;
 
 public interface ILibgit2
 {
@@ -182,4 +184,23 @@ public interface ILibgit2
   /// <param name="type">The type of the object in the buffer</param>
   /// <returns>true, if the content is valid, false othewise</returns>
   bool GitObjectRawContentIsValid(byte[] rawContent, GitObjectType type);
+
+  /// <summary>
+  /// Directly run a diff between a blob and a buffer.
+  /// </summary>
+  /// <param name="oldBlob">Blob for old side of diff, or null for empty blob</param>
+  /// <param name="oldAsPath">Treat old blob as if it had this filename; can be null</param>
+  /// <param name="newBuffer">Raw data for new side of diff, or null for empty</param>
+  /// <param name="newBufferAsPath">Treat buffer as if it had this filename; can be null</param>
+  /// <param name="options">Options for diff, or null for default options</param>
+  /// <param name="fileCallback">Callback for "file"; made once if there is a diff; can be null</param>
+  /// <param name="binaryCallback">Callback for binary files; can be null</param>
+  /// <param name="hunkCallback">Callback for each hunk in diff; can be null</param>
+  /// <param name="lineCallback">Callback for each line in diff; can be null</param>
+  void DiffBlobToBuffer(IGitBlob? oldBlob, string? oldAsPath, byte[]? newBuffer, 
+    string? newBufferAsPath = null, GitDiffOptions? options = null,
+    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
+    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
 }

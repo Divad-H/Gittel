@@ -1,5 +1,7 @@
-﻿using Libgit2Bindings.Mappers;
+﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
+using System.Text;
 
 namespace Libgit2Bindings;
 
@@ -178,6 +180,34 @@ internal class Libgit2 : ILibgit2, IDisposable
       ref valid, pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length, type.ToNative());
     CheckLibgit2.Check(res, "Unable to check if raw content is valid");
     return valid != 0;
+  }
+
+  public void DiffBlobToBuffer(
+    IGitBlob? oldBlob, string? oldAsPath, byte[]? newBuffer, string? newBufferAsPath, 
+    GitDiffOptions? options = null, 
+    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
+    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative(disposable);
+
+    using var managedBlob = GittelObjects.Downcast<GitBlob>(oldBlob);
+
+    using var callbacks = new GitDiffCallbacks(fileCallback, binaryCallback, hunkCallback, lineCallback);
+
+    using var newNativeBuffer = newBuffer is not null ? new PinnedBuffer(newBuffer) : null;
+
+    var res = libgit2.diff.GitDiffBlobToBuffer(
+      managedBlob?.NativeGitBlob, oldAsPath, newNativeBuffer?.Pointer ?? IntPtr.Zero, 
+      (UIntPtr)(newNativeBuffer?.Length ?? 0), newBufferAsPath, nativeOptions,
+      fileCallback is null ? null : GitDiffCallbacks.GitDiffFileCb,
+      binaryCallback is null ? null : GitDiffCallbacks.GitDiffBinaryCb,
+      hunkCallback is null ? null : GitDiffCallbacks.GitDiffHunkCb,
+      lineCallback is null ? null : GitDiffCallbacks.GitDiffLineCb,
+      callbacks.Payload);
+    CheckLibgit2.Check(res, "Unable to diff blob to buffer");
   }
 
   #region IDisposable Support
