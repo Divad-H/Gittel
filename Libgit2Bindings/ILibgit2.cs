@@ -203,4 +203,38 @@ public interface ILibgit2
     Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
     Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
     Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
+
+  /// <summary>
+  /// Directly run a diff between two blobs.
+  /// </summary>
+  /// <remarks>
+  /// Compared to a file, a blob lacks some contextual information. 
+  /// As such, the <see cref="GitDiffFile"/> given to the callback will have some fake data; i.e. 
+  /// <see cref="GitDiffFile.Mode"/> will be 0 and <see cref="GitDiffFile.Path"/> will be null.
+  /// <para/>
+  /// null is allowed for either <paramref name="oldBlob"/> or <paramref name="newBlob"/> and will be 
+  /// treated as an empty blob, with the oid set to null in the <see cref="GitDiffFile"/> data. 
+  /// Passing null for both blobs is a noop; no callbacks will be made at all.
+  /// <para/>
+  /// We do run a binary content check on the blob content and if either blob looks like binary data, 
+  /// the <see cref="GitDiffDelta"/> binary attribute will be set to 1 and no call to the 
+  /// <paramref name="hunkCallback"/> nor <paramref name="lineCallback"/> will be made 
+  /// (unless you pass <see cref="GitDiffOptionFlags.ForceText"/> of course).
+  /// </remarks>
+  /// <param name="oldBlob">Blob for old side of diff, or null for empty blob</param>
+  /// <param name="oldAsPath">Treat old blob as if it had this filename; can be null</param>
+  /// <param name="newBlob">Blob for new side of diff, or null for empty blob</param>
+  /// <param name="newBufferAsPath">Treat new blob as if it had this filename; can be null</param>
+  /// <param name="options">Options for diff, or null for default options</param>
+  /// <param name="fileCallback">Callback for "file"; made once if there is a diff; can be null</param>
+  /// <param name="binaryCallback">Callback for binary files; can be null</param>
+  /// <param name="hunkCallback">Callback for each hunk in diff; can be null</param>
+  /// <param name="lineCallback">Callback for each line in diff; can be null</param>
+  void DiffBlobs(IGitBlob? oldBlob, string? oldAsPath, 
+    IGitBlob? newBlob, string? newBufferAsPath = null, 
+    GitDiffOptions? options = null,
+    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
+    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
 }

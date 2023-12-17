@@ -210,6 +210,34 @@ internal class Libgit2 : ILibgit2, IDisposable
     CheckLibgit2.Check(res, "Unable to diff blob to buffer");
   }
 
+  public void DiffBlobs(IGitBlob? oldBlob, string? oldAsPath, 
+    IGitBlob? newBlob, string? newBufferAsPath = null, 
+    GitDiffOptions? options = null, 
+    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null, 
+    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null, 
+    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null, 
+    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative(disposable);
+
+    using var managedOldBlob = GittelObjects.Downcast<GitBlob>(oldBlob);
+    using var managedNewBlob = GittelObjects.Downcast<GitBlob>(newBlob);
+
+    using var callbacks = new GitDiffCallbacks(fileCallback, binaryCallback, hunkCallback, lineCallback);
+
+    var res = libgit2.diff.GitDiffBlobs(
+      managedOldBlob?.NativeGitBlob, oldAsPath, 
+      managedNewBlob?.NativeGitBlob, newBufferAsPath, 
+      nativeOptions,
+      fileCallback is null ? null : GitDiffCallbacks.GitDiffFileCb,
+      binaryCallback is null ? null : GitDiffCallbacks.GitDiffBinaryCb,
+      hunkCallback is null ? null : GitDiffCallbacks.GitDiffHunkCb,
+      lineCallback is null ? null : GitDiffCallbacks.GitDiffLineCb,
+      callbacks.Payload);
+    CheckLibgit2.Check(res, "Unable to diff blobs");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

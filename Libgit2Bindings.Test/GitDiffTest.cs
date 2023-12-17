@@ -57,4 +57,40 @@ Third line
     Assert.Equal(4, count);
     Assert.True(found);
   }
+
+  [Fact]
+  public void CanDiffBlobs()
+  {
+    using var repo = new EmptyRepo();
+
+    const string contentA = @"First line
+Second line
+Third line
+";
+
+    const string contentB = @"First line
+Second line is modified
+Third line
+";
+
+    var blobOidA = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes(contentA));
+    var blobOidB = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes(contentB));
+    using var blobA = repo.Repo.LookupBlob(blobOidA);
+    using var blobB = repo.Repo.LookupBlob(blobOidB);
+
+    int count = 0;
+    bool found = false;
+
+    repo.Libgit2.DiffBlobs(blobA, null, blobB, null,
+      lineCallback: (diffDelta, diffHunk, diffLine) =>
+      {
+        var content = Encoding.UTF8.GetString(diffLine.Content);
+        ++count;
+        found |= content.StartsWith("Second line is modified");
+        return GitOperationContinuation.Continue;
+      });
+
+    Assert.Equal(4, count);
+    Assert.True(found);
+  }
 }
