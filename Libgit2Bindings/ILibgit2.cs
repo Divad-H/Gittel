@@ -237,4 +237,28 @@ public interface ILibgit2
     Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
     Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
     Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
+
+  /// <summary>
+  /// Directly run a diff between two buffers.
+  /// </summary>
+  /// <remarks>
+  /// Even more than with <see cref="DiffBlobs"/>, comparing two buffer lacks context, 
+  /// so the <see cref="GitDiffFile"/> parameters to the callbacks will be faked a la 
+  /// the rules for <see cref="DiffBlobs"/>
+  /// </remarks>
+  /// <param name="oldBlob">Raw data for old side of diff, or null for empty</param>
+  /// <param name="oldAsPath">Treat old as if it had this filename; can be null</param>
+  /// <param name="newBlob">Raw data for new side of diff, or null for empty</param>
+  /// <param name="newBufferAsPath">Treat new as if it had this filename; can be null</param>
+  /// <param name="options">Options for diff, or null for default options</param>
+  /// <param name="fileCallback">Callback for "file"; made once if there is a diff; can be null</param>
+  /// <param name="binaryCallback">Callback for binary files; can be null</param>
+  /// <param name="hunkCallback">Callback for each hunk in diff; can be null</param>
+  /// <param name="lineCallback">Callback for each line in diff; can be null</param>
+  void DiffBuffers(byte[]? oldBuffer, string? oldAsPath, byte[]? newBuffer, string? newAsPath,
+    GitDiffOptions? options = null,
+    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
+    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
+    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
 }

@@ -93,4 +93,38 @@ Third line
     Assert.Equal(4, count);
     Assert.True(found);
   }
+
+  [Fact]
+  public void CanDiffBuffers()
+  {
+    using var repo = new EmptyRepo();
+
+    const string contentA = @"First line
+Second line
+Third line
+";
+
+    const string contentB = @"First line
+Second line is modified
+Third line
+";
+
+    var bufferA = Encoding.UTF8.GetBytes(contentA);
+    var bufferB = Encoding.UTF8.GetBytes(contentB);
+
+    int count = 0;
+    bool found = false;
+
+    repo.Libgit2.DiffBuffers(bufferA, null, bufferB, null,
+      lineCallback: (diffDelta, diffHunk, diffLine) =>
+      {
+        var content = Encoding.UTF8.GetString(diffLine.Content);
+        ++count;
+        found |= content.StartsWith("Second line is modified");
+        return GitOperationContinuation.Continue;
+      });
+
+    Assert.Equal(4, count);
+    Assert.True(found);
+  }
 }
