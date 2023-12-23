@@ -55,7 +55,7 @@ public enum GitFilemode : UInt16
 /// are tracking type changes or ignored/untracked directories).
 /// </para>
 /// </summary>
-public record class GitDiffFile
+public record GitDiffFile
 {
   /// <summary>
   /// The <see cref="GitOid"/> of the item. If the entry represents an

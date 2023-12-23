@@ -32,4 +32,9 @@ internal static class StringUtil
     Marshal.Copy(ptr, bytes, 0, (int)size);
     return bytes;
   }
+
+  public unsafe static ReadOnlySpan<byte> ToReadOnlySpan(IntPtr ptr, UIntPtr size)
+  {
+    return new(ptr.ToPointer(), (int)size);
+  }
 }

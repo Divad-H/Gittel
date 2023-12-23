@@ -22,7 +22,7 @@ public enum GitDiffBinaryType
   Delta = 2,
 }
 
-public record GitDiffBinaryFile
+public readonly ref struct GitDiffBinaryFile
 {
   /// <summary>
   /// The type of binary data for this file.
@@ -32,7 +32,7 @@ public record GitDiffBinaryFile
   /// <summary>
   /// The binary data, deflated.
   /// </summary>
-  public byte[]? DeflatedData;
+  public ReadOnlySpan<byte> DeflatedData { get; init; }
 
   /// <summary>
   /// The length of the binary data after inflation.
@@ -48,7 +48,7 @@ public record GitDiffBinaryFile
 /// for those files. There is a base heuristic for binary detection and you can further 
 /// tune the behavior with git attributes or diff flags and option settings.
 /// </summary>
-public record GitDiffBinary
+public readonly ref struct GitDiffBinary
 {
   /// <summary>
   /// Whether there is data in this binary structure or not. If this is true, 
@@ -62,10 +62,10 @@ public record GitDiffBinary
   /// <summary>
   /// The contents of the old file. 
   /// </summary>
-  public GitDiffBinaryFile? OldFile { get; init; }
+  public readonly GitDiffBinaryFile OldFile { get; init; }
 
   /// <summary>
   /// The contents of the new file. 
   /// </summary>
-  public GitDiffBinaryFile? NewFile { get; init; }
+  public readonly GitDiffBinaryFile NewFile { get; init; }
 }

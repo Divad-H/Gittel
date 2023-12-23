@@ -20,7 +20,7 @@ internal static class GitDiffBinaryMapper
     GitDiffBinaryFile diffBinaryFile = new()
     {
       Type = FromNative(gitDiffBinaryFile.Type),
-      DeflatedData = StringUtil.ToArray(
+      DeflatedData = StringUtil.ToReadOnlySpan(
         ((libgit2.GitDiffBinaryFile.__Internal*)gitDiffBinaryFile.__Instance)->data,
         (UIntPtr)gitDiffBinaryFile.Datalen),
       InflatedLength = gitDiffBinaryFile.Inflatedlen

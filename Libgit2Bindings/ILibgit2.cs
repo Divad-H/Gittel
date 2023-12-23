@@ -199,10 +199,10 @@ public interface ILibgit2
   /// <param name="lineCallback">Callback for each line in diff; can be null</param>
   void DiffBlobToBuffer(IGitBlob? oldBlob, string? oldAsPath, byte[]? newBuffer, 
     string? newBufferAsPath = null, GitDiffOptions? options = null,
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
+    IGitDiff.FileCallback? fileCallback = null,
+    IGitDiff.BinaryCallback? binaryCallback = null,
+    IGitDiff.HunkCallback? hunkCallback = null,
+    IGitDiff.LineCallback? lineCallback = null);
 
   /// <summary>
   /// Directly run a diff between two blobs.
@@ -233,10 +233,10 @@ public interface ILibgit2
   void DiffBlobs(IGitBlob? oldBlob, string? oldAsPath, 
     IGitBlob? newBlob, string? newBufferAsPath = null, 
     GitDiffOptions? options = null,
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
+    IGitDiff.FileCallback? fileCallback = null,
+    IGitDiff.BinaryCallback? binaryCallback = null,
+    IGitDiff.HunkCallback? hunkCallback = null,
+    IGitDiff.LineCallback? lineCallback = null);
 
   /// <summary>
   /// Directly run a diff between two buffers.
@@ -257,8 +257,8 @@ public interface ILibgit2
   /// <param name="lineCallback">Callback for each line in diff; can be null</param>
   void DiffBuffers(byte[]? oldBuffer, string? oldAsPath, byte[]? newBuffer, string? newAsPath,
     GitDiffOptions? options = null,
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null);
+    IGitDiff.FileCallback? fileCallback = null,
+    IGitDiff.BinaryCallback? binaryCallback = null,
+    IGitDiff.HunkCallback? hunkCallback = null,
+    IGitDiff.LineCallback? lineCallback = null);
 }

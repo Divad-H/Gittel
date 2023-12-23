@@ -184,10 +184,10 @@ internal class Libgit2 : ILibgit2, IDisposable
   public void DiffBlobToBuffer(
     IGitBlob? oldBlob, string? oldAsPath, byte[]? newBuffer, string? newBufferAsPath, 
     GitDiffOptions? options = null, 
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null,
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null,
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null)
+    IGitDiff.FileCallback? fileCallback = null,
+    IGitDiff.BinaryCallback? binaryCallback = null,
+    IGitDiff.HunkCallback? hunkCallback = null,
+    IGitDiff.LineCallback? lineCallback = null)
   {
     using DisposableCollection disposable = new();
     using var nativeOptions = options?.ToNative(disposable);
@@ -211,11 +211,11 @@ internal class Libgit2 : ILibgit2, IDisposable
 
   public void DiffBlobs(IGitBlob? oldBlob, string? oldAsPath, 
     IGitBlob? newBlob, string? newBufferAsPath = null, 
-    GitDiffOptions? options = null, 
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null, 
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null, 
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null, 
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null)
+    GitDiffOptions? options = null,
+    IGitDiff.FileCallback? fileCallback = null, 
+    IGitDiff.BinaryCallback? binaryCallback = null, 
+    IGitDiff.HunkCallback? hunkCallback = null, 
+    IGitDiff.LineCallback? lineCallback = null)
   {
     using DisposableCollection disposable = new();
     using var nativeOptions = options?.ToNative(disposable);
@@ -240,10 +240,10 @@ internal class Libgit2 : ILibgit2, IDisposable
   public void DiffBuffers(
     byte[]? oldBuffer, string? oldAsPath, byte[]? newBuffer, string? newAsPath, 
     GitDiffOptions? options = null, 
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback = null, 
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback = null, 
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback = null, 
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback = null)
+    IGitDiff.FileCallback? fileCallback = null, 
+    IGitDiff.BinaryCallback? binaryCallback = null, 
+    IGitDiff.HunkCallback? hunkCallback = null, 
+    IGitDiff.LineCallback? lineCallback = null)
   {
     using DisposableCollection disposable = new();
     using var nativeOptions = options?.ToNative(disposable);

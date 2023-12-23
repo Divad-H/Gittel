@@ -1,7 +1,16 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface IGitDiff : IDisposable
 {
+  public delegate GitOperationContinuation FileCallback(
+     GitDiffDelta delta, float progress);
+  public delegate GitOperationContinuation BinaryCallback(
+     GitDiffDelta delta, GitDiffBinary binary);
+  public delegate GitOperationContinuation HunkCallback(
+     GitDiffDelta delta, GitDiffHunk hunk);
+  public delegate GitOperationContinuation LineCallback(
+     GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line);
+
   /// <summary>
   /// Return the diff delta for an entry in the diff list.
   /// </summary>

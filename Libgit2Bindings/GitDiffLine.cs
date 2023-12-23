@@ -1,6 +1,4 @@
-﻿using System.Net.NetworkInformation;
-
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 /// <summary>
 /// Structure describing a line (or data span) of a diff.
@@ -13,7 +11,7 @@ namespace Libgit2Bindings;
 /// Line data will not be NUL-byte terminated, however, because it will be
 /// just a span of bytes inside the larger file.
 /// </summary>
-public record GitDiffLine
+public readonly ref struct GitDiffLine
 {
   /// <summary>
   /// These values will be sent to the diff line callback along with the line
@@ -41,6 +39,9 @@ public record GitDiffLine
   public const char FileHdr = 'F';
   public const char HunkHdr = 'H';
   public const char Binary = 'B';
+
+  public GitDiffLine()
+  { }
 
   /// <summary>
   /// A value from the characters above
@@ -72,5 +73,5 @@ public record GitDiffLine
   /// <summary>
   /// diff text
   /// </summary>
-  public byte[] Content { get; init; } = Array.Empty<byte>();
+  public ReadOnlySpan<byte> Content { get; init; } = [];
 }

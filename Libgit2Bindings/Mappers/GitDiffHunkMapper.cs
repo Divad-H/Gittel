@@ -1,4 +1,4 @@
-﻿using System.Text;
+﻿using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings.Mappers;
 
@@ -10,7 +10,7 @@ internal static class GitDiffHunkMapper
 
     GitDiffHunk diffHunk = new()
     {
-      Header = Encoding.UTF8.GetString((byte*)gitDiffHunkInstance->header, (int)gitDiffHunk.HeaderLen),
+      Header = StringUtil.ToReadOnlySpan((IntPtr)gitDiffHunkInstance->header, (UIntPtr)gitDiffHunk.HeaderLen),
       OldStart = gitDiffHunk.OldStart,
       OldLines = gitDiffHunk.OldLines,
       NewStart = gitDiffHunk.NewStart,

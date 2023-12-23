@@ -16,7 +16,7 @@ internal static class GitDiffLineMapper
       NumLines = gitDiffLine.NumLines,
       ContentOffset = gitDiffLine.ContentOffset,
       ContentLength = (UIntPtr)gitDiffLine.ContentLen,
-      Content = StringUtil.ToArray(
+      Content = StringUtil.ToReadOnlySpan(
         gitDiffLineInstance->content,
         (UIntPtr)gitDiffLineInstance->content_len)
     };

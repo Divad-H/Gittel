@@ -6,18 +6,18 @@ namespace Libgit2Bindings.Callbacks;
 
 internal class GitDiffCallbacks : IDisposable
 {
-  private readonly Func<GitDiffDelta, float, GitOperationContinuation>? _fileCallback;
-  private readonly Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? _binaryCallback;
-  private readonly Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? _hunkCallback;
-  private readonly Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? _lineCallback;
+  private readonly IGitDiff.FileCallback? _fileCallback;
+  private readonly IGitDiff.BinaryCallback? _binaryCallback;
+  private readonly IGitDiff.HunkCallback? _hunkCallback;
+  private readonly IGitDiff.LineCallback? _lineCallback;
 
   private readonly GCHandle _gcHandle;
 
   public GitDiffCallbacks(
-    Func<GitDiffDelta, float, GitOperationContinuation>? fileCallback,
-    Func<GitDiffDelta, GitDiffBinary, GitOperationContinuation>? binaryCallback,
-    Func<GitDiffDelta, GitDiffHunk, GitOperationContinuation>? hunkCallback,
-    Func<GitDiffDelta, GitDiffHunk, GitDiffLine, GitOperationContinuation>? lineCallback)
+    IGitDiff.FileCallback? fileCallback,
+    IGitDiff.BinaryCallback? binaryCallback,
+    IGitDiff.HunkCallback? hunkCallback,
+    IGitDiff.LineCallback? lineCallback)
   {
     _fileCallback = fileCallback;
     _binaryCallback = binaryCallback;

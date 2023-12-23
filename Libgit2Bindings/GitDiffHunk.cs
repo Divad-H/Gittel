@@ -9,8 +9,11 @@
 /// header that described where it starts and ends in both the old and new
 /// versions in the delta.
 /// </summary>
-public record GitDiffHunk
+public readonly ref struct GitDiffHunk
 {
+  public GitDiffHunk()
+  { }
+
   /// <summary>
   /// Starting line number in OldFile
   /// </summary>
@@ -30,5 +33,5 @@ public record GitDiffHunk
   /// <summary>
   /// Header text
   /// </summary>
-  public string Header { get; init; } = string.Empty;
+  public ReadOnlySpan<byte> Header { get; init; } = [];
 }
