@@ -8,8 +8,7 @@ internal static class GitDiffOptionsMapper
   public static libgit2.GitDiffOptions ToNative(this GitDiffOptions managedOptions, 
     DisposableCollection disposables)
   {
-    var pathspec = managedOptions.Pathspec is null
-      ? null : new GitStrArrayImpl(managedOptions.Pathspec).DisposeWith(disposables);
+    var pathspec = new GitStrArrayImpl(managedOptions.Pathspec ?? Array.Empty<string>()).DisposeWith(disposables);
     
     var callbacks = (managedOptions.Notify is not null || managedOptions.Progress is not null)
       ? new DiffCallbacks(managedOptions.Notify, managedOptions.Progress).DisposeWith(disposables)

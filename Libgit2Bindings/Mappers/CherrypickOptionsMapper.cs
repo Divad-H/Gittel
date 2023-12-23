@@ -15,7 +15,8 @@ internal static class CherrypickOptionsMapper
         (uint)libgit2.GitCherrypickOptionsVersion.GIT_CHERRYPICK_OPTIONS_VERSION);
 
       nativeOptions.Mainline = managedOptions.Mainline;
-      nativeOptions.MergeOpts = managedOptions.MergeOptions.ToNative(disposables);
+      nativeOptions.MergeOpts = managedOptions.MergeOptions.ToNative(disposables)
+        .DisposeWith(disposables);
       nativeOptions.CheckoutOpts = managedOptions.CheckoutOptions.ToNative(disposables);
 
       return nativeOptions;
