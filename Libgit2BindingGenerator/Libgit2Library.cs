@@ -1,4 +1,4 @@
-﻿using CppSharp;
+using CppSharp;
 using CppSharp.AST;
 using CppSharp.AST.Extensions;
 using CppSharp.Generators;
@@ -28,6 +28,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitCherrypickOptionsVersion", "GIT_CHERRYPICK_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitDescribeOptionsVersion", "GIT_DESCRIBE_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitDescribeFormatOptionsVersion", "GIT_DESCRIBE_FORMAT_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitDiffFindOptionsVersion", "GIT_DIFF_FIND_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
