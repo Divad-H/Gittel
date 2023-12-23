@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Mappers;
+﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
@@ -37,6 +38,28 @@ internal class GitDiff : IGitDiff
     var res = libgit2.diff.GitDiffFindSimilar(NativeGitDiff, nativeOptions);
 
     CheckLibgit2.Check(res, "Find similar failed");
+  }
+
+  public void ForEach(
+    IGitDiff.FileCallback? fileCallback = null, 
+    IGitDiff.BinaryCallback? binaryCallback = null,
+    IGitDiff.HunkCallback? hunkCallback = null,
+    IGitDiff.LineCallback? lineCallback = null)
+  {
+    using DisposableCollection disposables = new();
+
+    using var callbacks = new GitDiffCallbacks(
+      fileCallback, binaryCallback, hunkCallback, lineCallback);
+
+    var res = libgit2.diff.GitDiffForeach(
+      NativeGitDiff, 
+      GitDiffCallbacks.GitDiffFileCb,
+      GitDiffCallbacks.GitDiffBinaryCb,
+      GitDiffCallbacks.GitDiffHunkCb,
+      GitDiffCallbacks.GitDiffLineCb,
+      callbacks.Payload);
+
+    CheckLibgit2.Check(res, "ForEach failed");
   }
 
   #region IDisposable Support

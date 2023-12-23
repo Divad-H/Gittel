@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitDiff : IDisposable
 {
@@ -34,4 +34,37 @@ public interface IGitDiff : IDisposable
   /// </remarks>
   /// <param name="options">Control how detection should be run, null for defaults</param>
   void FindSimilar(GitDiffFindOptions? options = null);
+
+  /// <summary>
+  /// Loop over all deltas in a diff issuing callbacks.
+  /// </summary>
+  /// <remarks>
+  /// This will iterate through all of the files described in a diff. 
+  /// You should provide a file callback to learn about each file.
+  /// <para/>
+  /// The "hunk" and "line" callbacks are optional, and the text diff of 
+  /// the files will only be calculated if they are not null.Of course, 
+  /// these callbacks will not be invoked for binary files on the diff or 
+  /// for files whose only changed is a file mode change.
+  /// <para/>
+  /// Returning a non-zero value from any of the callbacks will terminate 
+  /// the iteration and return the value to the user.
+  /// </remarks>
+  /// <param name="fileCallback">Callback function to make per file in the diff.</param>
+  /// <param name="binaryCallback">Optional callback to make for binary files.</param>
+  /// <param name="hunkCallback">
+  /// Optional callback to make per hunk of text diff. 
+  /// This callback is called to describe a range of lines in the diff. 
+  /// It will not be issued for binary files.
+  /// </param>
+  /// <param name="lineCallback">
+  /// Optional callback to make per line of diff text. 
+  /// This same callback will be made for context lines, added, and removed lines, 
+  /// and even for a deleted trailing newline.
+  /// </param>
+  void ForEach(
+    FileCallback? fileCallback = null,
+    BinaryCallback? binaryCallback = null,
+    HunkCallback? hunkCallback = null,
+    LineCallback? lineCallback = null);
 }

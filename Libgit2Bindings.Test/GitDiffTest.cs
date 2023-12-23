@@ -174,4 +174,55 @@ Third line
     Assert.Equal(RepoWithOneCommit.Filename, newDelta.OldFile?.Path);
     Assert.Equal(newFileName, newDelta.NewFile?.Path);
   }
+
+  [Fact]
+  public void CanIterateDiff()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["some modified content"]);
+
+    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
+
+    Assert.NotNull(diff);
+
+    int fileCount = 0;
+    bool fileFound = false;
+    int hunkCount = 0;
+    int lineCount = 0;
+
+    diff.ForEach(
+      fileCallback: (delta, progress) =>
+      {
+        ++fileCount;
+        fileFound |= delta.NewFile?.Path == RepoWithOneCommit.Filename;
+        return GitOperationContinuation.Continue;
+      },
+      hunkCallback: (delta, hunk) =>
+      {
+        ++hunkCount;
+        return GitOperationContinuation.Continue;
+      },
+      lineCallback: (delta, hunk, line) =>
+      {
+        if (Encoding.UTF8.GetString(line.Content).StartsWith("some modified content"))
+        {
+          ++lineCount;
+          Assert.Equal(GitDiffLine.Addition, line.Origin);
+        }
+        else if (Encoding.UTF8.GetString(line.Content).StartsWith("my content"))
+        {
+          ++lineCount;
+          Assert.Equal(GitDiffLine.Deletion, line.Origin);
+        }
+        return GitOperationContinuation.Continue;
+      }
+      );
+
+    Assert.Equal(1, fileCount);
+    Assert.True(fileFound);
+    Assert.Equal(1, hunkCount);
+    Assert.Equal(2, lineCount);
+  }
 }
