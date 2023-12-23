@@ -14,4 +14,15 @@ public interface IGitDiff : IDisposable
   /// </summary>
   /// <returns>Count of number of deltas in the list</returns>
   UInt64 GetNumDeltas();
+
+  /// <summary>
+  /// Transform a diff marking file renames, copies, etc.
+  /// </summary>
+  /// <remarks>
+  /// This modifies a diff in place, replacing old entries that look like renames or copies 
+  /// with new entries reflecting those changes. This also will, if requested, break modified 
+  /// files into add/remove pairs if the amount of change is above a threshold.
+  /// </remarks>
+  /// <param name="options">Control how detection should be run, null for defaults</param>
+  void FindSimilar(GitDiffFindOptions? options = null);
 }

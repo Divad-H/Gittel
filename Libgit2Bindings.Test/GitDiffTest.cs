@@ -127,4 +127,51 @@ Third line
     Assert.Equal(4, count);
     Assert.True(found);
   }
+
+  [Fact]
+  public void CanUpdateDiffByFindSimilar()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    const string newFileName = "other.txt";
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    var otherFileFFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, newFileName);
+    File.WriteAllLines(otherFileFFullPath, ["my content", "and some more"]);
+    File.Delete(fileFullPath);
+
+    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree, new()
+    {
+      Flags = GitDiffOptionFlags.IncludeUntracked,
+    });
+
+    Assert.NotNull(diff);
+    Assert.Equal(2ul, diff.GetNumDeltas());
+    for (int i = 0; i < 2; ++i)
+    {
+      var delta = diff.GetDelta((uint)i);
+      Assert.NotNull(delta);
+      if (RepoWithOneCommit.Filename == delta.NewFile?.Path)
+      {
+        Assert.Equal(GitDeltaType.Deleted, delta.Status);
+        Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
+      }
+      else
+      {
+        Assert.Equal(GitDeltaType.Untracked, delta.Status);
+        Assert.Equal(newFileName, delta.NewFile?.Path);
+      }
+    }
+
+    diff.FindSimilar(new()
+    {
+      Flags = GitDiffFindFlags.ForUntracked
+    });
+    
+    Assert.Equal(1ul, diff.GetNumDeltas());
+    var newDelta = diff.GetDelta(0);
+    Assert.NotNull(newDelta);
+    Assert.Equal(GitDeltaType.Renamed, newDelta.Status);
+    Assert.Equal(RepoWithOneCommit.Filename, newDelta.OldFile?.Path);
+    Assert.Equal(newFileName, newDelta.NewFile?.Path);
+  }
 }

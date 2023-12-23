@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -26,6 +27,16 @@ internal class GitDiff : IGitDiff
   public UInt64 GetNumDeltas()
   {
     return libgit2.diff.GitDiffNumDeltas(NativeGitDiff);
+  }
+
+  public void FindSimilar(GitDiffFindOptions? options = null)
+  {
+    using DisposableCollection disposables = new();
+
+    var nativeOptions = options?.ToNative(disposables);
+    var res = libgit2.diff.GitDiffFindSimilar(NativeGitDiff, nativeOptions);
+
+    CheckLibgit2.Check(res, "Find similar failed");
   }
 
   #region IDisposable Support
