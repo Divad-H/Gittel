@@ -436,6 +436,27 @@ public interface IGitRepository : IDisposable
   IGitDiff DiffIndexToIndex(IGitIndex? oldIndex, IGitIndex? newIndex, GitDiffOptions? options = null);
 
   /// <summary>
+  /// Create a diff with the difference between two tree objects.
+  /// </summary>
+  /// <remarks>
+  /// This is equivalent to git diff <old-tree> <new-tree>
+  /// <para/>
+  /// The first tree will be used for the "old_file" side of the 
+  /// delta and the second tree will be used for the "new_file" 
+  /// side of the delta.You can pass null to indicate an empty tree, 
+  /// although it is an error to pass null for both the oldTree and newTree.
+  /// </remarks>
+  /// <param name="oldTree">
+  /// A <see cref="IGitTree"/> object to diff from, or null for empty tree.
+  /// </param>
+  /// <param name="newTree">
+  /// A <see cref="IGitTree"/> object to diff to, or null for empty tree.
+  /// </param>
+  /// <param name="options">Structure with options to influence diff or null for defaults.</param>
+  /// <returns>The diff</returns>
+  IGitDiff DiffTreeToTree(IGitTree? oldTree, IGitTree? newTree, GitDiffOptions? options = null);
+
+  /// <summary>
   /// Lookup a blob object from a repository.
   /// </summary>
   /// <param name="oid">identity of the blob to locate.</param>

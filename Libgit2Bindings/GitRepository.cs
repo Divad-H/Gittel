@@ -437,6 +437,20 @@ internal sealed class GitRepository : IGitRepository
     return new GitDiff(nativeDiff);
   }
 
+  public IGitDiff DiffTreeToTree(
+    IGitTree? oldTree, IGitTree? newTree, GitDiffOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var managedOldTree = GittelObjects.Downcast<GitTree>(oldTree);
+    var managedNewTree = GittelObjects.Downcast<GitTree>(newTree);
+    var res = libgit2.diff.GitDiffTreeToTree(
+      out var nativeDiff, _nativeGitRepository, managedOldTree?.NativeGitTree,
+      managedNewTree?.NativeGitTree, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to diff tree to tree");
+    return new GitDiff(nativeDiff);
+  }
+
   public IGitBlob LookupBlob(GitOid oid)
   {
     using var nativeOid = GitOidMapper.ToNative(oid);

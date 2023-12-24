@@ -400,4 +400,32 @@ Third line
     Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
     Assert.Equal(GitDeltaType.Modified, delta.Status);
   }
+
+  [Fact]
+  public void CanDiffTreeToTree()
+  {
+
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["my content", "more content"]);
+
+    using var index = repo.Repo.GetIndex();
+
+    index.AddByPath(RepoWithOneCommit.Filename);
+    var treeOid = index.WriteTree();
+
+    using var newTree = repo.Repo.LookupTree(treeOid);
+    
+    using var diff = repo.Repo.DiffTreeToTree(repo.Tree, newTree);
+
+    Assert.NotNull(diff);
+    Assert.Equal(1ul, diff.GetNumDeltas());
+    var delta = diff.GetDelta(0);
+    Assert.NotNull(delta);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.NewFile?.Path);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
+    Assert.Equal(GitDeltaType.Modified, delta.Status);
+  }
 }
