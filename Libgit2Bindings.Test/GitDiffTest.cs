@@ -1,5 +1,4 @@
-﻿using libgit2;
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 using Libgit2Bindings.Util;
 using System.Text;
 
@@ -7,6 +6,20 @@ namespace Libgit2Bindings.Test;
 
 public class GitDiffTest
 {
+  static IGitDiff CreateDiff(ILibgit2 libgit2)
+  {
+    var patch =
+      "diff --git a/test.txt b/test.txt" + Environment.NewLine +
+      "index 025d08b..9122a9c 100644" + Environment.NewLine +
+      "--- a/test.txt" + Environment.NewLine +
+      "+++ b/test.txt" + Environment.NewLine +
+      "@@ -1 +1 @@" + Environment.NewLine +
+      "-my content" + Environment.NewLine +
+      "+some modified content" + Environment.NewLine;
+    return libgit2.DiffFromPatch(Encoding.UTF8.GetBytes(patch));
+  }
+
+
   [Fact]
   public void CanDiffTreeToWorkdir()
   {
@@ -180,14 +193,8 @@ Third line
   [Fact]
   public void CanIterateDiff()
   {
-    using var sourceRepo = new RepoWithOneCommit();
-
-    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
-    File.WriteAllLines(fileFullPath, ["some modified content"]);
-
-    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
-
-    Assert.NotNull(diff);
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
 
     int fileCount = 0;
     bool fileFound = false;
@@ -276,12 +283,8 @@ Third line
   [Fact]
   public void CanGetGitDiffStats()
   {
-    using var sourceRepo = new RepoWithOneCommit();
-
-    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
-    File.WriteAllLines(fileFullPath, ["some modified content"]);
-
-    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
 
     Assert.NotNull(diff);
 
@@ -294,14 +297,8 @@ Third line
   [Fact]
   public void CanGetGitDiffStatsFormatted()
   {
-    using var sourceRepo = new RepoWithOneCommit();
-
-    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
-    File.WriteAllLines(fileFullPath, ["some modified content"]);
-
-    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
-
-    Assert.NotNull(diff);
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
 
     var stats = diff.GetStatsFormatted(GitDiffStatsFormatOptions.Short, 80);
     Assert.StartsWith(" 1 file changed, 1 insertion(+), 1 deletion(-)", stats);
@@ -310,14 +307,8 @@ Third line
   [Fact]
   public void CanFormatDiff()
   {
-    using var sourceRepo = new RepoWithOneCommit();
-
-    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
-    File.WriteAllLines(fileFullPath, ["some modified content"]);
-
-    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
-
-    Assert.NotNull(diff);
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
 
     var buffer = diff.ToBuffer(GitDiffFormatOptions.Patch);
     var content = Encoding.UTF8.GetString(buffer);
@@ -333,18 +324,8 @@ Third line
   [Fact]
   public void CanGetDiffFromPatch()
   {
-    var patch = 
-      "diff --git a/test.txt b/test.txt" + Environment.NewLine +
-      "index 025d08b..9122a9c 100644" + Environment.NewLine +
-      "--- a/test.txt" + Environment.NewLine +
-      "+++ b/test.txt" + Environment.NewLine +
-      "@@ -1 +1 @@" + Environment.NewLine +
-      "-my content" + Environment.NewLine +
-      "+some modified content" + Environment.NewLine;
-
     using var libgit2 = new Libgit2();
-
-    using var diff = libgit2.DiffFromPatch(Encoding.UTF8.GetBytes(patch));
+    using var diff = CreateDiff(libgit2);
 
     Assert.NotNull(diff);
     Assert.Equal(1ul, diff.GetNumDeltas());
@@ -353,5 +334,14 @@ Third line
     Assert.Equal(RepoWithOneCommit.Filename, delta.NewFile?.Path);
     Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
     Assert.Equal(GitDeltaType.Modified, delta.Status);
+  }
+
+  [Fact]
+  public void CanCheckIfDiffIsSortedCaseInsensitively()
+  {
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
+
+    Assert.False(diff.IsSortedCaseInsensitively());
   }
 }

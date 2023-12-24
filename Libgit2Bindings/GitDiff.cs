@@ -69,6 +69,11 @@ internal class GitDiff : IGitDiff
     }
   }
 
+  public bool IsSortedCaseInsensitively()
+  {
+    return libgit2.diff.GitDiffIsSortedIcase(NativeGitDiff) != 0;
+  }
+
   public void FindSimilar(GitDiffFindOptions? options = null)
   {
     using DisposableCollection disposables = new();

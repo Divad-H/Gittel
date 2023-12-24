@@ -41,6 +41,12 @@ public interface IGitDiff : IDisposable
   string GetStatsFormatted(GitDiffStatsFormatOptions format, UInt32 width);
 
   /// <summary>
+  /// Check if deltas are sorted case sensitively or insensitively.
+  /// </summary>
+  /// <returns>false if case sensitive, true if case is ignored</returns>
+  bool IsSortedCaseInsensitively();
+
+  /// <summary>
   /// Transform a diff marking file renames, copies, etc.
   /// </summary>
   /// <remarks>
