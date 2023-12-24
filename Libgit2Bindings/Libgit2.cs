@@ -264,6 +264,15 @@ internal class Libgit2 : ILibgit2, IDisposable
       callbacks.Payload);
   }
 
+  public IGitDiff DiffFromPatch(byte[] patch)
+  {
+    using var pinnedBuffer = new PinnedBuffer(patch);
+    var res = libgit2.diff.GitDiffFromBuffer(
+      out var diff, pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length);
+    CheckLibgit2.Check(res, "Unable to create diff from patch");
+    return new GitDiff(diff, true);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

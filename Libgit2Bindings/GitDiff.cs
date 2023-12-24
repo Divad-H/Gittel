@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 using static Libgit2Bindings.IGitDiff;
@@ -100,6 +100,16 @@ internal class GitDiff : IGitDiff
       callbacks.Payload);
 
     CheckLibgit2.Check(res, "ForEach failed");
+  }
+
+  public byte[] ToBuffer(GitDiffFormatOptions format)
+  {
+    var res = libgit2.diff.GitDiffToBuf(out var buf, NativeGitDiff, format.ToNative());
+    CheckLibgit2.Check(res, "To buffer failed");
+    using (buf)
+    {
+      return StringUtil.ToArray(buf);
+    }
   }
 
   #region IDisposable Support

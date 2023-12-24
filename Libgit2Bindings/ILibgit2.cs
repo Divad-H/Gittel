@@ -261,4 +261,11 @@ public interface ILibgit2
     IGitDiff.BinaryCallback? binaryCallback = null,
     IGitDiff.HunkCallback? hunkCallback = null,
     IGitDiff.LineCallback? lineCallback = null);
+
+  /// <summary>
+  /// Read the contents of a git patch file into a <see cref="IGitDiff"/> object.
+  /// </summary>
+  /// <param name="patch">The contents of a patch file</param>
+  /// <returns>The diff object</returns>
+  IGitDiff DiffFromPatch(byte[] patch);
 }

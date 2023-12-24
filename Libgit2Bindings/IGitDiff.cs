@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface IGitDiff : IDisposable
 {
@@ -110,4 +110,45 @@ public interface IGitDiff : IDisposable
     BinaryCallback? binaryCallback = null,
     HunkCallback? hunkCallback = null,
     LineCallback? lineCallback = null);
+
+  /// <summary>
+  /// Produce the complete formatted text output from a diff into a buffer.
+  /// </summary>
+  /// <param name="format">
+  /// A <see cref="GitDiffFormatOptions"/> value to pick the text format.
+  /// </param>
+  /// <returns>the diff text</returns>
+  byte[] ToBuffer(GitDiffFormatOptions format);
+}
+
+
+/// <summary>
+/// Possible output formats for diff data
+/// </summary>
+public enum GitDiffFormatOptions
+{
+  /// <summary>
+  /// full git diff
+  /// </summary>
+  Patch = 1,
+  /// <summary>
+  /// just the file headers of patch
+  /// </summary>
+  PatchHeader = 2,
+  /// <summary>
+  /// like git diff --raw
+  /// </summary>
+  Raw = 3,
+  /// <summary>
+  /// like git diff --name-only
+  /// </summary>
+  NameOnly = 4,
+  /// <summary>
+  /// like git diff --name-status
+  /// </summary>
+  NameStatus = 5,
+  /// <summary>
+  /// git diff as used by git patch-id
+  /// </summary>
+  PatchId = 6
 }

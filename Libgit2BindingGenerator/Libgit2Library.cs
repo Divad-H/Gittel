@@ -242,6 +242,18 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
 
   public override bool VisitFunctionDecl(Function function)
   {
+    if (function.Name == "git_diff_from_buffer")
+    {
+      foreach (var parameter in function.Parameters)
+      {
+        if (parameter.Name == "content")
+        {
+          parameter.QualifiedType = new QualifiedType(
+            new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
+            new TypeQualifiers() { IsConst = true });
+        }
+      }
+    }
     if (function.Name == "git_blob_data_is_binary")
     {
       foreach (var parameter in function.Parameters)
