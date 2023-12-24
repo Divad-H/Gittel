@@ -6,6 +6,8 @@ internal static class GitDiffHunkMapper
 {
   public unsafe static GitDiffHunk FromNative(libgit2.GitDiffHunk gitDiffHunk)
   {
+    if (gitDiffHunk is null)
+      return new();
     var gitDiffHunkInstance = (libgit2.GitDiffHunk.__Internal*)gitDiffHunk.__Instance;
 
     GitDiffHunk diffHunk = new()

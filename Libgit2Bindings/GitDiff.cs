@@ -116,6 +116,14 @@ internal class GitDiff : IGitDiff
     }
   }
 
+  public void Print(GitDiffFormatOptions format, IGitDiff.LineCallback printCallback)
+  {
+    using var callbacks = new GitDiffCallbacks(lineCallback: printCallback);
+    var res = libgit2.diff.GitDiffPrint(
+      NativeGitDiff, format.ToNative(), GitDiffCallbacks.GitDiffLineCb, callbacks.Payload);
+    CheckLibgit2.Check(res, "Print failed");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

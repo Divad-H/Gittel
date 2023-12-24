@@ -474,4 +474,28 @@ Third line
     var statusChar = libgit2.GetDiffStatusChar(GitDeltaType.Added);
     Assert.Equal('A', statusChar);
   }
+
+  [Fact]
+  public void CanPrintDiff()
+  {
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
+
+    var buffer = new StringBuilder();
+
+    diff.Print(GitDiffFormatOptions.Patch, (delta, hunk, line) =>
+    {
+      buffer.Append(Encoding.UTF8.GetString(line.Content));
+      return GitOperationContinuation.Continue;
+    });
+
+    var content = buffer.ToString();
+    Assert.Contains("diff --git a/test.txt b/test.txt", content);
+    Assert.Contains("index 025d08b..9122a9c 100644", content);
+    Assert.Contains("--- a/test.txt", content);
+    Assert.Contains("+++ b/test.txt", content);
+    Assert.Contains("@@ -1 +1 @@", content);
+    Assert.Contains("my content", content);
+    Assert.Contains("some modified content", content);
+  }
 }

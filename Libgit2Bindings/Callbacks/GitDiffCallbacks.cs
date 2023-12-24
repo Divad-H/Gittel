@@ -14,10 +14,10 @@ internal class GitDiffCallbacks : IDisposable
   private readonly GCHandle _gcHandle;
 
   public GitDiffCallbacks(
-    IGitDiff.FileCallback? fileCallback,
-    IGitDiff.BinaryCallback? binaryCallback,
-    IGitDiff.HunkCallback? hunkCallback,
-    IGitDiff.LineCallback? lineCallback)
+    IGitDiff.FileCallback? fileCallback = null,
+    IGitDiff.BinaryCallback? binaryCallback = null,
+    IGitDiff.HunkCallback? hunkCallback = null,
+    IGitDiff.LineCallback? lineCallback = null)
   {
     _fileCallback = fileCallback;
     _binaryCallback = binaryCallback;

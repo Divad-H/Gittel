@@ -98,6 +98,15 @@ public interface IGitDiff : IDisposable
   /// </param>
   /// <returns>the diff text</returns>
   byte[] ToBuffer(GitDiffFormatOptions format);
+
+  /// <summary>
+  /// Iterate over a diff generating formatted text output
+  /// </summary>
+  /// <param name="format">
+  /// A <see cref="GitDiffFormatOptions"/> value to pick the text format.
+  /// </param>
+  /// <param name="printCallback">Callback to make per line of diff text.</param>
+  void Print(GitDiffFormatOptions format, LineCallback printCallback);
 }
 
 
