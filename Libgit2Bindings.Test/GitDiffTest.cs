@@ -150,8 +150,8 @@ Third line
 
     const string newFileName = "other.txt";
     var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
-    var otherFileFFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, newFileName);
-    File.WriteAllLines(otherFileFFullPath, ["my content", "and some more"]);
+    var otherFileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, newFileName);
+    File.WriteAllLines(otherFileFullPath, ["my content", "and some more"]);
     File.Delete(fileFullPath);
 
     using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree, new()
@@ -427,5 +427,43 @@ Third line
     Assert.Equal(RepoWithOneCommit.Filename, delta.NewFile?.Path);
     Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
     Assert.Equal(GitDeltaType.Modified, delta.Status);
+  }
+
+  [Fact]
+  public void CanDiffTreeToWorkdirWithIndex()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    const string newFileName = "other.txt";
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    var otherFileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, newFileName);
+    File.WriteAllLines(otherFileFullPath, ["my content", "and some more"]);
+    File.Delete(fileFullPath);
+
+    using var index = sourceRepo.Repo.GetIndex();
+
+    index.AddByPath(newFileName);
+    var treeOid = index.WriteTree();
+    index.Write();
+
+    using var diff = sourceRepo.Repo.DiffTreeToWorkdirWithIndex(sourceRepo.Tree, new());
+
+    Assert.NotNull(diff);
+    Assert.Equal(2ul, diff.GetNumDeltas());
+    for (int i = 0; i < 2; ++i)
+    {
+      var delta = diff.GetDelta((uint)i);
+      Assert.NotNull(delta);
+      if (RepoWithOneCommit.Filename == delta.NewFile?.Path)
+      {
+        Assert.Equal(GitDeltaType.Deleted, delta.Status);
+        Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
+      }
+      else
+      {
+        Assert.Equal(GitDeltaType.Added, delta.Status);
+        Assert.Equal("other.txt", delta.NewFile?.Path);
+      }
+    }
   }
 }

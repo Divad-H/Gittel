@@ -457,6 +457,22 @@ public interface IGitRepository : IDisposable
   IGitDiff DiffTreeToTree(IGitTree? oldTree, IGitTree? newTree, GitDiffOptions? options = null);
 
   /// <summary>
+  /// Create a diff between a tree and the working directory using index data to account for 
+  /// staged deletes, tracked files, etc.
+  /// </summary>
+  /// <remarks>
+  /// This emulates git diff <tree> by diffing the tree to the index and the index to the 
+  /// working directory and blending the results into a single diff that includes staged deleted,
+  /// etc.
+  /// </remarks>
+  /// <param name="oldTree">
+  /// A <see cref="IGitTree"/> object to diff from, or null for empty tree.
+  /// </param>
+  /// <param name="options">Structure with options to influence diff or null for defaults.</param>
+  /// <returns>The diff</returns>
+  IGitDiff DiffTreeToWorkdirWithIndex(IGitTree? oldTree, GitDiffOptions? options = null);
+
+  /// <summary>
   /// Lookup a blob object from a repository.
   /// </summary>
   /// <param name="oid">identity of the blob to locate.</param>
