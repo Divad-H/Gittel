@@ -423,6 +423,19 @@ public interface IGitRepository : IDisposable
   IGitDiff DiffIndexToWorkdir(IGitIndex? index, GitDiffOptions? options = null);
 
   /// <summary>
+  /// Create a diff with the difference between two index objects.
+  /// </summary>
+  /// <remarks>
+  /// The first index will be used for the "old_file" side of the delta and the second 
+  /// index will be used for the "new_file" side of the delta.
+  /// </remarks>
+  /// <param name="oldIndex">A <see cref="IGitIndex"/> object to diff from.</param>
+  /// <param name="newIndex">A <see cref="IGitIndex"/> object to diff to.</param>
+  /// <param name="options">Structure with options to influence diff or null for defaults.</param>
+  /// <returns>The diff</returns>
+  IGitDiff DiffIndexToIndex(IGitIndex? oldIndex, IGitIndex? newIndex, GitDiffOptions? options = null);
+
+  /// <summary>
   /// Lookup a blob object from a repository.
   /// </summary>
   /// <param name="oid">identity of the blob to locate.</param>

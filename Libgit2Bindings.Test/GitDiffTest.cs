@@ -365,4 +365,39 @@ Third line
     Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
     Assert.Equal(GitDeltaType.Modified, delta.Status);
   }
+
+  [Fact]
+  public void CanDiffIndexToIndex()
+  {
+    // Use CherrypickCommit to create a second index object.
+    using var repo = new RepoWithOneCommit();
+    using var commit = repo.Repo.LookupCommit(repo.CommitOid);
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["my content", "more content"]);
+
+    using var oldIndex = repo.Repo.GetIndex();
+
+    oldIndex.AddByPath(RepoWithOneCommit.Filename);
+    var treeOid = oldIndex.WriteTree();
+    oldIndex.Write();
+
+    using var tree = repo.Repo.LookupTree(treeOid);
+    var commitOid = repo.Repo.CreateCommit(null, repo.Signature, repo.Signature, "msg", tree, [commit]);
+    using var secondCommit = repo.Repo.LookupCommit(commitOid);
+
+    repo.Repo.CheckoutHead(new() { Strategy = CheckoutStrategy.Force });
+
+    using var newIndex = repo.Repo.CherrypickCommit(secondCommit, commit, 0);
+
+    using var diff = repo.Repo.DiffIndexToIndex(oldIndex, newIndex);
+
+    Assert.NotNull(diff);
+    Assert.Equal(1ul, diff.GetNumDeltas());
+    var delta = diff.GetDelta(0);
+    Assert.NotNull(delta);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.NewFile?.Path);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
+    Assert.Equal(GitDeltaType.Modified, delta.Status);
+  }
 }

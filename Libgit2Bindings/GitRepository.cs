@@ -424,6 +424,19 @@ internal sealed class GitRepository : IGitRepository
     return new GitDiff(nativeDiff);
   }
 
+  public IGitDiff DiffIndexToIndex(IGitIndex? oldIndex, IGitIndex? newIndex, GitDiffOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var managedOldIndex = GittelObjects.Downcast<GitIndex>(oldIndex);
+    var managedNewIndex = GittelObjects.Downcast<GitIndex>(newIndex);
+    var res = libgit2.diff.GitDiffIndexToIndex(
+      out var nativeDiff, _nativeGitRepository, managedOldIndex?.NativeGitIndex,
+      managedNewIndex?.NativeGitIndex, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to diff index to index");
+    return new GitDiff(nativeDiff);
+  }
+
   public IGitBlob LookupBlob(GitOid oid)
   {
     using var nativeOid = GitOidMapper.ToNative(oid);
