@@ -1,7 +1,6 @@
-using Libgit2Bindings.Callbacks;
+﻿using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
-using static Libgit2Bindings.IGitDiff;
 
 namespace Libgit2Bindings;
 

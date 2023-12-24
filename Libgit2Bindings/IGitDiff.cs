@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitDiff : IDisposable
 {
@@ -10,33 +10,6 @@ public interface IGitDiff : IDisposable
      GitDiffDelta delta, GitDiffHunk hunk);
   public delegate GitOperationContinuation LineCallback(
      GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line);
-
-  /// <summary>
-  /// Formatting options for diff stats
-  /// </summary>
-  public enum GitDiffStatsFormatOptions
-  {
-    /// <summary>
-    /// No stats
-    /// </summary>
-    None = 0,
-    /// <summary>
-    /// Full statistics, equivalent of `--stat`
-    /// </summary>
-    Full = 1 << 0,
-    /// <summary>
-    /// Short statistics, equivalent of `--shortstat`
-    /// </summary>
-    Short = 1 << 1,
-    /// <summary>
-    /// Number statistics, equivalent of `--numstat`
-    /// </summary>
-    Number = 1 << 2,
-    /// <summary>
-    /// Extended header information such as creations, renames and mode changes, equivalent of `--summary`
-    /// </summary>
-    IncludeSummary = 1 << 3,
-  }
 
   /// <summary>
   /// Return the diff delta for an entry in the diff list.
@@ -121,6 +94,33 @@ public interface IGitDiff : IDisposable
   byte[] ToBuffer(GitDiffFormatOptions format);
 }
 
+
+/// <summary>
+/// Formatting options for diff stats
+/// </summary>
+public enum GitDiffStatsFormatOptions
+{
+  /// <summary>
+  /// No stats
+  /// </summary>
+  None = 0,
+  /// <summary>
+  /// Full statistics, equivalent of `--stat`
+  /// </summary>
+  Full = 1 << 0,
+  /// <summary>
+  /// Short statistics, equivalent of `--shortstat`
+  /// </summary>
+  Short = 1 << 1,
+  /// <summary>
+  /// Number statistics, equivalent of `--numstat`
+  /// </summary>
+  Number = 1 << 2,
+  /// <summary>
+  /// Extended header information such as creations, renames and mode changes, equivalent of `--summary`
+  /// </summary>
+  IncludeSummary = 1 << 3,
+}
 
 /// <summary>
 /// Possible output formats for diff data
