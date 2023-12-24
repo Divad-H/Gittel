@@ -344,4 +344,25 @@ Third line
 
     Assert.False(diff.IsSortedCaseInsensitively());
   }
+
+  [Fact]
+  public void CanDiffIndexToWorkdir()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["some modified content"]);
+
+    using var index = sourceRepo.Repo.GetIndex();
+
+    using var diff = sourceRepo.Repo.DiffIndexToWorkdir(index);
+
+    Assert.NotNull(diff);
+    Assert.Equal(1ul, diff.GetNumDeltas());
+    var delta = diff.GetDelta(0);
+    Assert.NotNull(delta);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.NewFile?.Path);
+    Assert.Equal(RepoWithOneCommit.Filename, delta.OldFile?.Path);
+    Assert.Equal(GitDeltaType.Modified, delta.Status);
+  }
 }

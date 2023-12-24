@@ -413,6 +413,17 @@ internal sealed class GitRepository : IGitRepository
     return new GitDiff(nativeDiff);
   }
 
+  public IGitDiff DiffIndexToWorkdir(IGitIndex? index, GitDiffOptions? options = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var managedIndex = GittelObjects.Downcast<GitIndex>(index);
+    var res = libgit2.diff.GitDiffIndexToWorkdir(
+      out var nativeDiff, _nativeGitRepository, managedIndex?.NativeGitIndex, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to diff index to workdir");
+    return new GitDiff(nativeDiff);
+  }
+
   public IGitBlob LookupBlob(GitOid oid)
   {
     using var nativeOid = GitOidMapper.ToNative(oid);

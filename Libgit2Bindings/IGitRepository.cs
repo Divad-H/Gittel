@@ -400,6 +400,29 @@ public interface IGitRepository : IDisposable
   IGitDiff DiffTreeToWorkdir(IGitTree? oldTree, GitDiffOptions? options = null);
 
   /// <summary>
+  /// Create a diff between the repository index and the workdir directory.
+  /// </summary>
+  /// <remarks>
+  /// This matches the `git diff` command.  See the note below on
+  /// <see cref="DiffTreeToWorkdir(IGitTree?, GitDiffOptions?)"/> for a discussion 
+  /// of the difference between `git diff` and `git diff HEAD` and how to emulate 
+  /// a `git diff<treeish>`
+  /// using libgit2.
+  /// <para/>
+  /// The index will be used for the "old_file" side of the delta, and the
+  /// working directory will be used for the "new_file" side of the delta.
+  /// <para/>
+  /// If you pass null for the index, then the existing index of the `repo`
+  /// will be used.In this case, the index will be refreshed from disk
+  /// (if it has changed) before the diff is generated.
+  /// </remarks>
+  /// <param name="index"> The index to diff from; repo index used if null.</param>
+  /// <param name="options">Options structure with options to influence diff or 
+  /// null for defaults.</param>
+  /// <returns>The diff</returns>
+  IGitDiff DiffIndexToWorkdir(IGitIndex? index, GitDiffOptions? options = null);
+
+  /// <summary>
   /// Lookup a blob object from a repository.
   /// </summary>
   /// <param name="oid">identity of the blob to locate.</param>
