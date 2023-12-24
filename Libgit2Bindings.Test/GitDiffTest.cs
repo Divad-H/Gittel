@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Test.TestData;
+using Libgit2Bindings.Util;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -224,5 +225,50 @@ Third line
     Assert.True(fileFound);
     Assert.Equal(1, hunkCount);
     Assert.Equal(2, lineCount);
+  }
+
+  [Fact]
+  public void CanIterateBinaryDiff()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["some modified content"]);
+
+    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree, new()
+    {
+      Flags = GitDiffOptionFlags.ForceBinary | GitDiffOptionFlags.ShowBinary,
+    });
+
+    Assert.NotNull(diff);
+
+    int fileCount = 0;
+    bool fileFound = false;
+    int binaryCount = 0;
+
+    diff.ForEach(
+      fileCallback: (delta, progress) =>
+      {
+        ++fileCount;
+        fileFound |= delta.NewFile?.Path == RepoWithOneCommit.Filename;
+        return GitOperationContinuation.Continue;
+      },
+      binaryCallback: (delta, binary) =>
+      {
+        ++binaryCount;
+        Assert.Equal(11ul, binary.OldFile.InflatedLength);
+        Assert.Equal(22ul, binary.NewFile.InflatedLength);
+
+        var inflatedData = binary.NewFile.Inflate();
+        var content = Encoding.UTF8.GetString(inflatedData);
+        Assert.StartsWith("some modified content", content);
+
+        return GitOperationContinuation.Continue;
+      }
+    );
+
+    Assert.Equal(1, fileCount);
+    Assert.True(fileFound);
+    Assert.Equal(1, binaryCount);
   }
 }
