@@ -273,6 +273,16 @@ internal class Libgit2 : ILibgit2, IDisposable
     return new GitDiff(diff, true);
   }
 
+  public sbyte GetDiffStatusCharByte(GitDeltaType gitDelta)
+  {
+    return libgit2.diff.GitDiffStatusChar(gitDelta.ToNative());
+  }
+
+  public char GetDiffStatusChar(GitDeltaType gitDelta)
+  {
+    return (char)GetDiffStatusCharByte(gitDelta);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

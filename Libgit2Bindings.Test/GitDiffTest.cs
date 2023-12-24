@@ -466,4 +466,12 @@ Third line
       }
     }
   }
+
+  [Fact]
+  public void CanGetDiffStatusChar()
+  {
+    using var libgit2 = new Libgit2();
+    var statusChar = libgit2.GetDiffStatusChar(GitDeltaType.Added);
+    Assert.Equal('A', statusChar);
+  }
 }

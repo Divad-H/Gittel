@@ -268,4 +268,30 @@ public interface ILibgit2
   /// <param name="patch">The contents of a patch file</param>
   /// <returns>The diff object</returns>
   IGitDiff DiffFromPatch(byte[] patch);
+
+  /// <summary>
+  /// Look up the single character abbreviation for a delta status code.
+  /// </summary>
+  /// <remarks>
+  /// When you run git diff --name-status it uses single letter codes in the output 
+  /// such as 'A' for added, 'D' for deleted, 'M' for modified, etc. This function 
+  /// converts a git_delta_t value into these letters for your own purposes. 
+  /// <see cref="GitDeltaType.Untracked"/>  will return a space (i.e. ' ').
+  /// </remarks>
+  /// <param name="gitDelta">The <see cref="GitDeltaType"/> value to look up</param>
+  /// <returns>The single character label for that code</returns>
+  sbyte GetDiffStatusCharByte(GitDeltaType gitDelta);
+
+  /// <summary>
+  /// Look up the single character abbreviation for a delta status code.
+  /// </summary>
+  /// <remarks>
+  /// When you run git diff --name-status it uses single letter codes in the output 
+  /// such as 'A' for added, 'D' for deleted, 'M' for modified, etc. This function 
+  /// converts a git_delta_t value into these letters for your own purposes. 
+  /// <see cref="GitDeltaType.Untracked"/>  will return a space (i.e. ' ').
+  /// </remarks>
+  /// <param name="gitDelta">The <see cref="GitDeltaType"/> value to look up</param>
+  /// <returns>The single character label for that code</returns>
+  char GetDiffStatusChar(GitDeltaType gitDelta);
 }
