@@ -1,6 +1,7 @@
 ﻿using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
+using static Libgit2Bindings.IGitDiff;
 
 namespace Libgit2Bindings;
 
@@ -8,7 +9,6 @@ internal class GitDiff : IGitDiff
 {
   public libgit2.GitDiff NativeGitDiff { get; }
   private bool _ownsNativeInstance;
-
   public GitDiff(libgit2.GitDiff nativeGitDiff, bool ownsNativeInstance = true)
   {
     NativeGitDiff = nativeGitDiff;
@@ -28,6 +28,46 @@ internal class GitDiff : IGitDiff
   public UInt64 GetNumDeltas()
   {
     return libgit2.diff.GitDiffNumDeltas(NativeGitDiff);
+  }
+
+  public GitDiffStats GetStats()
+  {
+    var res = libgit2.diff.GitDiffGetStats(out var stats, NativeGitDiff);
+    CheckLibgit2.Check(res, "Get stats failed");
+
+    try
+    {
+      return new()
+      {
+        Deletions = libgit2.diff.GitDiffStatsDeletions(stats),
+        FilesChanged = libgit2.diff.GitDiffStatsFilesChanged(stats),
+        Insertions = libgit2.diff.GitDiffStatsInsertions(stats)
+      };
+    }
+    finally
+    {
+      libgit2.diff.GitDiffStatsFree(stats);
+    }
+  }
+
+  public string GetStatsFormatted(GitDiffStatsFormatOptions format, UInt32 width)
+  {
+    var res = libgit2.diff.GitDiffGetStats(out var stats, NativeGitDiff);
+    CheckLibgit2.Check(res, "Get stats failed");
+    
+    try
+    {
+      res = libgit2.diff.GitDiffStatsToBuf(out var buf, stats, format.ToNative(), width);
+      CheckLibgit2.Check(res, "Get stats formatted failed");
+      using (buf)
+      {
+        return StringUtil.ToString(buf);
+      }
+    }
+    finally
+    {
+      libgit2.diff.GitDiffStatsFree(stats);
+    }
   }
 
   public void FindSimilar(GitDiffFindOptions? options = null)

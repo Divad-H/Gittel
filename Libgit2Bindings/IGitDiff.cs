@@ -12,6 +12,33 @@ public interface IGitDiff : IDisposable
      GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line);
 
   /// <summary>
+  /// Formatting options for diff stats
+  /// </summary>
+  public enum GitDiffStatsFormatOptions
+  {
+    /// <summary>
+    /// No stats
+    /// </summary>
+    None = 0,
+    /// <summary>
+    /// Full statistics, equivalent of `--stat`
+    /// </summary>
+    Full = 1 << 0,
+    /// <summary>
+    /// Short statistics, equivalent of `--shortstat`
+    /// </summary>
+    Short = 1 << 1,
+    /// <summary>
+    /// Number statistics, equivalent of `--numstat`
+    /// </summary>
+    Number = 1 << 2,
+    /// <summary>
+    /// Extended header information such as creations, renames and mode changes, equivalent of `--summary`
+    /// </summary>
+    IncludeSummary = 1 << 3,
+  }
+
+  /// <summary>
   /// Return the diff delta for an entry in the diff list.
   /// </summary>
   /// <param name="index">Index into diff list</param>
@@ -23,6 +50,22 @@ public interface IGitDiff : IDisposable
   /// </summary>
   /// <returns>Count of number of deltas in the list</returns>
   UInt64 GetNumDeltas();
+
+  /// <summary>
+  /// Accumulate diff statistics for all patches.
+  /// </summary>
+  /// <returns>The Statistics</returns>
+  GitDiffStats GetStats();
+
+  /// <summary>
+  /// Print diff statistics.
+  /// </summary>
+  /// <param name="format">Formatting option.</param>
+  /// <param name="width">
+  /// Target width for output (only affects <see cref="GitDiffStatsFormatOptions.Full"/>)
+  /// </param>
+  /// <returns>formatted diff statistics</returns>
+  string GetStatsFormatted(GitDiffStatsFormatOptions format, UInt32 width);
 
   /// <summary>
   /// Transform a diff marking file renames, copies, etc.

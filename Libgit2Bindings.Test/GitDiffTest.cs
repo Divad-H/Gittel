@@ -271,4 +271,38 @@ Third line
     Assert.True(fileFound);
     Assert.Equal(1, binaryCount);
   }
+
+  [Fact]
+  public void CanGetGitDiffStats()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["some modified content"]);
+
+    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
+
+    Assert.NotNull(diff);
+
+    var stats = diff.GetStats();
+    Assert.Equal(1ul, stats.FilesChanged);
+    Assert.Equal(1ul, stats.Insertions);
+    Assert.Equal(1ul, stats.Deletions);
+  }
+
+  [Fact]
+  public void CanGetGitDiffStatsFormatted()
+  {
+    using var sourceRepo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(sourceRepo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["some modified content"]);
+
+    using var diff = sourceRepo.Repo.DiffTreeToWorkdir(sourceRepo.Tree);
+
+    Assert.NotNull(diff);
+
+    var stats = diff.GetStatsFormatted(IGitDiff.GitDiffStatsFormatOptions.Short, 80);
+    Assert.StartsWith(" 1 file changed, 1 insertion(+), 1 deletion(-)", stats);
+  }
 }
