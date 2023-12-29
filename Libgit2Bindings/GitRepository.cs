@@ -470,6 +470,16 @@ internal sealed class GitRepository : IGitRepository
     return new GitBlob(nativeBlob);
   }
 
+  public void ApplyDiff(IGitDiff diff, GitApplyLocation location, GitApplyOptions? options = null)
+  {
+    var managedDiff = GittelObjects.DowncastNonNull<GitDiff>(diff);
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var res = libgit2.apply.GitApply(
+      _nativeGitRepository, managedDiff.NativeGitDiff, location.ToNative(), nativeOptions);
+    CheckLibgit2.Check(res, "Unable to apply diff");
+  }
+
   public IGitBlob LookupBlobByPrefix(byte[] shortId)
   {
     var gitOid = GitOidMapper.FromShortId(shortId);

@@ -473,6 +473,15 @@ public interface IGitRepository : IDisposable
   IGitDiff DiffTreeToWorkdirWithIndex(IGitTree? oldTree, GitDiffOptions? options = null);
 
   /// <summary>
+  /// Apply a <see cref="IGitDiff"/> to the given repository, making changes directly 
+  /// in the working directory, the index, or both.
+  /// </summary>
+  /// <param name="diff">the diff to apply</param>
+  /// <param name="location">the location to apply (workdir, index or both)</param>
+  /// <param name="options">the options for the apply (or null for defaults)</param>
+  void ApplyDiff(IGitDiff diff, GitApplyLocation location, GitApplyOptions? options = null);
+
+  /// <summary>
   /// Lookup a blob object from a repository.
   /// </summary>
   /// <param name="oid">identity of the blob to locate.</param>

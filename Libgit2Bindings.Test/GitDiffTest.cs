@@ -603,4 +603,22 @@ Third line
     var patchId = diff.PatchId();
     Assert.Equal("64451fcd62e9505662aff8c7770ffd37107f47ca", patchId.Sha);
   }
+
+  [Fact]
+  public void CanApplyDiffToIndex()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["my content", "and some more"]);
+
+    using var diff = repo.Repo.DiffTreeToWorkdir(repo.Tree);
+
+    repo.Repo.ApplyDiff(diff, GitApplyLocation.Index, new());
+
+    using var index = repo.Repo.GetIndex();
+    using var diff2 = repo.Repo.DiffIndexToWorkdir(index);
+
+    Assert.Equal(0ul, diff2.GetNumDeltas());
+  }
 }

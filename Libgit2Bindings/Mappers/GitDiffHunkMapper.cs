@@ -20,4 +20,12 @@ internal static class GitDiffHunkMapper
     };
     return diffHunk;
   }
+
+  public static GitDiffHunk FromNativePtr(IntPtr nativeGitDiffHunkPtr)
+  {
+    if (nativeGitDiffHunkPtr == IntPtr.Zero)
+      return new();
+    using var nativeGitDiffHunk = libgit2.GitDiffHunk.__CreateInstance(nativeGitDiffHunkPtr);
+    return FromNative(nativeGitDiffHunk);
+  }
 }
