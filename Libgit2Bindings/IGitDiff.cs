@@ -58,6 +58,20 @@ public interface IGitDiff : IDisposable
   void FindSimilar(GitDiffFindOptions? options = null);
 
   /// <summary>
+  /// Merge one diff into another.
+  /// </summary>
+  /// <remarks>
+  /// This merges items from the "from" list into the this list. 
+  /// The resulting diff will have all items that appear in either list. 
+  /// If an item appears in both lists, then it will be "merged" to appear 
+  /// as if the old version was from this list and the new version is from 
+  /// the "from" list (with the exception that if the item has a pending 
+  /// DELETE in the middle, then it will show as deleted).
+  /// </remarks>
+  /// <param name="from">Diff to merge.</param>
+  void Merge(IGitDiff from);
+
+  /// <summary>
   /// Loop over all deltas in a diff issuing callbacks.
   /// </summary>
   /// <remarks>

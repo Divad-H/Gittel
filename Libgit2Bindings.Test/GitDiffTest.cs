@@ -498,4 +498,89 @@ Third line
     Assert.Contains("my content", content);
     Assert.Contains("some modified content", content);
   }
+
+  // libgit2 currently seems to have a bug when using git_diff_merge with diffs created from patches.
+  //  [Fact]
+  //  public void CanMergeDiffsFromPatches()
+  //  {
+  //    using var libgit2 = new Libgit2();
+  //    using var diff = CreateDiff(libgit2);
+  //
+  //    var patch = @"diff --git a/Libgit2Bindings/Mappers/GitDiffHunkMapper.cs b/Libgit2Bindings/Mappers/GitDiffHunkMapper.cs
+  //index 0cf8f70..5e57edb 100644
+  //--- a/Libgit2Bindings/Mappers/GitDiffHunkMapper.cs
+  //+++ b/Libgit2Bindings/Mappers/GitDiffHunkMapper.cs
+  //@@ -6,6 +6,8 @@ internal static class GitDiffHunkMapper
+  // {
+  //   public unsafe static GitDiffHunk FromNative(libgit2.GitDiffHunk gitDiffHunk)
+  //   {
+  //+    if (gitDiffHunk is null)
+  //+      return new();
+  //     var gitDiffHunkInstance = (libgit2.GitDiffHunk.__Internal*)gitDiffHunk.__Instance;
+  // 
+  //     GitDiffHunk diffHunk = new()
+  //";
+  //    using var secondDiff = libgit2.DiffFromPatch(Encoding.UTF8.GetBytes(patch));
+  //
+  //    diff.Merge(secondDiff);
+  //    
+  //    bool foundOriginal = false;
+  //    bool foundOther = false;
+  //    
+  //    Assert.Equal(2ul, diff.GetNumDeltas());
+  //    var delta = diff.GetDelta(0);
+  //    Assert.NotNull(delta);
+  //    foundOriginal |= delta.NewFile?.Path == RepoWithOneCommit.Filename;
+  //    foundOther |= delta.NewFile?.Path == "Libgit2Bindings/Mappers/GitDiffHunkMapper.cs";
+  //    
+  //    delta = diff.GetDelta(1);
+  //    Assert.NotNull(delta);
+  //    foundOriginal |= delta.NewFile?.Path == RepoWithOneCommit.Filename;
+  //    foundOther |= delta.NewFile?.Path == "Libgit2Bindings/Mappers/GitDiffHunkMapper.cs";
+  //    
+  //    Assert.True(foundOriginal);
+  //    Assert.True(foundOther);
+  //  }
+
+  [Fact]
+  public void CanMergeDiffs()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["my content", "and some more"]);
+
+    using var diff1 = repo.Repo.DiffTreeToWorkdir(repo.Tree, new()
+    {
+      Flags = GitDiffOptionFlags.IncludeUntracked,
+    });
+
+    var otherFilePath = Path.Combine(repo.TempDirectory.DirectoryPath, "other.txt");
+    File.WriteAllLines(fileFullPath, ["my content"]);
+    File.WriteAllLines(otherFilePath, ["content of some other file"]);
+
+    using var diff2 = repo.Repo.DiffTreeToWorkdir(repo.Tree, new()
+    {
+      Flags = GitDiffOptionFlags.IncludeUntracked,
+    });
+
+    diff1.Merge(diff2);
+
+    bool foundOriginal = false;
+    bool foundOther = false;
+
+    Assert.Equal(2ul, diff1.GetNumDeltas());
+    var delta = diff1.GetDelta(0);
+    Assert.NotNull(delta);
+    foundOriginal |= delta.NewFile?.Path == RepoWithOneCommit.Filename;
+    foundOther |= delta.NewFile?.Path == "other.txt";
+
+    delta = diff1.GetDelta(1);
+    Assert.NotNull(delta);
+    foundOriginal |= delta.NewFile?.Path == RepoWithOneCommit.Filename;
+    foundOther |= delta.NewFile?.Path == "other.txt";
+
+    Assert.True(foundOriginal);
+    Assert.True(foundOther);
+  }
 }

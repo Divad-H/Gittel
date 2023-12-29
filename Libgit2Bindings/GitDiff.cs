@@ -84,6 +84,13 @@ internal class GitDiff : IGitDiff
     CheckLibgit2.Check(res, "Find similar failed");
   }
 
+  public void Merge(IGitDiff from)
+  {
+    var fromManaged = GittelObjects.DowncastNonNull<GitDiff>(from);
+    var res = libgit2.diff.GitDiffMerge(NativeGitDiff, fromManaged.NativeGitDiff);
+    CheckLibgit2.Check(res, "Merge failed");
+  }
+
   public void ForEach(
     IGitDiff.FileCallback? fileCallback = null, 
     IGitDiff.BinaryCallback? binaryCallback = null,
