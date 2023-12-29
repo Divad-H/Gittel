@@ -480,6 +480,19 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to apply diff");
   }
 
+  public IGitIndex ApplyDiffToTree(IGitTree preimage, IGitDiff diff, GitApplyOptions? options = null)
+  {
+    var managedPreimage = GittelObjects.DowncastNonNull<GitTree>(preimage);
+    var managedDiff = GittelObjects.DowncastNonNull<GitDiff>(diff);
+    using var scope = new DisposableCollection();
+    using var nativeOptions = options?.ToNative(scope);
+    var res = libgit2.apply.GitApplyToTree(
+      out var nativeIndex, _nativeGitRepository, managedPreimage.NativeGitTree,
+      managedDiff.NativeGitDiff, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to apply diff to tree");
+    return new GitIndex(nativeIndex);
+  }
+
   public IGitBlob LookupBlobByPrefix(byte[] shortId)
   {
     var gitOid = GitOidMapper.FromShortId(shortId);

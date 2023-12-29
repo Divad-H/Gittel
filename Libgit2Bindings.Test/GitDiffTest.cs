@@ -621,4 +621,21 @@ Third line
 
     Assert.Equal(0ul, diff2.GetNumDeltas());
   }
+
+  [Fact]
+  public void CanApplyDiffToTree()
+  {
+    using var repo = new RepoWithOneCommit();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["my content", "and some more"]);
+
+    using var diff = repo.Repo.DiffTreeToWorkdir(repo.Tree);
+
+    using var index = repo.Repo.ApplyDiffToTree(repo.Tree, diff);
+
+    using var diff2 = repo.Repo.DiffIndexToWorkdir(index);
+
+    Assert.Equal(0ul, diff2.GetNumDeltas());
+  }
 }

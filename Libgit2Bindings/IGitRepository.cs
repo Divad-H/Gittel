@@ -482,6 +482,16 @@ public interface IGitRepository : IDisposable
   void ApplyDiff(IGitDiff diff, GitApplyLocation location, GitApplyOptions? options = null);
 
   /// <summary>
+  /// Apply a <see cref="IGitDiff"/> to a <see cref="IGitTree"/>, and return the resulting 
+  /// image as an index.
+  /// </summary>
+  /// <param name="preimage">the tree to apply the diff to</param>
+  /// <param name="diff">the diff to apply</param>
+  /// <param name="options">the options for the apply (or null for defaults)</param>
+  /// <returns>the postimage of the application</returns>
+  IGitIndex ApplyDiffToTree(IGitTree preimage, IGitDiff diff, GitApplyOptions? options = null);
+
+  /// <summary>
   /// Lookup a blob object from a repository.
   /// </summary>
   /// <param name="oid">identity of the blob to locate.</param>
