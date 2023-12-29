@@ -29,6 +29,11 @@ internal class GitDiff : IGitDiff
     return libgit2.diff.GitDiffNumDeltas(NativeGitDiff);
   }
 
+  public UInt64 GetNumDeltasOfType(GitDeltaType type)
+  {
+    return libgit2.diff.GitDiffNumDeltasOfType(NativeGitDiff, type.ToNative());
+  }
+
   public GitDiffStats GetStats()
   {
     var res = libgit2.diff.GitDiffGetStats(out var stats, NativeGitDiff);

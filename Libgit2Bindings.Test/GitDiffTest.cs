@@ -583,4 +583,14 @@ Third line
     Assert.True(foundOriginal);
     Assert.True(foundOther);
   }
+
+  [Fact]
+  public void CanGetNumDeltasOfType()
+  {
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
+
+    Assert.Equal(1ul, diff.GetNumDeltasOfType(GitDeltaType.Modified));
+    Assert.Equal(0ul, diff.GetNumDeltasOfType(GitDeltaType.Added));
+  }
 }

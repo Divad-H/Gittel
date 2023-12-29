@@ -25,6 +25,18 @@ public interface IGitDiff : IDisposable
   UInt64 GetNumDeltas();
 
   /// <summary>
+  /// Query how many diff deltas are there in a diff filtered by type.
+  /// </summary>
+  /// <remarks>
+  /// This works just like <see cref="GetNumDeltas"/> with an extra parameter 
+  /// that is a <see cref="GitDeltaType"/> and returns just the count of how 
+  /// many deltas match that particular type.
+  /// </remarks>
+  /// <param name="type">A <see cref="GitDeltaType"/> value to filter the count</param>
+  /// <returns>Count of number of deltas matching delta type</returns>
+  UInt64 GetNumDeltasOfType(GitDeltaType type);
+
+  /// <summary>
   /// Accumulate diff statistics for all patches.
   /// </summary>
   /// <returns>The Statistics</returns>
