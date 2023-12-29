@@ -133,6 +133,25 @@ public interface IGitDiff : IDisposable
   /// </param>
   /// <param name="printCallback">Callback to make per line of diff text.</param>
   void Print(GitDiffFormatOptions format, LineCallback printCallback);
+
+  /// <summary>
+  /// Calculate the patch ID for the given patch.
+  /// </summary>
+  /// <remarks>
+  /// Calculate a stable patch ID for the given patch by summing the hash of the file 
+  /// diffs, ignoring whitespace and line numbers. This can be used to derive whether 
+  /// two diffs are the same with a high probability.
+  /// <para/>
+  /// Currently, this function only calculates stable patch IDs, as defined in 
+  /// git-patch-id(1), and should in fact generate the same IDs as the upstream git 
+  /// project does.
+  /// </remarks>
+  /// <param name="options">
+  /// Options for how to calculate the patch ID. This is intended for future changes, 
+  /// as currently no options are available.
+  /// </param>
+  /// <returns></returns>
+  GitOid PatchId(GitDiffPatchIdOptions? options = null);
 }
 
 

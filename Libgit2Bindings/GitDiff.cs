@@ -136,6 +136,16 @@ internal class GitDiff : IGitDiff
     CheckLibgit2.Check(res, "Print failed");
   }
 
+  public GitOid PatchId(GitDiffPatchIdOptions? options = null)
+  {
+    var res = libgit2.diff.GitDiffPatchid(out var patchId, NativeGitDiff, null);
+    CheckLibgit2.Check(res, "Patch ID failed");
+    using (patchId)
+    {
+      return GitOidMapper.FromNative(patchId);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

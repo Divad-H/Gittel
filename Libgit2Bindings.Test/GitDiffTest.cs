@@ -593,4 +593,14 @@ Third line
     Assert.Equal(1ul, diff.GetNumDeltasOfType(GitDeltaType.Modified));
     Assert.Equal(0ul, diff.GetNumDeltasOfType(GitDeltaType.Added));
   }
+
+  [Fact]
+  public void CanCalculatePatchId()
+  {
+    using var libgit2 = new Libgit2();
+    using var diff = CreateDiff(libgit2);
+
+    var patchId = diff.PatchId();
+    Assert.Equal("64451fcd62e9505662aff8c7770ffd37107f47ca", patchId.Sha);
+  }
 }
