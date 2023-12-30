@@ -40,6 +40,15 @@ public interface IGitIndex : IDisposable
     GitIndexMatchedPathCallback? callback = null);
 
   /// <summary>
+  /// Clear the contents (all the entries) of an index object.
+  /// </summary>
+  /// <remarks>
+  /// This clears the index object in memory; changes must be explicitly written to disk for them 
+  /// to take effect persistently.
+  /// </remarks>
+  void Clear();
+
+  /// <summary>
   /// Write the index as a tree
   /// </summary>
   /// <returns>The object id of the tree</returns>

@@ -33,4 +33,22 @@ public sealed class GitIndexTest
 
     Assert.True((int)index.Capabilities < 8);
   }
+
+  [Fact]
+  public void CanClearIndex()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file.txt");
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("file.txt");
+
+    Assert.Equal(1ul, index.EntryCount);
+
+    index.Clear();
+
+    Assert.Equal(0ul, index.EntryCount);
+  }
 }

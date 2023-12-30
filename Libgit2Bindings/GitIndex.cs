@@ -43,6 +43,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to add all paths to index");
   }
 
+  public void Clear()
+  {
+    var res = libgit2.index.GitIndexClear(NativeGitIndex);
+    CheckLibgit2.Check(res, "Unable to clear index");
+  }
+
   public GitOid WriteTree()
   {
     var res = libgit2.index.GitIndexWriteTree(out var treeOid, NativeGitIndex);
