@@ -615,6 +615,19 @@ internal sealed class GitRepository : IGitRepository
     return res != 0;
   }
 
+  public bool GraphIsReachableFromAny(GitOid commit, IEnumerable<GitOid> descendants)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeCommit = GitOidMapper.ToNative(commit);
+    var nativeDescendants = descendants.Select(oid => GitOidMapper.ToNative(oid).DisposeWith(scope)).ToArray();
+    var res = libgit2.graph.GitGraphReachableFromAny(
+      _nativeGitRepository, nativeCommit, nativeDescendants, (UIntPtr)nativeDescendants.Length);
+    if (res == 1)
+      return true;
+    CheckLibgit2.Check(res, "Unable to get graph is reachable from any");
+    return res != 0;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

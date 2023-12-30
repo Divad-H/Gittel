@@ -22,4 +22,13 @@ public class GitGraphTest
     Assert.False(repo.Repo.GraphDescendantOf(repo.FirstCommitOid, repo.SecondCommitOid));
     Assert.True(repo.Repo.GraphDescendantOf(repo.SecondCommitOid, repo.FirstCommitOid));
   }
+
+  [Fact]
+  public void CanCheckIfCommitIsReachableFromAnyOther()
+  {
+    using var repo = new RepoWithTwoCommits();
+    
+    Assert.True(repo.Repo.GraphIsReachableFromAny(repo.FirstCommitOid, [repo.SecondCommitOid, repo.FirstCommitOid]));
+    Assert.False(repo.Repo.GraphIsReachableFromAny(repo.SecondCommitOid, [repo.FirstCommitOid]));
+  }
 }

@@ -627,4 +627,14 @@ public interface IGitRepository : IDisposable
   /// <returns>true if the given commit is a descendant of the potential ancestor, 
   /// false if not.</returns>
   bool GraphDescendantOf(GitOid commit, GitOid ancestor);
+
+  /// <summary>
+  /// Determine if a commit is reachable from any of a list of commits by following parent edges.
+  /// </summary>
+  /// <param name="commit">a previously loaded commit</param>
+  /// <param name="descendants">oids of the descendant commits</param>
+  /// <returns>
+  /// true if the given commit is an ancestor of any of the given potential descendants, false if not
+  /// </returns>
+  bool GraphIsReachableFromAny(GitOid commit, IEnumerable<GitOid> descendants);
 }
