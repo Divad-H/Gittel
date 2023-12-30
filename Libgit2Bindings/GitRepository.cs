@@ -628,6 +628,25 @@ internal sealed class GitRepository : IGitRepository
     return res != 0;
   }
 
+  public void AddIgnoreRule(string rules)
+  {
+    var res = libgit2.ignore.GitIgnoreAddRule(_nativeGitRepository, rules);
+    CheckLibgit2.Check(res, "Unable to add git ignore rule");
+  }
+
+  public bool IgnorePathIsIgnored(string path)
+  {
+    int ignored = 0;
+    var res = libgit2.ignore.GitIgnorePathIsIgnored(ref ignored, _nativeGitRepository, path);
+    CheckLibgit2.Check(res, "Unable to check if path is ignored");
+    return ignored != 0;
+  }
+
+  public void ClearInternalIgnoreRules()
+  {
+    libgit2.ignore.GitIgnoreClearInternalRules(_nativeGitRepository);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using libgit2;
+
+namespace Libgit2Bindings;
 
 public interface IGitRepository : IDisposable
 {
@@ -637,4 +639,50 @@ public interface IGitRepository : IDisposable
   /// true if the given commit is an ancestor of any of the given potential descendants, false if not
   /// </returns>
   bool GraphIsReachableFromAny(GitOid commit, IEnumerable<GitOid> descendants);
+
+  /// <summary>
+  /// Add ignore rules for a repository.
+  /// </summary>
+  /// <remarks>
+  /// Excludesfile rules (i.e. .gitignore rules) are generally read from .gitignore 
+  /// files in the repository tree or from a shared system file only if a "core.excludesfile" 
+  /// config value is set. The library also keeps a set of per-repository internal ignores 
+  /// that can be configured in-memory and will not persist. This function allows you to add 
+  /// to that internal rules list.
+  /// </remarks>
+  /// <param name="rules">
+  /// Text of rules, the contents to add on a .gitignore file. It is okay to have multiple 
+  /// rules in the text; if so, each rule should be terminated with a newline.
+  /// </param>
+  void AddIgnoreRule(string rules);
+
+  /// <summary>
+  /// Clear ignore rules that were explicitly added.
+  /// </summary>
+  /// <remarks>
+  /// Resets to the default internal ignore rules. This will not turn off rules in .gitignore 
+  /// files that actually exist in the filesystem.
+  /// <para/>
+  /// The default internal ignores ignore ".", ".." and ".git" entries.
+  /// </remarks>
+  void ClearInternalIgnoreRules();
+
+  /// <summary>
+  /// Test if the ignore rules apply to a given path.
+  /// </summary>
+  /// <remarks>
+  /// This function checks the ignore rules to see if they would apply to the given file. 
+  /// This indicates if the file would be ignored regardless of whether the file is already 
+  /// in the index or committed to the repository.
+  /// <para/>
+  /// One way to think of this is if you were to do "git check-ignore --no-index" on the 
+  /// given file, would it be shown or not?
+  /// </remarks>
+  /// <param name="path">
+  /// the file to check ignores for, relative to the repo's workdir.
+  /// </param>
+  /// <returns>
+  /// boolean returning false if the file is not ignored, true if it is
+  /// </returns>
+    bool IgnorePathIsIgnored(string path);
 }
