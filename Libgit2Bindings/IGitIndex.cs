@@ -68,6 +68,27 @@ public interface IGitIndex : IDisposable
   void Add(GitIndexEntry entry);
 
   /// <summary>
+  /// Add or update an index entry from a buffer in memory
+  /// </summary>
+  /// <remarks>
+  /// This method will create a blob in the repository that owns the index and then add the index 
+  /// entry to the index. The path of the entry represents the position of the blob relative to 
+  /// the repository's root folder.
+  /// <para/>
+  /// If a previous index entry exists that has the same path as the given 'entry', it will be 
+  /// replaced.Otherwise, the 'entry' will be added.
+  /// <para/>
+  /// This forces the file to be added to the index, not looking at gitignore rules.Those rules can 
+  /// be evaluated through the git_status APIs (in status.h) before calling this.
+  /// <para/>
+  /// If this file currently is the result of a merge conflict, this file will no longer be marked 
+  /// as conflicting.The data about the conflict will be moved to the "resolve undo" (REUC) section.
+  /// </remarks>
+  /// <param name="entry">filename to add</param>
+  /// <param name="buffer">data to be written into the blob</param>
+  void AddFromBuffer(GitIndexEntry entry, byte[] buffer);
+
+  /// <summary>
   /// Write the index as a tree
   /// </summary>
   /// <returns>The object id of the tree</returns>
