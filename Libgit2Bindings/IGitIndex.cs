@@ -3,6 +3,11 @@
 public interface IGitIndex : IDisposable
 {
   /// <summary>
+  /// Get the count of entries currently in the index
+  /// </summary>
+  UInt64 EntryCount { get; }
+
+  /// <summary>
   /// Add or update an index entry from a file on disk
   /// </summary>
   /// <remarks>
@@ -16,6 +21,18 @@ public interface IGitIndex : IDisposable
   /// </remarks>
   /// <param name="path">filename to add</param>
   void AddByPath(string path);
+
+  /// <summary>
+  /// Add or update index entries matching files in the working directory.
+  /// </summary>
+  /// <param name="pathspecs">array of path patterns</param>
+  /// <param name="flags">combination of <see cref="GitIndexAddOption"/> flags</param>
+  /// <param name="callback">
+  /// notification callback for each added/updated path (also gets index of matching pathspec entry); 
+  /// can be nulkl.
+  /// </param>
+  void AddAll(IReadOnlyCollection<string> pathspecs, GitIndexAddOption flags, 
+    GitIndexMatchedPathCallback? callback = null);
 
   /// <summary>
   /// Write the index as a tree
@@ -34,4 +51,25 @@ public interface IGitIndex : IDisposable
   /// Write an existing index object from memory back to disk using an atomic file lock.
   /// </summary>
   void Write();
+}
+
+public enum GitAddToIndexOperation
+{
+  Error = -1,
+  Add = 0,
+  Skip = 1,
+}
+
+public delegate GitAddToIndexOperation GitIndexMatchedPathCallback(string path, string matchedPathspec);
+
+/// <summary>
+/// Flags for APIs that add files matching pathspec
+/// </summary>
+[Flags]
+public enum GitIndexAddOption
+{
+  Default = 0,
+  Force = 1 << 0,
+  DisablePathspecMatch = 1 << 1,
+  CheckPathspec = 1 << 2,
 }

@@ -1,21 +1,37 @@
-﻿using Libgit2Bindings.Mappers;
+﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
-internal sealed class GitIndex : IGitIndex
+internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
 {
-  public libgit2.GitIndex NativeGitIndex { get; }
+  public libgit2.GitIndex NativeGitIndex { get; } = nativeGitIndex;
 
-  public GitIndex(libgit2.GitIndex nativeGitIndex)
+  public ulong EntryCount
   {
-    NativeGitIndex = nativeGitIndex;
+    get
+    {
+      return libgit2.index.GitIndexEntrycount(NativeGitIndex);
+    }
   }
 
   public void AddByPath(string path)
   {
     var res = libgit2.index.GitIndexAddBypath(NativeGitIndex, path);
     CheckLibgit2.Check(res, "Unable to add path '{0}' to index", path);
+  }
+
+  public void AddAll(IReadOnlyCollection<string> pathspecs, GitIndexAddOption flags, 
+    GitIndexMatchedPathCallback? callback = null)
+  {
+    using GitIndexMatchedPathCallbackImpl? callbackImpl = callback is null ? null : new(callback);
+    using var nativePathspecs = new GitStrArrayImpl(pathspecs);
+    var res = libgit2.index.GitIndexAddAll(
+      NativeGitIndex, nativePathspecs.NativeStrArray, (uint)flags,
+      callback is null ? null : GitIndexMatchedPathCallbackImpl.GitIndexMatchedPathCb, 
+      callbackImpl?.Payload ?? IntPtr.Zero);
+    CheckLibgit2.Check(res, "Unable to add all paths to index");
   }
 
   public GitOid WriteTree()
