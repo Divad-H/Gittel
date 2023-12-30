@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface IGitIndex : IDisposable
 {
@@ -47,6 +47,13 @@ public interface IGitIndex : IDisposable
   /// to take effect persistently.
   /// </remarks>
   void Clear();
+
+  /// <summary>
+  /// Get one of the entries in the index
+  /// </summary>
+  /// <param name="index">the position of the entry</param>
+  /// <returns>an existing index object</returns>
+  GitIndexEntry GetEntry(UInt64 index);
 
   /// <summary>
   /// Write the index as a tree

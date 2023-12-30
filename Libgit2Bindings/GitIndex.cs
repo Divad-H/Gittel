@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
@@ -47,6 +47,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
   {
     var res = libgit2.index.GitIndexClear(NativeGitIndex);
     CheckLibgit2.Check(res, "Unable to clear index");
+  }
+
+  public GitIndexEntry GetEntry(ulong index)
+  {
+    using var nativeIndexEntry = libgit2.index.GitIndexGetByindex(NativeGitIndex, (UIntPtr)index);
+    return nativeIndexEntry.ToManaged();
   }
 
   public GitOid WriteTree()
