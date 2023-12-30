@@ -8,6 +8,11 @@ public interface IGitIndex : IDisposable
   UInt64 EntryCount { get; }
 
   /// <summary>
+  /// Read index capabilities flags.
+  /// </summary>
+  GitIndexCapability Capabilities { get; }
+
+  /// <summary>
   /// Add or update an index entry from a file on disk
   /// </summary>
   /// <remarks>
@@ -72,4 +77,16 @@ public enum GitIndexAddOption
   Force = 1 << 0,
   DisablePathspecMatch = 1 << 1,
   CheckPathspec = 1 << 2,
+}
+
+/// <summary>
+/// Capabilities of system that affect index actions.
+/// </summary>
+[Flags]
+public enum GitIndexCapability
+{
+  IgnoreCase = 1,
+  NoFilemode = 2,
+  NoSymlinks = 4,
+  FromOwner = -1,
 }

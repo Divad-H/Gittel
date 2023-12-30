@@ -16,6 +16,15 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     }
   }
 
+  public GitIndexCapability Capabilities
+  {
+    get
+    {
+      return (GitIndexCapability)libgit2.index.GitIndexCaps(NativeGitIndex);
+    }
+  }
+
+
   public void AddByPath(string path)
   {
     var res = libgit2.index.GitIndexAddBypath(NativeGitIndex, path);

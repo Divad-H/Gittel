@@ -24,4 +24,13 @@ public sealed class GitIndexTest
 
     Assert.Equal(1ul, index.EntryCount);
   }
+
+  [Fact]
+  public void CanReadIndexCapabilities()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    Assert.True((int)index.Capabilities < 8);
+  }
 }
