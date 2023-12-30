@@ -614,4 +614,17 @@ public interface IGitRepository : IDisposable
   /// <param name="upstream">the commit for upstream</param>
   /// <returns>The number of commits that the local commit is ahead and behind the upstream</returns>
   AheadBehind GraphAheadBehind(GitOid local, GitOid upstream);
+
+  /// <summary>
+  /// Determine if a commit is the descendant of another commit.
+  /// </summary>
+  /// <remarks>
+  /// Note that a commit is not considered a descendant of itself, in contrast 
+  /// to git merge-base --is-ancestor.
+  /// </remarks>
+  /// <param name="commit">a previously loaded commit</param>
+  /// <param name="ancestor">a potential ancestor commit</param>
+  /// <returns>true if the given commit is a descendant of the potential ancestor, 
+  /// false if not.</returns>
+  bool GraphDescendantOf(GitOid commit, GitOid ancestor);
 }

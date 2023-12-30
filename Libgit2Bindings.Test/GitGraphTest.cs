@@ -13,4 +13,13 @@ public class GitGraphTest
     Assert.Equal(0ul, aheadBehind.Ahead);
     Assert.Equal(1ul, aheadBehind.Behind);
   }
+
+  [Fact]
+  public void CanCheckIfCommitIsDescendantOfAnother()
+  {
+    using var repo = new RepoWithTwoCommits();
+    
+    Assert.False(repo.Repo.GraphDescendantOf(repo.FirstCommitOid, repo.SecondCommitOid));
+    Assert.True(repo.Repo.GraphDescendantOf(repo.SecondCommitOid, repo.FirstCommitOid));
+  }
 }
