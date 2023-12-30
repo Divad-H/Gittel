@@ -601,4 +601,17 @@ public interface IGitRepository : IDisposable
   /// <param name="options">the lookup options (or null for defaults)</param>
   /// <returns>The describe result</returns>
   IGitDescribeResult DescribeWorkdir(GitDescribeOptions? options = null);
+
+  /// <summary>
+  /// Count the number of unique commits between two commit objects
+  /// </summary>
+  /// <remarks>
+  /// There is no need for branches containing the commits to have any upstream relationship, 
+  /// but it helps to think of one as a branch and the other as its upstream, the ahead and 
+  /// behind values will be what git would report for the branches.
+  /// </remarks>
+  /// <param name="local">the commit for local</param>
+  /// <param name="upstream">the commit for upstream</param>
+  /// <returns>The number of commits that the local commit is ahead and behind the upstream</returns>
+  AheadBehind GraphAheadBehind(GitOid local, GitOid upstream);
 }

@@ -592,6 +592,17 @@ internal sealed class GitRepository : IGitRepository
     return new GitDescribeResult(nativeDescribeResult);
   }
 
+  public AheadBehind GraphAheadBehind(GitOid local, GitOid upstream)
+  {
+    using var nativeLocal = GitOidMapper.ToNative(local);
+    using var nativeUpstream = GitOidMapper.ToNative(upstream);
+    UInt64 ahead = 0, behind = 0;
+    var res = libgit2.graph.GitGraphAheadBehind(
+      ref ahead, ref behind, _nativeGitRepository, nativeLocal, nativeUpstream);
+    CheckLibgit2.Check(res, "Unable to get graph ahead behind");
+    return new AheadBehind() { Ahead = ahead, Behind = behind };
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
