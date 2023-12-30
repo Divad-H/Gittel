@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitIndex : IDisposable
 {
@@ -54,6 +54,18 @@ public interface IGitIndex : IDisposable
   /// <param name="index">the position of the entry</param>
   /// <returns>an existing index object</returns>
   GitIndexEntry GetEntry(UInt64 index);
+
+  /// <summary>
+  /// Add or update an index entry from an in-memory struct
+  /// </summary>
+  /// <remarks>
+  /// If a previous index entry exists that has the same path and stage as the given 
+  /// 'entry', it will be replaced. Otherwise, the 'entry' will be added.
+  /// <para/>
+  /// A full copy(including the 'path' string) of the given 'entry' will be inserted on the index.
+  /// </remarks>
+  /// <param name="entry">new entry object</param>
+  void Add(GitIndexEntry entry);
 
   /// <summary>
   /// Write the index as a tree

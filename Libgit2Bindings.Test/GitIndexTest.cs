@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -66,5 +66,24 @@ public sealed class GitIndexTest
     var entry = index.GetEntry(0);
 
     Assert.Equal("file.txt", entry?.Path);
+  }
+
+  [Fact]
+  public void CanAddIndexEntry()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file.txt");
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("file.txt");
+    var entry = index.GetEntry(0);
+    index.Clear();
+    Assert.Equal(0ul, index.EntryCount);
+
+    index.Add(entry);
+
+    Assert.Equal(1ul, index.EntryCount);
   }
 }

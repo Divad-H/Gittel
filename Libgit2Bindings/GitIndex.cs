@@ -1,4 +1,4 @@
-using Libgit2Bindings.Callbacks;
+﻿using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
@@ -53,6 +53,13 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
   {
     using var nativeIndexEntry = libgit2.index.GitIndexGetByindex(NativeGitIndex, (UIntPtr)index);
     return nativeIndexEntry.ToManaged();
+  }
+
+  public void Add(GitIndexEntry entry)
+  {
+    using var nativeEntry = entry.ToNative();
+    var res = libgit2.index.GitIndexAdd(NativeGitIndex, nativeEntry);
+    CheckLibgit2.Check(res, "Unable to add entry to index");
   }
 
   public GitOid WriteTree()
