@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -127,5 +127,22 @@ public sealed class GitIndexTest
       Id = new(Enumerable.Repeat((byte)0, 20).ToArray())
     };
     Assert.Equal(2, entry.GetStage());
+  }
+
+  [Fact]
+  public void CanGetIndexChecksum()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file.txt");
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("file.txt");
+    index.Write();
+
+    var checksum = index.GetChecksum();
+
+    Assert.Contains(checksum.Id, b => b != 0);
   }
 }

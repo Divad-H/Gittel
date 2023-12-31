@@ -89,6 +89,16 @@ public interface IGitIndex : IDisposable
   void AddFromBuffer(GitIndexEntry entry, byte[] buffer);
 
   /// <summary>
+  /// Get the checksum of the index
+  /// </summary>
+  /// <remarks>
+  /// This checksum is the SHA-1 hash over the index file (except the last 20 bytes which are the 
+  /// checksum itself). In cases where the index does not exist on-disk, it will be zeroed out.
+  /// </remarks>
+  /// <returns>The checksum of the index</returns>
+  GitOid GetChecksum();
+
+  /// <summary>
   /// Write the index as a tree
   /// </summary>
   /// <returns>The object id of the tree</returns>

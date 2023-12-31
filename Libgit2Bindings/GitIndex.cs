@@ -71,6 +71,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to add entry from buffer to index");
   }
 
+  public GitOid GetChecksum()
+  {
+    using var checksum = libgit2.index.GitIndexChecksum(NativeGitIndex);
+    return GitOidMapper.FromNative(checksum);
+  }
+
   public GitOid WriteTree()
   {
     var res = libgit2.index.GitIndexWriteTree(out var treeOid, NativeGitIndex);
