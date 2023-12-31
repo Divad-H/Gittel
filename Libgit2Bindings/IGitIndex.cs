@@ -13,6 +13,12 @@ public interface IGitIndex : IDisposable
   GitIndexCapability Capabilities { get; }
 
   /// <summary>
+  /// Determine if the index contains entries representing file conflicts.
+  /// </summary>
+  /// <returns>true if at least one conflict is found, false otherwise.</returns>
+  bool HasConflicts();
+
+  /// <summary>
   /// Add or update an index entry from a file on disk
   /// </summary>
   /// <remarks>
@@ -87,6 +93,20 @@ public interface IGitIndex : IDisposable
   /// <param name="entry">filename to add</param>
   /// <param name="buffer">data to be written into the blob</param>
   void AddFromBuffer(GitIndexEntry entry, byte[] buffer);
+
+  /// <summary>
+  /// Add or update index entries to represent a conflict. Any staged entries that exist at the 
+  /// given paths will be removed.
+  /// </summary>
+  /// <remarks>
+  /// The entries are the entries from the tree included in the merge. Any entry may be null to 
+  /// indicate that that file was not present in the trees during the merge. For example, 
+  /// ancestorEntry may be null to indicate that a file was added in both branches and must be resolved.
+  /// </remarks>
+  /// <param name="ancestorEntry"></param>
+  /// <param name="ourEntry"></param>
+  /// <param name="theirEntry"></param>
+  void AddConflict(GitIndexEntry? ancestorEntry, GitIndexEntry? ourEntry, GitIndexEntry? theirEntry);
 
   /// <summary>
   /// Get the checksum of the index

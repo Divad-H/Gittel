@@ -24,6 +24,11 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     }
   }
 
+  public bool HasConflicts()
+  {
+    return libgit2.index.GitIndexHasConflicts(NativeGitIndex) == 1;
+  }
+
 
   public void AddByPath(string path)
   {
@@ -69,6 +74,17 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     var res = libgit2.index.GitIndexAddFromBuffer(
       NativeGitIndex, nativeEntry, pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length);
     CheckLibgit2.Check(res, "Unable to add entry from buffer to index");
+  }
+
+  public void AddConflict(
+    GitIndexEntry? ancestorEntry, GitIndexEntry? ourEntry, GitIndexEntry? theirEntry)
+  {
+    using var nativeAncestorEntry = ancestorEntry?.ToNative();
+    using var nativeOurEntry = ourEntry?.ToNative();
+    using var nativeTheirEntry = theirEntry?.ToNative();
+    var res = libgit2.index.GitIndexConflictAdd(
+      NativeGitIndex, nativeAncestorEntry, nativeOurEntry, nativeTheirEntry);
+    CheckLibgit2.Check(res, "Unable to add conflict to index");
   }
 
   public GitOid GetChecksum()
