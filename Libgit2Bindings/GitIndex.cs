@@ -113,6 +113,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to cleanup conflicts in index");
   }
 
+  public void RemoveConflict(string path)
+  {
+    var res = libgit2.index.GitIndexConflictRemove(NativeGitIndex, path);
+    CheckLibgit2.Check(res, "Unable to remove conflict from index");
+  }
+
   public ConflictEntries GetConflict(string path)
   {
     var res = libgit2.index.GitIndexConflictGet(

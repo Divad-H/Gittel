@@ -276,4 +276,46 @@ public sealed class GitIndexTest
     Assert.Equal(ours, conflict.Our?.Id);
     Assert.Equal(theirs, conflict.Their?.Id);
   }
+
+  [Fact]
+  public void CanRemoveConflict()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var ancestor = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ancestor"));
+    var ours = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ours"));
+    var theirs = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("theirs"));
+
+    var ancestorEntry = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = ancestor
+    };
+    var ourEntry = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = ours
+    };
+    var theirEntry = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = theirs
+    };
+
+    index.AddConflict(ancestorEntry, ourEntry, theirEntry);
+    Assert.Equal(3ul, index.EntryCount);
+
+    index.RemoveConflict("file.txt");
+    Assert.Equal(0ul, index.EntryCount);
+  }
 }

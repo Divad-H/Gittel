@@ -143,6 +143,12 @@ public interface IGitIndex : IDisposable
   void CleanupConflicts();
 
   /// <summary>
+  /// Removes the index entries that represent a conflict of a single file.
+  /// </summary>
+  /// <param name="path">path to remove conflicts for</param>
+  void RemoveConflict(string path);
+
+  /// <summary>
   /// Get the index entries that represent a conflict of a single file.
   /// </summary>
   /// <param name="path">path to search</param>
