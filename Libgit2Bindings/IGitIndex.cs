@@ -91,6 +91,14 @@ public interface IGitIndex : IDisposable
   GitIndexEntry GetEntry(UInt64 index);
 
   /// <summary>
+  /// Get a pointer to one of the entries in the index
+  /// </summary>
+  /// <param name="path">path to search</param>
+  /// <param name="stage">stage to search</param>
+  /// <returns>the entry; null if it was not found</returns>
+  GitIndexEntry GetEntryByPath(string path, int stage);
+
+  /// <summary>
   /// Find the first position of any entries which point to given path in the Git index.
   /// </summary>
   /// <param name="path">path to search</param>

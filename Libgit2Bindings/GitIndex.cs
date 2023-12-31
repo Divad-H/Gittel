@@ -80,6 +80,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     return nativeIndexEntry.ToManaged();
   }
 
+  public GitIndexEntry GetEntryByPath(string path, int stage)
+  {
+    using var nativeIndexEntry = libgit2.index.GitIndexGetBypath(NativeGitIndex, path, stage);
+    return nativeIndexEntry.ToManaged();
+  }
+
   public UInt64 FindEntryIndex(string path)
   {
     UInt64 pos = 0;

@@ -348,4 +348,19 @@ public sealed class GitIndexTest
     var pos = index.FindEntryIndexByPrefix("f");
     Assert.Equal(0ul, pos);
   }
+
+  [Fact]
+  public void CanGetIndexEntryByPath()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file.txt");
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("file.txt");
+
+    var entry = index.GetEntryByPath("file.txt", 0);
+    Assert.Equal("file.txt", entry?.Path);
+  }
 }
