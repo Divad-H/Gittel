@@ -73,3 +73,22 @@ public static class GitIndexEntryExtensions
     return entry.GetStage() > 0;
   }
 }
+
+/// <summary>
+/// Representation of a conflict in the index.
+/// </summary>
+public sealed record ConflictEntries
+{
+  /// <summary>
+  /// The ancestor version of the file.
+  /// </summary>
+  public GitIndexEntry? Ancestor { get; init; }
+  /// <summary>
+  /// The version of the file from 'our' branch.
+  /// </summary>
+  public GitIndexEntry? Our { get; init; }
+  /// <summary>
+  /// The version of the file from 'their' branch.
+  /// </summary>
+  public GitIndexEntry? Their { get; init; }
+}
