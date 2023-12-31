@@ -57,3 +57,14 @@ public sealed record GitIndexEntry
 
   public required string Path { get; init; }
 }
+
+public static class GitIndexEntryExtensions
+{
+  const int StageMask = 0x3000;
+  const int StageShift = 12;
+
+  public static int GetStage(this GitIndexEntry entry)
+  {
+    return (entry.Flags & StageMask) >> StageShift;
+  }
+}

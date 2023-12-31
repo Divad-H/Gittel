@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Test.TestData;
+using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -112,5 +112,20 @@ public sealed class GitIndexTest
 
     var blob = repo.Repo.LookupBlob(entry.Id);
     Assert.Equal("content", Encoding.UTF8.GetString(blob.RawContent()));
+  }
+
+  [Fact]
+  public void CanGetIndexEntryStage()
+  {
+    var entry = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Flags = 2 << 12,
+      Id = new(Enumerable.Repeat((byte)0, 20).ToArray())
+    };
+    Assert.Equal(2, entry.GetStage());
   }
 }
