@@ -138,6 +138,11 @@ public interface IGitIndex : IDisposable
   void AddConflict(GitIndexEntry? ancestorEntry, GitIndexEntry? ourEntry, GitIndexEntry? theirEntry);
 
   /// <summary>
+  /// Remove all conflicts in the index (entries with a stage greater than 0).
+  /// </summary>
+  void CleanupConflicts();
+
+  /// <summary>
   /// Get the checksum of the index
   /// </summary>
   /// <remarks>

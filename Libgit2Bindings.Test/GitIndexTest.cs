@@ -208,4 +208,28 @@ public sealed class GitIndexTest
     index.SetVersion(3u);
     Assert.Equal(3u, index.Version);
   }
+
+  [Fact]
+  public void CanCleanupConflicts()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var ancestor = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ancestor"));
+
+    var ancestorEntry = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = ancestor
+    };
+
+    index.AddConflict(ancestorEntry, null, null);
+    Assert.Equal(1ul, index.EntryCount);
+
+    index.CleanupConflicts();
+    Assert.Equal(0ul, index.EntryCount);
+  }
 }
