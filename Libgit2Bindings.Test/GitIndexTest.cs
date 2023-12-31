@@ -192,4 +192,16 @@ public sealed class GitIndexTest
     Assert.Equal(ancestor, entry.Id);
     Assert.Equal(1, entry.GetStage());
   }
+
+  [Fact]
+  public void CanSetVersion()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    index.SetVersion(4u);
+    Assert.Equal(4u, index.Version);
+    index.SetVersion(3u);
+    Assert.Equal(3u, index.Version);
+  }
 }

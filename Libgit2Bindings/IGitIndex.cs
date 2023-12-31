@@ -13,6 +13,25 @@ public interface IGitIndex : IDisposable
   GitIndexCapability Capabilities { get; }
 
   /// <summary>
+  /// Get index on-disk version.
+  /// </summary>
+  /// <remarks>
+  /// Valid return values are 2, 3, or 4. If 3 is returned, an index with version 2 may be written 
+  /// instead, if the extension data in version 3 is not necessary.
+  /// </remarks>
+  UInt32 Version { get; }
+
+  /// <summary>
+  /// Set index on-disk version.
+  /// </summary>
+  /// <remarks>
+  /// Valid values are 2, 3, or 4. If 2 is given, git_index_write may write an index with version 
+  /// 3 instead, if necessary to accurately represent the index.
+  /// </remarks>
+  /// <param name="version">The new version number</param>
+  void SetVersion(UInt32 version);
+
+  /// <summary>
   /// Determine if the index contains entries representing file conflicts.
   /// </summary>
   /// <returns>true if at least one conflict is found, false otherwise.</returns>

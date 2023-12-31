@@ -24,6 +24,20 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     }
   }
 
+  public uint Version
+  {
+    get
+    {
+      return libgit2.index.GitIndexVersion(NativeGitIndex);
+    }
+  }
+
+  public void SetVersion(uint version)
+  {
+    var res = libgit2.index.GitIndexSetVersion(NativeGitIndex, version);
+    CheckLibgit2.Check(res, "Unable to set index version");
+  }
+
   public bool HasConflicts()
   {
     return libgit2.index.GitIndexHasConflicts(NativeGitIndex) == 1;
