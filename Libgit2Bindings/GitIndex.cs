@@ -74,10 +74,18 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to clear index");
   }
 
-  public GitIndexEntry GetEntry(ulong index)
+  public GitIndexEntry GetEntry(UInt64 index)
   {
     using var nativeIndexEntry = libgit2.index.GitIndexGetByindex(NativeGitIndex, (UIntPtr)index);
     return nativeIndexEntry.ToManaged();
+  }
+
+  public UInt64 FindEntryIndex(string path)
+  {
+    UInt64 pos = 0;
+    var res = libgit2.index.GitIndexFind(ref pos, NativeGitIndex, path);
+    CheckLibgit2.Check(res, "Unable to find path '{0}' in index", path);
+    return pos;
   }
 
   public void Add(GitIndexEntry entry)
