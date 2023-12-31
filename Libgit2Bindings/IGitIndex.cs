@@ -22,6 +22,11 @@ public interface IGitIndex : IDisposable
   UInt32 Version { get; }
 
   /// <summary>
+  /// Get the full path to the index file on disk. Returns null for in-memory index
+  /// </summary>
+  string Path { get; }
+
+  /// <summary>
   /// Set index capabilities flags.
   /// </summary>
   /// <remarks>
