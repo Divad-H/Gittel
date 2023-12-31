@@ -88,6 +88,14 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     return pos;
   }
 
+  public UInt64 FindEntryIndexByPrefix(string pathPrefix)
+  {
+    UInt64 pos = 0;
+    var res = libgit2.index.GitIndexFindPrefix(ref pos, NativeGitIndex, pathPrefix);
+    CheckLibgit2.Check(res, "Unable to find path prefix '{0}' in index", pathPrefix);
+    return pos;
+  }
+
   public void Add(GitIndexEntry entry)
   {
     using var nativeEntry = entry.ToNative();

@@ -98,6 +98,14 @@ public interface IGitIndex : IDisposable
   UInt64 FindEntryIndex(string path);
 
   /// <summary>
+  /// Find the first position of any entries matching a prefix. To find the first position of a 
+  /// path inside a given folder, suffix the prefix with a '/'.
+  /// </summary>
+  /// <param name="pathPrefix">the prefix to search for</param>
+  /// <returns>the position of the index entry</returns>
+  UInt64 FindEntryIndexByPrefix(string pathPrefix);
+
+  /// <summary>
   /// Add or update an index entry from an in-memory struct
   /// </summary>
   /// <remarks>
