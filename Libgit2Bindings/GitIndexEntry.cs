@@ -67,4 +67,9 @@ public static class GitIndexEntryExtensions
   {
     return (entry.Flags & StageMask) >> StageShift;
   }
+
+  public static bool IsConflict(this GitIndexEntry entry)
+  {
+    return entry.GetStage() > 0;
+  }
 }

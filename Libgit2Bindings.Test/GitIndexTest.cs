@@ -127,6 +127,7 @@ public sealed class GitIndexTest
       Id = new(Enumerable.Repeat((byte)0, 20).ToArray())
     };
     Assert.Equal(2, entry.GetStage());
+    Assert.True(entry.IsConflict());
   }
 
   [Fact]
