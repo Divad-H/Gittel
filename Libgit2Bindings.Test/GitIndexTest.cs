@@ -27,12 +27,16 @@ public sealed class GitIndexTest
   }
 
   [Fact]
-  public void CanReadIndexCapabilities()
+  public void CanSetAndReadIndexCapabilities()
   {
     using var repo = new EmptyRepo();
     using var index = repo.Repo.GetIndex();
 
-    Assert.True((int)index.Capabilities < 8);
+    index.SetCapabilities(GitIndexCapability.IgnoreCase);
+    Assert.Equal(GitIndexCapability.IgnoreCase, index.Capabilities);
+
+    index.SetCapabilities(GitIndexCapability.NoFilemode);
+    Assert.Equal(GitIndexCapability.NoFilemode, index.Capabilities);
   }
 
   [Fact]

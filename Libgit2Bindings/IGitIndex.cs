@@ -22,6 +22,16 @@ public interface IGitIndex : IDisposable
   UInt32 Version { get; }
 
   /// <summary>
+  /// Set index capabilities flags.
+  /// </summary>
+  /// <remarks>
+  /// If you pass <see cref="GitIndexCapability.FromOwner"/> for the caps, then capabilities will be
+  /// read from the config of the owner object, looking at core.ignorecase, core.filemode, core.symlinks.
+  /// </remarks>
+  /// <param name="capabilities"></param>
+  void SetCapabilities(GitIndexCapability capabilities);
+
+  /// <summary>
   /// Set index on-disk version.
   /// </summary>
   /// <remarks>

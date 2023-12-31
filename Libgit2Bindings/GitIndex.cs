@@ -32,6 +32,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     }
   }
 
+  public void SetCapabilities(GitIndexCapability capabilities)
+  {
+    var res = libgit2.index.GitIndexSetCaps(NativeGitIndex, (int)capabilities);
+    CheckLibgit2.Check(res, "Unable to set index capabilities");
+  }
+
   public void SetVersion(uint version)
   {
     var res = libgit2.index.GitIndexSetVersion(NativeGitIndex, version);
