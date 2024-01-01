@@ -382,6 +382,26 @@ public sealed class GitIndexTest
     Assert.Equal(0ul, index.EntryCount);
   }
 
+  [Fact]
+  public void CanRemoveIndexEntriesByDirectory()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "dir", "file1.txt");
+    Directory.CreateDirectory(Path.GetDirectoryName(fileFullPath)!);
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("dir/file1.txt");
+    Assert.Equal(1ul, index.EntryCount);
+
+    index.RemoveDirectory("dir", 1);
+    Assert.Equal(1ul, index.EntryCount);
+
+    index.RemoveDirectory("dir", 0);
+    Assert.Equal(0ul, index.EntryCount);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

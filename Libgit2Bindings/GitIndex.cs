@@ -155,6 +155,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to remove entry from index");
   }
 
+  public void RemoveDirectory(string directory, int stage)
+  {
+    var res = libgit2.index.GitIndexRemoveDirectory(NativeGitIndex, directory, stage);
+    CheckLibgit2.Check(res, "Unable to remove directory from index");
+  }
+
   public void AddFromBuffer(GitIndexEntry entry, byte[] buffer)
   {
     using var nativeEntry = entry.ToNative();

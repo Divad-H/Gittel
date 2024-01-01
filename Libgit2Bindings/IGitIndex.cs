@@ -163,6 +163,13 @@ public interface IGitIndex : IDisposable
   void RemoveByPath(string path);
 
   /// <summary>
+  /// Remove all entries from the index under a given directory
+  /// </summary>
+  /// <param name="directory">container directory path</param>
+  /// <param name="stage">stage to search</param>
+  void RemoveDirectory(string directory, int stage);
+
+  /// <summary>
   /// Add or update an index entry from a buffer in memory
   /// </summary>
   /// <remarks>
