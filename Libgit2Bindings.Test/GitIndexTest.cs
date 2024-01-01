@@ -366,6 +366,22 @@ public sealed class GitIndexTest
     Assert.Equal(0ul, index.EntryCount);
   }
 
+  [Fact]
+  public void CanRemoveIndexEntryByPath()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file.txt");
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("file.txt");
+    Assert.Equal(1ul, index.EntryCount);
+
+    index.RemoveByPath("file.txt");
+    Assert.Equal(0ul, index.EntryCount);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

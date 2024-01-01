@@ -151,6 +151,18 @@ public interface IGitIndex : IDisposable
   void Remove(string path, int stage);
 
   /// <summary>
+  /// Remove an index entry corresponding to a file on disk
+  /// </summary>
+  /// <remarks>
+  /// The file path must be relative to the repository's working folder. It may exist.
+  /// <para/>
+  /// If this file currently is the result of a merge conflict, this file will no longer be marked 
+  /// as conflicting.The data about the conflict will be moved to the "resolve undo" (REUC) section.
+  /// </remarks>
+  /// <param name="path">filename to remove</param>
+  void RemoveByPath(string path);
+
+  /// <summary>
   /// Add or update an index entry from a buffer in memory
   /// </summary>
   /// <remarks>
