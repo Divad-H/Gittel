@@ -294,6 +294,29 @@ public sealed class GitIndexTest
     Assert.Equal(data.Theirs, conflicts[0].Their?.Id);
   }
 
+  [Fact]
+  public void CanIterateIndexEntries()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var file1FullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file1.txt");
+    File.WriteAllLines(file1FullPath, ["content"]);
+
+    var file2FullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file2.txt");
+    File.WriteAllLines(file2FullPath, ["content"]);
+
+    index.AddByPath("file1.txt");
+    index.AddByPath("file2.txt");
+
+    var entries = index.GetEntries().ToArray();
+
+    Assert.Equal(2, entries.Length);
+
+    Assert.Equal("file1.txt", entries[0].Path);
+    Assert.Equal("file2.txt", entries[1].Path);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

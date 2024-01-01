@@ -110,6 +110,32 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     return pos;
   }
 
+  public IEnumerable<GitIndexEntry> GetEntries()
+  {
+    var res = libgit2.index.GitIndexIteratorNew(out var iterator, NativeGitIndex);
+    CheckLibgit2.Check(res, "Unable to create index iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.index.GitIndexIteratorNext(out var indexEntry, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to get next index entry from iterator");
+        using (indexEntry)
+        {
+          yield return indexEntry.ToManaged();
+        }
+      }
+    }
+    finally
+    {
+      libgit2.index.GitIndexIteratorFree(iterator);
+    }
+  }
+
   public void Add(GitIndexEntry entry)
   {
     using var nativeEntry = entry.ToNative();

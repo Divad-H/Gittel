@@ -119,6 +119,14 @@ public interface IGitIndex : IDisposable
   UInt64 FindEntryIndexByPrefix(string pathPrefix);
 
   /// <summary>
+  /// Create an iterator that will return every entry contained in the index at the time of creation. 
+  /// Entries are returned in order, sorted by path. This iterator is backed by a snapshot that allows 
+  /// callers to modify the index while iterating without affecting the iterator.
+  /// </summary>
+  /// <returns>The newly created iterator</returns>
+  IEnumerable<GitIndexEntry> GetEntries();
+
+  /// <summary>
   /// Add or update an index entry from an in-memory struct
   /// </summary>
   /// <remarks>
