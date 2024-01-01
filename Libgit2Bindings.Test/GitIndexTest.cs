@@ -337,6 +337,19 @@ public sealed class GitIndexTest
     Assert.Equal(1ul, index.EntryCount);
   }
 
+  [Fact]
+  public void CanReadTreeIntoIndex()
+  {
+    using var repo = new RepoWithTwoCommits();
+    using var index = repo.Repo.GetIndex();
+
+    var tree = repo.FirstTree;
+    index.ReadTree(tree);
+    Assert.Equal(1ul, index.EntryCount);
+    var entry = index.GetEntry(0);
+    Assert.Equal("test.txt", entry.Path);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

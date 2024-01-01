@@ -246,6 +246,15 @@ public interface IGitIndex : IDisposable
   /// </remarks>
   /// <param name="force">if true, always reload, vs. only read if file has changed</param>
   void Read(bool force);
+
+  /// <summary>
+  /// Read a tree into the index file with stats
+  /// </summary>
+  /// <remarks>
+  /// The current index contents will be replaced by the specified tree.
+  /// </remarks>
+  /// <param name="tree">tree to read</param>
+  void ReadTree(IGitTree tree);
 }
 public enum GitAddToIndexOperation
 {

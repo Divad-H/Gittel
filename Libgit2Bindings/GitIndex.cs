@@ -267,6 +267,13 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to read index");
   }
 
+  public void ReadTree(IGitTree tree)
+  {
+    var managedTree = GittelObjects.DowncastNonNull<GitTree>(tree);
+    var res = libgit2.index.GitIndexReadTree(NativeGitIndex, managedTree.NativeGitTree);
+    CheckLibgit2.Check(res, "Unable to read tree into index");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
