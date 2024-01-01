@@ -167,6 +167,40 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     }
   }
 
+  public IEnumerable<ConflictEntries> GetAllConflicts()
+  {
+    var res = libgit2.index.GitIndexConflictIteratorNew(out var iterator, NativeGitIndex);
+    CheckLibgit2.Check(res, "Unable to create conflict iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.index.GitIndexConflictNext(
+          out var ancestorEntry, out var ourEntry, out var theirEntry, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to get next conflict from iterator");
+        using (ancestorEntry)
+        using (ourEntry)
+        using (theirEntry)
+        {
+          yield return new ConflictEntries()
+          {
+            Ancestor = ancestorEntry?.ToManaged(),
+            Our = ourEntry?.ToManaged(),
+            Their = theirEntry?.ToManaged()
+          };
+        }
+      }
+    }
+    finally
+    {
+      libgit2.index.GitIndexConflictIteratorFree(iterator);
+    }
+  }
+
   public GitOid GetChecksum()
   {
     using var checksum = libgit2.index.GitIndexChecksum(NativeGitIndex);

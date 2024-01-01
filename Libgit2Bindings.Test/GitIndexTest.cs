@@ -154,46 +154,15 @@ public sealed class GitIndexTest
   [Fact]
   public void CanAddConflict()
   {
-    using var repo = new EmptyRepo();
-    using var index = repo.Repo.GetIndex();
+    using var data = new EmptyRepoWithConflicts();
 
-    var ancestor = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ancestor"));
-    var ours = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ours"));
-    var theirs = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("theirs"));
+    Assert.Equal(3ul, data.Index.EntryCount);
 
-    var ancestorEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = ancestor
-    };
-    var ourEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = ours
-    };
-    var theirEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = theirs
-    };
+    Assert.True(data.Index.HasConflicts());
 
-    index.AddConflict(ancestorEntry, ourEntry, theirEntry);
-    Assert.Equal(3ul, index.EntryCount);
-
-    Assert.True(index.HasConflicts());
-
-    var entry = index.GetEntry(0);
+    var entry = data.Index.GetEntry(0);
     Assert.Equal("file.txt", entry.Path);
-    Assert.Equal(ancestor, entry.Id);
+    Assert.Equal(data.Ancestor, entry.Id);
     Assert.Equal(1, entry.GetStage());
   }
 
@@ -236,87 +205,25 @@ public sealed class GitIndexTest
   [Fact]
   public void CanGetConflict()
   {
-    using var repo = new EmptyRepo();
-    using var index = repo.Repo.GetIndex();
+    using var data = new EmptyRepoWithConflicts();
 
-    var ancestor = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ancestor"));
-    var ours = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ours"));
-    var theirs = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("theirs"));
+    Assert.Equal(3ul, data.Index.EntryCount);
 
-    var ancestorEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = ancestor
-    };
-    var ourEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = ours
-    };
-    var theirEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = theirs
-    };
-
-    index.AddConflict(ancestorEntry, ourEntry, theirEntry);
-    Assert.Equal(3ul, index.EntryCount);
-
-    var conflict = index.GetConflict("file.txt");
-    Assert.Equal(ancestor, conflict.Ancestor?.Id);
-    Assert.Equal(ours, conflict.Our?.Id);
-    Assert.Equal(theirs, conflict.Their?.Id);
+    var conflict = data.Index.GetConflict("file.txt");
+    Assert.Equal(data.Ancestor, conflict.Ancestor?.Id);
+    Assert.Equal(data.Ours, conflict.Our?.Id);
+    Assert.Equal(data.Theirs, conflict.Their?.Id);
   }
 
   [Fact]
   public void CanRemoveConflict()
   {
-    using var repo = new EmptyRepo();
-    using var index = repo.Repo.GetIndex();
+    using var data = new EmptyRepoWithConflicts();
 
-    var ancestor = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ancestor"));
-    var ours = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ours"));
-    var theirs = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("theirs"));
+    Assert.Equal(3ul, data.Index.EntryCount);
 
-    var ancestorEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = ancestor
-    };
-    var ourEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = ours
-    };
-    var theirEntry = new GitIndexEntry()
-    {
-      Path = "file.txt",
-      CTime = new(),
-      MTime = new(),
-      Mode = 33188,
-      Id = theirs
-    };
-
-    index.AddConflict(ancestorEntry, ourEntry, theirEntry);
-    Assert.Equal(3ul, index.EntryCount);
-
-    index.RemoveConflict("file.txt");
-    Assert.Equal(0ul, index.EntryCount);
+    data.Index.RemoveConflict("file.txt");
+    Assert.Equal(0ul, data.Index.EntryCount);
   }
 
   [Fact]
@@ -371,5 +278,71 @@ public sealed class GitIndexTest
     using var index = repo.Repo.GetIndex();
 
     Assert.EndsWith("index", index.Path);
+  }
+
+  [Fact]
+  public void CanIterateConflicts()
+  {
+    using var data = new EmptyRepoWithConflicts();
+
+    var conflicts = data.Index.GetAllConflicts().ToArray();
+
+    Assert.Single(conflicts);
+
+    Assert.Equal(data.Ancestor, conflicts[0].Ancestor?.Id);
+    Assert.Equal(data.Ours, conflicts[0].Our?.Id);
+    Assert.Equal(data.Theirs, conflicts[0].Their?.Id);
+  }
+
+  private sealed class EmptyRepoWithConflicts : IDisposable
+  {
+    public EmptyRepo Repo { get; } = new();
+    public IGitIndex Index { get; }
+
+    public GitOid Ancestor { get; }
+    public GitOid Ours { get; }
+    public GitOid Theirs { get; }
+
+    public EmptyRepoWithConflicts()
+    {
+      Index = Repo.Repo.GetIndex();
+
+      Ancestor = Repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ancestor"));
+      Ours = Repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("ours"));
+      Theirs = Repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("theirs"));
+
+      var ancestorEntry = new GitIndexEntry()
+      {
+        Path = "file.txt",
+        CTime = new(),
+        MTime = new(),
+        Mode = 33188,
+        Id = Ancestor
+      };
+      var ourEntry = new GitIndexEntry()
+      {
+        Path = "file.txt",
+        CTime = new(),
+        MTime = new(),
+        Mode = 33188,
+        Id = Ours
+      };
+      var theirEntry = new GitIndexEntry()
+      {
+        Path = "file.txt",
+        CTime = new(),
+        MTime = new(),
+        Mode = 33188,
+        Id = Theirs
+      };
+
+      Index.AddConflict(ancestorEntry, ourEntry, theirEntry);
+    }
+
+    public void Dispose()
+    {
+      Index.Dispose();
+      Repo.Dispose();
+    }
   }
 }

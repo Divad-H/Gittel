@@ -184,6 +184,15 @@ public interface IGitIndex : IDisposable
   ConflictEntries GetConflict(string path);
 
   /// <summary>
+  /// Create an <see cref="IEnumerable{T}"/> for the conflicts in the index.
+  /// </summary>
+  /// <remarks>
+  /// The index must not be modified while iterating; the results are undefined.
+  /// </remarks>
+  /// <returns>The <see cref="IEnumerable{T}"/> of conflicts.</returns>
+  IEnumerable<ConflictEntries> GetAllConflicts();
+
+  /// <summary>
   /// Get the checksum of the index
   /// </summary>
   /// <remarks>
