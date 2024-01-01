@@ -144,6 +144,13 @@ public interface IGitIndex : IDisposable
   void Add(GitIndexEntry entry);
 
   /// <summary>
+  /// Remove an entry from the index
+  /// </summary>
+  /// <param name="path">path to search</param>
+  /// <param name="stage">stage to search</param>
+  void Remove(string path, int stage);
+
+  /// <summary>
   /// Add or update an index entry from a buffer in memory
   /// </summary>
   /// <remarks>
