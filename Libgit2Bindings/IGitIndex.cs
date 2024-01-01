@@ -1,4 +1,9 @@
-﻿namespace Libgit2Bindings;
+﻿using libgit2;
+using static System.Runtime.InteropServices.JavaScript.JSType;
+using System.Threading.Channels;
+using System;
+
+namespace Libgit2Bindings;
 
 public interface IGitIndex : IDisposable
 {
@@ -227,8 +232,21 @@ public interface IGitIndex : IDisposable
   /// Write an existing index object from memory back to disk using an atomic file lock.
   /// </summary>
   void Write();
-}
 
+  /// <summary>
+  /// Update the contents of an existing index object in memory by reading from the hard disk.
+  /// </summary>
+  /// <remarks>
+  /// If force is true, this performs a "hard" read that discards in-memory changes and always 
+  /// reloads the on-disk index data. If there is no on-disk version, the index will be cleared.
+  /// <para/>
+  /// If force is false, this does a "soft" read that reloads the index data from disk only if 
+  /// it has changed since the last time it was loaded.Purely in-memory index data will be untouched. 
+  /// Be aware: if there are changes on disk, unwritten in-memory changes are discarded.
+  /// </remarks>
+  /// <param name="force">if true, always reload, vs. only read if file has changed</param>
+  void Read(bool force);
+}
 public enum GitAddToIndexOperation
 {
   Error = -1,

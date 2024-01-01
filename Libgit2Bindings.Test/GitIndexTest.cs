@@ -317,6 +317,26 @@ public sealed class GitIndexTest
     Assert.Equal("file2.txt", entries[1].Path);
   }
 
+  [Fact]
+  public void CanReadIndex()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var fileFullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file.txt");
+    File.WriteAllLines(fileFullPath, ["content"]);
+
+    index.AddByPath("file.txt");
+    index.Write();
+    Assert.Equal(1ul, index.EntryCount);
+
+    index.Clear();
+    Assert.Equal(0ul, index.EntryCount);
+
+    index.Read(true);
+    Assert.Equal(1ul, index.EntryCount);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

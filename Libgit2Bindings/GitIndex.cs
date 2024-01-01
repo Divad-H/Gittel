@@ -261,6 +261,12 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to write index");
   }
 
+  public void Read(bool force)
+  {
+    var res = libgit2.index.GitIndexRead(NativeGitIndex, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to read index");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
