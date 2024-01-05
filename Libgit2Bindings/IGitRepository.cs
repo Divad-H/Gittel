@@ -684,5 +684,15 @@ public interface IGitRepository : IDisposable
   /// <returns>
   /// boolean returning false if the file is not ignored, true if it is
   /// </returns>
-    bool IgnorePathIsIgnored(string path);
+  bool IgnorePathIsIgnored(string path);
+
+  /// <summary>
+  /// Get the Object Database for this repository.
+  /// </summary>
+  /// <remarks>
+  /// If a custom ODB has not been set, the default database for the repository will be returned 
+  /// (the one located in .git/objects).
+  /// </remarks>
+  /// <returns></returns>
+  IGitOdb GetOdb();
 }

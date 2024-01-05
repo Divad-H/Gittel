@@ -647,6 +647,13 @@ internal sealed class GitRepository : IGitRepository
     libgit2.ignore.GitIgnoreClearInternalRules(_nativeGitRepository);
   }
 
+  public IGitOdb GetOdb()
+  {
+    var res = libgit2.repository.GitRepositoryOdb(out var nativeOdb, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to get odb");
+    return new GitOdb(nativeOdb);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
