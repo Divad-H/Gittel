@@ -1,9 +1,4 @@
-﻿using libgit2;
-using static System.Runtime.InteropServices.JavaScript.JSType;
-using System.Threading.Channels;
-using System;
-
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitIndex : IDisposable
 {
@@ -168,6 +163,16 @@ public interface IGitIndex : IDisposable
   /// <param name="directory">container directory path</param>
   /// <param name="stage">stage to search</param>
   void RemoveDirectory(string directory, int stage);
+
+  /// <summary>
+  /// Remove all matching index entries
+  /// </summary>
+  /// <param name="pathspecs">array of path patterns</param>
+  /// <param name="callback">
+  /// notification callback for each removed path (also gets index of matching pathspec entry); 
+  /// can be null.
+  /// </param>
+  void RemoveAll(IReadOnlyCollection<string> pathspecs, GitIndexMatchedPathCallback? callback = null);
 
   /// <summary>
   /// Add or update an index entry from a buffer in memory

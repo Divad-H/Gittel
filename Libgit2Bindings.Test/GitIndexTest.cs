@@ -402,6 +402,26 @@ public sealed class GitIndexTest
     Assert.Equal(0ul, index.EntryCount);
   }
 
+  [Fact]
+  public void CanRemoveIndexEntriesByPathspec()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+
+    var file1FullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file1.txt");
+    File.WriteAllLines(file1FullPath, ["content"]);
+
+    var file2FullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file2.txt");
+    File.WriteAllLines(file2FullPath, ["content"]);
+
+    index.AddByPath("file1.txt");
+    index.AddByPath("file2.txt");
+    Assert.Equal(2ul, index.EntryCount);
+
+    index.RemoveAll(["*.txt"]);
+    Assert.Equal(0ul, index.EntryCount);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

@@ -161,6 +161,19 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to remove directory from index");
   }
 
+  public void RemoveAll(IReadOnlyCollection<string> pathspecs,
+    GitIndexMatchedPathCallback? callback = null)
+  {
+    using GitIndexMatchedPathCallbackImpl? callbackImpl = callback is null ? null : new(callback);
+    using var nativePathspecs = new GitStrArrayImpl(pathspecs);
+    var res = libgit2.index.GitIndexRemoveAll(
+      NativeGitIndex, 
+      nativePathspecs.NativeStrArray,
+      callback is null ? null : GitIndexMatchedPathCallbackImpl.GitIndexMatchedPathCb,
+      callbackImpl?.Payload ?? IntPtr.Zero);
+    CheckLibgit2.Check(res, "Unable to remove all paths from index");
+  }
+
   public void AddFromBuffer(GitIndexEntry entry, byte[] buffer)
   {
     using var nativeEntry = entry.ToNative();
