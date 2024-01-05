@@ -30,6 +30,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitDescribeFormatOptionsVersion", "GIT_DESCRIBE_FORMAT_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitDiffFindOptionsVersion", "GIT_DIFF_FIND_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitApplyOptionsVersion", "GIT_APPLY_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitIndexerOptionsVersion", "GIT_INDEXER_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)

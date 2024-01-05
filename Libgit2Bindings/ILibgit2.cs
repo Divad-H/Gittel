@@ -1,6 +1,4 @@
-﻿using libgit2;
-
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface ILibgit2
 {
@@ -294,4 +292,19 @@ public interface ILibgit2
   /// <param name="gitDelta">The <see cref="GitDeltaType"/> value to look up</param>
   /// <returns>The single character label for that code</returns>
   char GetDiffStatusChar(GitDeltaType gitDelta);
+
+  /// <summary>
+  /// Create a new indexer instance
+  /// </summary>
+  /// <param name="path">Path to the directory where the packfile should be stored</param>
+  /// <param name="mode">permissions to use creating packfile or 0 for defaults</param>
+  /// <param name="odb">
+  /// object database from which to read base objects when fixing thin packs. Pass null 
+  /// if no thin pack is expected (an error will be returned if there are bases missing)
+  /// </param>
+  /// <param name="options">
+  /// Optional structure containing additional options. See <see cref="GitIndexerOptions"/>.
+  /// </param>
+  /// <returns>the indexer instance</returns>
+  IGitIndexer NewGitIndexer(string path, UInt32 mode, IGitOdb? odb, GitIndexerOptions? options = null);
 }

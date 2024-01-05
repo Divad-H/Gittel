@@ -283,6 +283,27 @@ internal class Libgit2 : ILibgit2, IDisposable
     return (char)GetDiffStatusCharByte(gitDelta);
   }
 
+  public IGitIndexer NewGitIndexer(string path, uint mode, IGitOdb? odb, GitIndexerOptions? options = null)
+  {
+    DisposableCollection disposables = new();
+    try
+    {
+      using var nativeOptions = options?.ToNative(disposables);
+      using var managedOdb = GittelObjects.Downcast<GitOdb>(odb);
+
+      var res = libgit2.indexer.GitIndexerNew(
+        out var indexer, path, mode, managedOdb?.NativeGitOdb, nativeOptions);
+      CheckLibgit2.Check(res, "Unable to create indexer");
+      var gitIndexer = new GitIndexer(indexer, disposables);
+      disposables = null;
+      return gitIndexer;
+    }
+    finally
+    {
+      disposables?.Dispose();
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
