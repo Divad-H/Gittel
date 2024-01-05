@@ -422,6 +422,27 @@ public sealed class GitIndexTest
     Assert.Equal(0ul, index.EntryCount);
   }
 
+  [Fact]
+  public void CanUpdateIndexByPathspec()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var index = repo.Repo.GetIndex();
+
+    var file1FullPath = Path.Combine(repo.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(file1FullPath, ["content"]);
+
+    Assert.Equal(1ul, index.EntryCount);
+    var entry = index.GetEntry(0);
+
+    var id = entry.Id;
+
+    index.UpdateAll(["*.txt"]);
+    Assert.Equal(1ul, index.EntryCount);
+
+    entry = index.GetEntry(0);
+    Assert.NotEqual(id, entry.Id);
+  }
+
   private sealed class EmptyRepoWithConflicts : IDisposable
   {
     public EmptyRepo Repo { get; } = new();

@@ -1,4 +1,7 @@
-﻿namespace Libgit2Bindings;
+﻿using static System.Runtime.InteropServices.JavaScript.JSType;
+using System;
+
+namespace Libgit2Bindings;
 
 public interface IGitIndex : IDisposable
 {
@@ -137,6 +140,27 @@ public interface IGitIndex : IDisposable
   /// </remarks>
   /// <param name="entry">new entry object</param>
   void Add(GitIndexEntry entry);
+
+  /// <summary>
+  /// Update all index entries to match the working directory
+  /// </summary>
+  /// <remarks>
+  /// This method will fail in bare index instances.
+  /// <para/>
+  /// This scans the existing index entries and synchronizes them with the working directory, 
+  /// deleting them if the corresponding working directory file no longer exists otherwise updating 
+  /// the information (including adding the latest version of file to the ODB if needed).
+  /// <para/>
+  /// If you provide a callback function, it will be invoked on each matching item in the index 
+  /// immediately before it is updated (either refreshed or removed depending on working directory 
+  /// state).
+  /// </remarks>
+  /// <param name="pathspecs">array of path patterns</param>
+  /// <param name="callback">
+  /// notification callback for each updated path (also gets index of matching pathspec entry); can be null.
+  /// </param>
+  void UpdateAll(IReadOnlyCollection<string> pathspecs,
+    GitIndexMatchedPathCallback? callback = null);
 
   /// <summary>
   /// Remove an entry from the index

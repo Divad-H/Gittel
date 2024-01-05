@@ -143,6 +143,19 @@ internal sealed class GitIndex(libgit2.GitIndex nativeGitIndex) : IGitIndex
     CheckLibgit2.Check(res, "Unable to add entry to index");
   }
 
+  public void UpdateAll(IReadOnlyCollection<string> pathspecs, 
+    GitIndexMatchedPathCallback? callback = null)
+  {
+    using GitIndexMatchedPathCallbackImpl? callbackImpl = callback is null ? null : new(callback);
+    using var nativePathspecs = new GitStrArrayImpl(pathspecs);
+    var res = libgit2.index.GitIndexUpdateAll(
+      NativeGitIndex, 
+      nativePathspecs.NativeStrArray,
+      callback is null ? null : GitIndexMatchedPathCallbackImpl.GitIndexMatchedPathCb,
+      callbackImpl?.Payload ?? IntPtr.Zero);
+    CheckLibgit2.Check(res, "Unable to update all paths in index");
+  }
+
   public void Remove(string path, int stage)
   {
     var res = libgit2.index.GitIndexRemove(NativeGitIndex, path, stage);
