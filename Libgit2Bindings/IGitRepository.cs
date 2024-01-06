@@ -198,7 +198,17 @@ public interface IGitRepository : IDisposable
   /// <param name="theirHeads">the heads to merge into</param>
   /// <returns>analysis enumeration and one of the <see cref="GitMergePreference"/> flag</returns>
   (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysis(
-     IEnumerable<IGitAnnotatedCommit> theirHeads);
+    IEnumerable<IGitAnnotatedCommit> theirHeads);
+
+  /// <summary>
+  /// Analyzes the given branch(es) and determines the opportunities for merging them into a reference.
+  /// </summary>
+  /// <param name="ourRef">the reference to perform the analysis from</param>
+  /// <param name="theirHeads">the heads to merge into</param>
+  /// <returns>analysis enumeration and one of the <see cref="GitMergePreference"/> flag</return
+  (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysisForRef(
+    IGitReference ourRef,
+    IEnumerable<IGitAnnotatedCommit> theirHeads);
 
   /// <summary>
   /// Create a new action signature with default user and now timestamp.

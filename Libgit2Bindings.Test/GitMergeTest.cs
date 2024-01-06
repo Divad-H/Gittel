@@ -49,4 +49,24 @@ public sealed class GitMergeTest
       || preferences == GitMergePreference.FastForwardOnly
       || preferences == GitMergePreference.NoFastForward);
   }
+
+  [Fact]
+  public void CanAnalyzeMergeWithRef()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var commit = repo.LookupCommit(repoWithTwoBranches.SecondBranchCommitOid);
+
+    using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    using var head = repo.GetHead();
+
+    var (analysis, preferences) = repo.MergeAnalysisForRef(head,[annotatedCommit]);
+
+    Assert.Equal(GitMergeAnalysisResult.Normal, analysis);
+    Assert.True(preferences == GitMergePreference.None 
+      || preferences == GitMergePreference.FastForwardOnly
+      || preferences == GitMergePreference.NoFastForward);
+  }
 }
