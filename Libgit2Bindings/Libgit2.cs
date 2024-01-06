@@ -1,4 +1,4 @@
-using Libgit2Bindings.Callbacks;
+﻿using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
@@ -323,6 +323,10 @@ internal class Libgit2 : ILibgit2, IDisposable
   public IReadOnlyList<GitMessageTrailer> ParseGitMessageTrailers(byte[] message)
   {
     using libgit2.GitMessageTrailerArray gitMessageTrailerArray = new();
+    if (!message.Contains((byte)0))
+    {
+      message = [.. message, (byte)0];
+    }
     using var pinnedBuffer = new PinnedBuffer(message);
     var res = libgit2.message.__Internal.GitMessageTrailers(
       gitMessageTrailerArray.__Instance, pinnedBuffer.Pointer);
@@ -345,7 +349,7 @@ internal class Libgit2 : ILibgit2, IDisposable
             Value = StringUtil.ToArrayFromNullTerminated(
               ((libgit2.GitMessageTrailer.__Internal*)trailer.__Instance)->value),
           });
-          pTrailers = pTrailers + sizeof(libgit2.GitMessageTrailer.__Internal);
+          pTrailers += sizeof(libgit2.GitMessageTrailer.__Internal);
         }
         return result;
       }
