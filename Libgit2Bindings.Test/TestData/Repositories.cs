@@ -2,6 +2,53 @@
 
 namespace Libgit2Bindings.Test.TestData;
 
+internal class RepoWithTwoBranches : RepoWithTwoCommits
+{
+  const string SecondFileName = "secondFile.txt";
+  public const string BranchName = "test-branch";
+
+  public IGitReference SecondBranch { get; }
+  public IGitTree SecondBranchTree { get; }
+  public GitOid SecondBranchCommitOid { get; }
+
+  public RepoWithTwoBranches()
+  {
+    using var firstCommit = Repo.LookupCommit(FirstCommitOid);
+
+    SecondBranch = Repo.CreateBranch("test-branch", firstCommit, false);
+
+    Repo.SetHead($"{IGitReference.LocalBranchPrefix}{SecondBranch.BranchName()}");
+    Repo.CheckoutHead(new()
+    {
+      Strategy = CheckoutStrategy.Force
+    });
+
+    var fileFullPath = Path.Combine(TempDirectory.DirectoryPath, SecondFileName);
+    File.WriteAllLines(fileFullPath, ["second file content"]);
+
+    using var index = Repo.GetIndex();
+
+    index.AddByPath(SecondFileName);
+    var treeOid = index.WriteTree();
+    index.Write();
+
+    SecondBranchTree = Repo.LookupTree(treeOid);
+    SecondBranchCommitOid = Repo.CreateCommit(
+      "HEAD",
+      Signature, Signature,
+      "test-branch commit",
+      SecondBranchTree,
+      [firstCommit]);
+  }
+
+  override public void Dispose()
+  {
+    SecondBranchTree.Dispose();
+    SecondBranch.Dispose();
+    base.Dispose();
+  }
+}
+
 internal class RepoWithTwoCommits : IDisposable
 {
   public const string Filename = "test.txt";
@@ -58,7 +105,7 @@ internal class RepoWithTwoCommits : IDisposable
       "HEAD", Signature, Signature, CommitMessage, SecondTree, [firstCommit]);
   }
 
-  public void Dispose()
+  public virtual void Dispose()
   {
     SecondTree.Dispose();
     FirstTree.Dispose();

@@ -192,6 +192,15 @@ public interface IGitRepository : IDisposable
     MergeOptions? mergeOptions = null, CheckoutOptions? checkoutOptions = null);
 
   /// <summary>
+  /// Analyzes the given branch(es) and determines the opportunities for merging them into the 
+  /// HEAD of the repository.
+  /// </summary>
+  /// <param name="theirHeads">the heads to merge into</param>
+  /// <returns>analysis enumeration and one of the <see cref="GitMergePreference"/> flag</returns>
+  (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysis(
+     IEnumerable<IGitAnnotatedCommit> theirHeads);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>

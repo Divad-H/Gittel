@@ -243,6 +243,37 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysis(
+    IEnumerable<IGitAnnotatedCommit> theirHeads)
+  {
+    var nativeTheirHeads = theirHeads
+      .Select(GittelObjects.DowncastNonNull<GitAnnotatedCommit>)
+      .Select(commit => commit.NativeAnnotatedCommit.__Instance)
+      .ToArray();
+
+    var handle = GCHandle.Alloc(nativeTheirHeads, GCHandleType.Pinned);
+
+    try
+    {
+      libgit2.GitMergeAnalysisT analysis = 0;
+      libgit2.GitMergePreferenceT preference = 0;
+      unsafe
+      {
+        var res = libgit2.merge.__Internal.GitMergeAnalysis(
+          &analysis, &preference,
+          _nativeGitRepository.__Instance,
+          handle.AddrOfPinnedObject(),
+          (UIntPtr)nativeTheirHeads.Length);
+        CheckLibgit2.Check(res, "Unable to merge analysis");
+      }
+      return ((GitMergeAnalysisResult)analysis, (GitMergePreference)preference);
+    }
+    finally
+    {
+      handle.Free();
+    }
+  }
+
   public IGitSignature DefaultGitSignature()
   {
     var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);

@@ -1,5 +1,4 @@
-﻿using libgit2;
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -8,55 +7,46 @@ public sealed class GitMergeTest
   [Fact]
   public void CanMerge()
   {
-    const string secondFileName = "secondFile.txt";
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
 
-    using var repoWithTwoCommits = new RepoWithTwoCommits();
-    var repo = repoWithTwoCommits.Repo;
+    using var commit = repo.LookupCommit(repoWithTwoBranches.SecondBranchCommitOid);
 
-    using var firstCommit = repo.LookupCommit(repoWithTwoCommits.FirstCommitOid);
-
-    using var branch = repo.CreateBranch("test-branch", firstCommit, false);
-
-    repo.SetHead($"{IGitReference.LocalBranchPrefix}{branch.BranchName()}");
-    repo.CheckoutHead(new()
-    {
-      Strategy = CheckoutStrategy.Force
-    });
-
-    var fileFullPath = Path.Combine(repoWithTwoCommits.TempDirectory.DirectoryPath, secondFileName);
-    File.WriteAllLines(fileFullPath, ["second file content"]);
-
-    using var index = repo.GetIndex();
-
-    index.AddByPath(secondFileName);
-    var treeOid = index.WriteTree();
-    index.Write();
-
-    using var tree = repo.LookupTree(treeOid);
-    var commitOid = repo.CreateCommit(
-      "HEAD", 
-      repoWithTwoCommits.Signature, repoWithTwoCommits.Signature, 
-      "test-branch commit", 
-      tree, 
-      [firstCommit]);
-    using var commit = repo.LookupCommit(commitOid);
-
-    using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoCommits.SecondCommitOid);
+    using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
 
     repo.Merge([annotatedCommit], null, null);
 
+    using var index = repo.GetIndex();
     Assert.False(index.HasConflicts());
 
     var mergeCommitOid = repo.CreateCommit(
-      "HEAD", 
-      repoWithTwoCommits.Signature, repoWithTwoCommits.Signature, 
+      "HEAD",
+      repoWithTwoBranches.Signature, repoWithTwoBranches.Signature, 
       "Merge commit",
-      tree, 
-      [commit, repo.LookupCommit(repoWithTwoCommits.SecondCommitOid)]);
+      repoWithTwoBranches.SecondBranchTree, 
+      [commit, repo.LookupCommit(repoWithTwoBranches.SecondCommitOid)]);
 
     using var mergeCommit = repo.LookupCommit(mergeCommitOid);
     Assert.Equal(2u, mergeCommit.GetParentCount());
 
     repo.CleanupState();
+  }
+
+  [Fact]
+  public void CanAnalyzeMerge()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var commit = repo.LookupCommit(repoWithTwoBranches.SecondBranchCommitOid);
+
+    using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    var (analysis, preferences) = repo.MergeAnalysis([annotatedCommit]);
+
+    Assert.Equal(GitMergeAnalysisResult.Normal, analysis);
+    Assert.True(preferences == GitMergePreference.None 
+      || preferences == GitMergePreference.FastForwardOnly
+      || preferences == GitMergePreference.NoFastForward);
   }
 }
