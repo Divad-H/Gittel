@@ -334,4 +334,19 @@ public interface ILibgit2
   /// <param name="message">The message to be parsed</param>
   /// <returns>any trailers found during parsing</returns>
   IReadOnlyList<GitMessageTrailer> ParseGitMessageTrailers(byte[] message);
+
+  /// <summary>
+  /// Clean up excess whitespace and make sure there is a trailing newline in the message.
+  /// </summary>
+  /// <remarks>
+  /// Optionally, it can remove lines which start with the comment character.
+  /// </remarks>
+  /// <param name="message">The message to be prettified.</param>
+  /// <param name="stripComments">true to remove comment lines, false to leave them in.</param>
+  /// <param name="commentChar">
+  /// Comment character. Lines starting with this character are considered to be comments and 
+  /// removed if stripComments is true.
+  /// </param>
+  /// <returns>the cleaned up message.</returns>
+  byte[] PrettifyGitMessage(byte[] message, bool stripComments, byte commentChar);
 }

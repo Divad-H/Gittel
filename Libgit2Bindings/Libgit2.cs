@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
@@ -354,6 +354,20 @@ internal class Libgit2 : ILibgit2, IDisposable
     {
       libgit2.message.__Internal.GitMessageTrailerArrayFree(gitMessageTrailerArray.__Instance);
     }
+  }
+
+  public byte[] PrettifyGitMessage(byte[] message, bool stripComments, byte commentChar)
+  {
+    if (!message.Contains((byte)0))
+    {
+      message = [.. message, (byte)0];
+    }
+    using var pinnedBuffer = new PinnedBuffer(message);
+    var res = libgit2.message.GitMessagePrettify(
+      out var result, pinnedBuffer.Pointer, stripComments ? 1 : 0, (sbyte)commentChar);
+    CheckLibgit2.Check(res, "Unable to prettify message");
+    using var gitBufDisposer = result.GetDisposer();
+    return StringUtil.ToArray(result);
   }
 
   #region IDisposable Support

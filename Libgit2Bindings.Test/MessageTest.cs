@@ -23,5 +23,19 @@ public sealed class MessageTest
     Assert.Equal("Signed-off-by", Encoding.UTF8.GetString(trailers[1].Key));
     Assert.Equal("Doe John <doe@john.de>", Encoding.UTF8.GetString(trailers[1].Value));
   }
+
+  [Fact]
+  public void CanPrettifyMessage()
+  {
+    const string message = "Title \n"
+      + " \n"
+      + "# This is a comment\n"
+      + "Content ";
+
+    using var libgit2 = new Libgit2();
+    var prettified = libgit2.PrettifyGitMessage(Encoding.UTF8.GetBytes(message), true, (byte)'#');
+
+    Assert.Equal("Title\n\nContent\n", Encoding.UTF8.GetString(prettified));
+  }
 }
 

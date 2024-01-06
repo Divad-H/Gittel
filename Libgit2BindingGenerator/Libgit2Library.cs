@@ -294,7 +294,7 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
       }
     }
 
-    if (function.Name == "git_message_trailers")
+    if (function.Name == "git_message_trailers" || function.Name == "git_message_prettify")
     {
       foreach (var parameter in function.Parameters)
       {
