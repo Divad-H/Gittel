@@ -93,4 +93,16 @@ public sealed class GitMergeTest
 
     Assert.Equal(repoWithTwoBranches.FirstCommitOid, mergeBaseOid);
   }
+
+  [Fact]
+  public void CanGetMergeBaseOctopus()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    var mergeBaseOid = repo.GetMergeBaseOctopus(
+      [repoWithTwoBranches.SecondBranchCommitOid, repoWithTwoBranches.SecondCommitOid]);
+
+    Assert.Equal(repoWithTwoBranches.FirstCommitOid, mergeBaseOid);
+  }
 }

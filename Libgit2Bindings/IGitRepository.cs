@@ -226,6 +226,13 @@ public interface IGitRepository : IDisposable
   GitOid GetMergeBase(IEnumerable<GitOid> commits);
 
   /// <summary>
+  /// Find a merge base in preparation for an octopus merge
+  /// </summary>
+  /// <param name="commits">oids of the commits</param>
+  /// <returns>the OID of a merge base considering all the commits</returns>
+  GitOid GetMergeBaseOctopus(IEnumerable<GitOid> commits);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>

@@ -337,6 +337,24 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public GitOid GetMergeBaseOctopus(IEnumerable<GitOid> commits)
+  {
+    var nativeCommits = commits
+      .Select(GitOidMapper.ToNative)
+      .ToArray();
+
+    var res = libgit2.merge.GitMergeBaseOctopus(
+      out var baseOid, 
+      _nativeGitRepository,
+      (UIntPtr)nativeCommits.Length,
+      nativeCommits);
+    CheckLibgit2.Check(res, "Unable to get merge base");
+    using (baseOid)
+    {
+      return GitOidMapper.FromNative(baseOid);
+    }
+  }
+
   public IGitSignature DefaultGitSignature()
   {
     var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);
