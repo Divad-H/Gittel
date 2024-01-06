@@ -294,6 +294,19 @@ internal class FixBuffersInterpretedAsStrings : TranslationUnitPass
       }
     }
 
+    if (function.Name == "git_message_trailers")
+    {
+      foreach (var parameter in function.Parameters)
+      {
+        if (parameter.QualifiedType.Type.IsConstCharString())
+        {
+          parameter.QualifiedType = new QualifiedType(
+            new PointerType(new QualifiedType(new BuiltinType(PrimitiveType.Void))),
+            new TypeQualifiers() { IsConst = true });
+        }
+      }
+    }
+
     foreach (var param in function.Parameters)
     {
       if (param.QualifiedType.Type is TypedefType typeDefType)

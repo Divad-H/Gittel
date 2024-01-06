@@ -21,6 +21,14 @@ internal static class StringUtil
     return Encoding.UTF8.GetString(span);
   }
 
+  public static unsafe byte[] ToArrayFromNullTerminated(IntPtr ptr)
+  {
+    var span = MemoryMarshal.CreateReadOnlySpanFromNullTerminated((byte*)ptr);
+    var bytes = new byte[span.Length];
+    span.CopyTo(bytes);
+    return bytes;
+  }
+
   public static unsafe byte[] ToArray(libgit2.GitBuf buf)
   {
     return ToArray((IntPtr)buf.Ptr, (UIntPtr)buf.Size);

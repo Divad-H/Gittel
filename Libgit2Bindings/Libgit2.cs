@@ -320,6 +320,42 @@ internal class Libgit2 : ILibgit2, IDisposable
     return new GitMailmap(mailmap);
   }
 
+  public IReadOnlyList<GitMessageTrailer> ParseGitMessageTrailers(byte[] message)
+  {
+    using libgit2.GitMessageTrailerArray gitMessageTrailerArray = new();
+    using var pinnedBuffer = new PinnedBuffer(message);
+    var res = libgit2.message.__Internal.GitMessageTrailers(
+      gitMessageTrailerArray.__Instance, pinnedBuffer.Pointer);
+      CheckLibgit2.Check(res, "Unable to parse git message trailers");
+    try
+    {
+      unsafe 
+      {
+        var pTrailerArray = ((libgit2.GitMessageTrailerArray.__Internal*)gitMessageTrailerArray.__Instance);
+        var pTrailers = pTrailerArray->trailers;
+        var count = pTrailerArray->count;
+        List<GitMessageTrailer> result = new((int)count);
+        for (UInt64 i = 0; i < count; ++i)
+        {
+          using var trailer= libgit2.GitMessageTrailer.__CreateInstance(pTrailers);
+          result.Add(new GitMessageTrailer
+          {
+            Key = StringUtil.ToArrayFromNullTerminated(
+              ((libgit2.GitMessageTrailer.__Internal*)trailer.__Instance)->key),
+            Value = StringUtil.ToArrayFromNullTerminated(
+              ((libgit2.GitMessageTrailer.__Internal*)trailer.__Instance)->value),
+          });
+          pTrailers = pTrailers + sizeof(libgit2.GitMessageTrailer.__Internal);
+        }
+        return result;
+      }
+    }
+    finally
+    {
+      libgit2.message.__Internal.GitMessageTrailerArrayFree(gitMessageTrailerArray.__Instance);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

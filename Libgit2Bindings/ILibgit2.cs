@@ -323,4 +323,15 @@ public interface ILibgit2
   /// </remarks>
   /// <returns>the new mailmap</returns>
   IGitMailmap NewGitMailmap();
+
+  /// <summary>
+  /// Parse trailers out of a message
+  /// </summary>
+  /// <remarks>
+  /// Trailers are key/value pairs in the last paragraph of a message, not including any patches 
+  /// or conflicts that may be present.
+  /// </remarks>
+  /// <param name="message">The message to be parsed</param>
+  /// <returns>any trailers found during parsing</returns>
+  IReadOnlyList<GitMessageTrailer> ParseGitMessageTrailers(byte[] message);
 }
