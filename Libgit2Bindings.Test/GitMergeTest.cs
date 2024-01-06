@@ -69,4 +69,16 @@ public sealed class GitMergeTest
       || preferences == GitMergePreference.FastForwardOnly
       || preferences == GitMergePreference.NoFastForward);
   }
+
+  [Fact]
+  public void CanGetMergeBase()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    var mergeBaseOid = repo.GetMergeBase(
+      repoWithTwoBranches.SecondBranchCommitOid, repoWithTwoBranches.SecondCommitOid);
+
+    Assert.Equal(repoWithTwoBranches.FirstCommitOid, mergeBaseOid);
+  }
 }

@@ -211,6 +211,14 @@ public interface IGitRepository : IDisposable
     IEnumerable<IGitAnnotatedCommit> theirHeads);
 
   /// <summary>
+  /// Find a merge base between two commits
+  /// </summary>
+  /// <param name="one">one of the commits</param>
+  /// <param name="two">the other commit</param>
+  /// <returns>the OID of a merge base between 'one' and 'two'</returns>
+  GitOid GetMergeBase(GitOid one, GitOid two);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>
