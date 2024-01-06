@@ -219,6 +219,13 @@ public interface IGitRepository : IDisposable
   GitOid GetMergeBase(GitOid one, GitOid two);
 
   /// <summary>
+  /// Find a merge base given a list of commits
+  /// </summary>
+  /// <param name="commits">oids of the commits</param>
+  /// <returns>the OID of a merge base considering all the commits</returns>
+  GitOid GetMergeBase(IEnumerable<GitOid> commits);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>
