@@ -1,6 +1,5 @@
 ﻿using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
-using System;
 
 namespace Libgit2Bindings;
 

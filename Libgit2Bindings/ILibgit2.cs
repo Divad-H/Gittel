@@ -307,4 +307,20 @@ public interface ILibgit2
   /// </param>
   /// <returns>the indexer instance</returns>
   IGitIndexer NewGitIndexer(string path, UInt32 mode, IGitOdb? odb, GitIndexerOptions? options = null);
+
+  /// <summary>
+  /// Create a new mailmap instance containing a single mailmap file
+  /// </summary>
+  /// <param name="buffer">buffer to parse the mailmap from</param>
+  /// <returns>the new mailmap</returns>
+  IGitMailmap NewGitMailmapFromBuffer(byte[] buffer);
+
+  /// <summary>
+  /// Allocate a new mailmap object.
+  /// </summary>
+  /// <remarks>
+  /// This object is empty, so you'll have to add a mailmap file before you can do anything with it.
+  /// </remarks>
+  /// <returns>the new mailmap</returns>
+  IGitMailmap NewGitMailmap();
 }

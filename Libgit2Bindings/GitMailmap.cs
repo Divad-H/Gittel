@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+﻿using Libgit2Bindings.Util;
+
+namespace Libgit2Bindings;
 
 internal class GitMailmap : IGitMailmap
 {
@@ -15,6 +17,23 @@ internal class GitMailmap : IGitMailmap
     var res = libgit2.mailmap.GitMailmapAddEntry(
            _nativeGitMailmap, realName, realEmail, replaceName, replaceEmail);
     CheckLibgit2.Check(res, "Unable to add entry to mailmap");
+  }
+
+  public NameAndEmail Resolve(string name, string email)
+  {
+    var res = libgit2.mailmap.GitMailmapResolve(
+      out var realName, out var realEmail, _nativeGitMailmap, name, email);
+    CheckLibgit2.Check(res, "Unable to resolve mailmap");
+    return new(realName, realEmail);
+  }
+
+  public IGitSignature ResolveSignature(IGitSignature signature)
+  {
+    using var managedSignature = GittelObjects.DowncastNonNull<GitSignature>(signature);
+    var res = libgit2.mailmap.GitMailmapResolveSignature(
+      out var realSignature, _nativeGitMailmap, managedSignature.NativeGitSignature);
+    CheckLibgit2.Check(res, "Unable to resolve signature");
+    return new GitSignature(realSignature);
   }
 
   #region IDisposable Support

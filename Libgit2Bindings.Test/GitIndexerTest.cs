@@ -1,5 +1,4 @@
 ﻿using Libgit2Bindings.Test.Helpers;
-using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 

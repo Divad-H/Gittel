@@ -41,7 +41,7 @@ internal class Libgit2 : ILibgit2, IDisposable
       out var repoPath, 
       startPath, 
       acrossFilesystem ? 1 : 0, 
-      ceilingDirectories.Any() ? string.Join((char)libgit2.PathListSeparator.GIT_PATH_LIST_SEPARATOR, ceilingDirectories) : null);
+      ceilingDirectories.Length != 0 ? string.Join((char)libgit2.PathListSeparator.GIT_PATH_LIST_SEPARATOR, ceilingDirectories) : null);
 
     using (repoPath.GetDisposer())
     {
@@ -285,7 +285,7 @@ internal class Libgit2 : ILibgit2, IDisposable
 
   public IGitIndexer NewGitIndexer(string path, uint mode, IGitOdb? odb, GitIndexerOptions? options = null)
   {
-    DisposableCollection disposables = new();
+    DisposableCollection? disposables = new();
     try
     {
       using var nativeOptions = options?.ToNative(disposables);
@@ -302,6 +302,22 @@ internal class Libgit2 : ILibgit2, IDisposable
     {
       disposables?.Dispose();
     }
+  }
+
+  public IGitMailmap NewGitMailmap()
+  {
+    var res = libgit2.mailmap.GitMailmapNew(out var mailmap);
+    CheckLibgit2.Check(res, "Unable to create mailmap");
+    return new GitMailmap(mailmap);
+  }
+
+  public IGitMailmap NewGitMailmapFromBuffer(byte[] buffer)
+  {
+    using var pinnedBuffer = new PinnedBuffer(buffer);
+    var res = libgit2.mailmap.GitMailmapFromBuffer(
+      out var mailmap, pinnedBuffer.Pointer, (UIntPtr)pinnedBuffer.Length);
+    CheckLibgit2.Check(res, "Unable to create mailmap from buffer");
+    return new GitMailmap(mailmap);
   }
 
   #region IDisposable Support
