@@ -175,6 +175,23 @@ public interface IGitRepository : IDisposable
     IGitCommit cherrypickCommit, IGitCommit ourCommit, UInt32 mainline, MergeOptions? options = null);
 
   /// <summary>
+  /// Merges the given commit(s) into HEAD, writing the results into the working directory. 
+  /// Any changes are staged for commit and any conflicts are written to the index. Callers 
+  /// should inspect the repository's index after this completes, resolve any conflicts and 
+  /// prepare a commit.
+  /// </summary>
+  /// <remarks>
+  /// For compatibility with git, the repository is put into a merging state. Once the commit 
+  /// is done (or if the user wishes to abort), you should clear this state by calling 
+  /// <see cref="CleanupState()"/>.
+  /// </remarks>
+  /// <param name="theirHeads">the heads to merge into</param>
+  /// <param name="mergeOptions">merge options</param>
+  /// <param name="checkoutOptions">checkout options</param>
+  void Merge(IEnumerable<IGitAnnotatedCommit> theirHeads, 
+    MergeOptions? mergeOptions = null, CheckoutOptions? checkoutOptions = null);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>
@@ -693,4 +710,10 @@ public interface IGitRepository : IDisposable
   /// </remarks>
   /// <returns></returns>
   IGitOdb GetOdb();
+
+  /// <summary>
+  /// Remove all the metadata associated with an ongoing command like merge, revert, cherry-pick, etc. 
+  /// For example: MERGE_HEAD, MERGE_MSG, etc.
+  /// </summary>
+  void CleanupState();
 }

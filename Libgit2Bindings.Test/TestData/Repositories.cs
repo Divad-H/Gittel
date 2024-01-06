@@ -42,7 +42,7 @@ internal class RepoWithTwoCommits : IDisposable
 
     FirstTree = Repo.LookupTree(FirstTreeOid);
 
-    FirstCommitOid = Repo.CreateCommit("HEAD", Signature, Signature, CommitMessage, FirstTree, null);
+    FirstCommitOid = Repo.CreateCommit("HEAD", Signature, Signature, "Second commit", FirstTree, null);
 
     File.WriteAllLines(fileFullPath, ["my content", "second line"]);
 

@@ -1,5 +1,6 @@
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
+using System.Runtime.InteropServices;
 
 namespace Libgit2Bindings;
 
@@ -208,6 +209,38 @@ internal sealed class GitRepository : IGitRepository
 
     CheckLibgit2.Check(res, "Unable to cherrypick commit");
     return new GitIndex(index);
+  }
+
+  public void Merge(
+    IEnumerable<IGitAnnotatedCommit> theirHeads, 
+    MergeOptions? mergeOptions = null, 
+    CheckoutOptions? checkoutOptions = null)
+  {
+    using var scope = new DisposableCollection();
+    using var nativeMergeOptions = mergeOptions?.ToNative(scope);
+    using var nativeCheckoutOptions = checkoutOptions?.ToNative(scope);
+
+    var nativeTheirHeads = theirHeads
+      .Select(GittelObjects.DowncastNonNull<GitAnnotatedCommit>)
+      .Select(commit => commit.NativeAnnotatedCommit.__Instance)
+      .ToArray();
+
+    var handle = GCHandle.Alloc(nativeTheirHeads, GCHandleType.Pinned);
+
+    try
+    {
+      var res = libgit2.merge.__Internal.GitMerge(
+        _nativeGitRepository.__Instance, 
+        handle.AddrOfPinnedObject(), 
+        (UIntPtr)nativeTheirHeads.Length,
+        nativeMergeOptions?.__Instance ?? IntPtr.Zero, 
+        nativeCheckoutOptions?.__Instance ?? IntPtr.Zero);
+      CheckLibgit2.Check(res, "Unable to merge");
+    }
+    finally
+    {
+      handle.Free();
+    }
   }
 
   public IGitSignature DefaultGitSignature()
@@ -652,6 +685,12 @@ internal sealed class GitRepository : IGitRepository
     var res = libgit2.repository.GitRepositoryOdb(out var nativeOdb, _nativeGitRepository);
     CheckLibgit2.Check(res, "Unable to get odb");
     return new GitOdb(nativeOdb);
+  }
+
+  public void CleanupState()
+  {
+    var res = libgit2.repository.GitRepositoryStateCleanup(_nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to cleanup state");
   }
 
   #region IDisposable Support
