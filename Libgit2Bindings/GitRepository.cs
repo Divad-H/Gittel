@@ -258,6 +258,22 @@ internal sealed class GitRepository : IGitRepository
     return new GitIndex(index);
   }
 
+  public IGitIndex MergeTrees(
+    IGitTree? ancestorTree, IGitTree ourTree, IGitTree theirTree, MergeOptions? mergeOptions = null)
+  {
+    var managedAncestorTree = GittelObjects.Downcast<GitTree>(ancestorTree);
+    var managedOurTree = GittelObjects.DowncastNonNull<GitTree>(ourTree);
+    var managedTheirTree = GittelObjects.DowncastNonNull<GitTree>(theirTree);
+
+    using var scope = new DisposableCollection();
+    using var nativeMergeOptions = mergeOptions?.ToNative(scope);
+    var res = libgit2.merge.GitMergeTrees(
+      out var index, _nativeGitRepository, managedAncestorTree?.NativeGitTree,
+      managedOurTree.NativeGitTree, managedTheirTree.NativeGitTree, nativeMergeOptions);
+    CheckLibgit2.Check(res, "Unable to merge trees");
+    return new GitIndex(index);
+  }
+
   public (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysis(
     IEnumerable<IGitAnnotatedCommit> theirHeads)
   {

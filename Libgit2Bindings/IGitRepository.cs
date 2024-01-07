@@ -203,6 +203,19 @@ public interface IGitRepository : IDisposable
   IGitIndex MergeCommits(IGitCommit ourCommit, IGitCommit theirCommit, MergeOptions? mergeOptions = null);
 
   /// <summary>
+  /// Merge two trees, producing a <see cref="IGitIndex"/> that reflects the result of the merge. 
+  /// The index may be written as-is to the working directory or checked out. If the index is to 
+  /// be converted to a tree, the caller should resolve any conflicts that arose as part of the merge.
+  /// </summary>
+  /// <param name="ancestorTree">the common ancestor between the trees (or null if none)</param>
+  /// <param name="ourTree">the tree that reflects the destination tree</param>
+  /// <param name="theirTree">the tree to merge in to `our_tree`</param>
+  /// <param name="mergeOptions">the merge tree options (or null for defaults)</param>
+  /// <returns>the index result</returns>
+  IGitIndex MergeTrees(
+    IGitTree? ancestorTree, IGitTree ourTree, IGitTree theirTree, MergeOptions? mergeOptions = null);
+
+  /// <summary>
   /// Analyzes the given branch(es) and determines the opportunities for merging them into the 
   /// HEAD of the repository.
   /// </summary>

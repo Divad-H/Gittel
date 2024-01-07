@@ -1,5 +1,4 @@
-﻿using libgit2;
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -45,7 +44,19 @@ public sealed class GitMergeTest
     using var index = repo.MergeCommits(secondBranchCommit, firstBranchCommit);
 
     Assert.False(index.HasConflicts());
+    Assert.Equal(2u, index.EntryCount);
+  }
 
+  [Fact]
+  public void CanMergeTreesIntoIndex()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var index = repo.MergeTrees(
+      repoWithTwoBranches.FirstTree, repoWithTwoBranches.SecondBranchTree, repoWithTwoBranches.SecondTree );
+
+    Assert.False(index.HasConflicts());
     Assert.Equal(2u, index.EntryCount);
   }
 
