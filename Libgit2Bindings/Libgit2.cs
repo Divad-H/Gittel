@@ -374,6 +374,22 @@ internal class Libgit2 : ILibgit2, IDisposable
     return StringUtil.ToArray(result);
   }
 
+  public GitMergeFileResult MergeFiles(GitMergeFileInput ancestor, 
+    GitMergeFileInput ours, GitMergeFileInput theirs, GitMergeFileOptions? options = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative();
+
+    using var nativeAncestor = ancestor.ToNative(disposable);
+    using var nativeOurs = ours.ToNative(disposable);
+    using var nativeTheirs = theirs.ToNative(disposable);
+
+    var res = libgit2.merge.GitMergeFile(
+      out var result, nativeAncestor, nativeOurs, nativeTheirs, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to merge files");
+    return result.ToManaged(disposable);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

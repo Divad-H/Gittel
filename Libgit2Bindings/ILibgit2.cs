@@ -349,4 +349,20 @@ public interface ILibgit2
   /// </param>
   /// <returns>the cleaned up message.</returns>
   byte[] PrettifyGitMessage(byte[] message, bool stripComments, byte commentChar);
+
+  /// <summary>
+  /// Merge two files as they exist in the in-memory data structures, using the given common ancestor as 
+  /// the baseline, producing a <see cref="GitMergeFileResult"/> that reflects the merge result.
+  /// </summary>
+  /// <remarks>
+  /// Note that this function does not reference a repository and any configuration must be passed 
+  /// as <see cref="MergeOptions"/>.
+  /// </remarks>
+  /// <param name="ancestor">The contents of the ancestor file</param>
+  /// <param name="ours">The contents of the file in "our" side</param>
+  /// <param name="theirs">The contents of the file in "their" side</param>
+  /// <param name="options">The merge file options or null for defaults</param>
+  /// <returns>The file merge result</returns>
+  GitMergeFileResult MergeFiles(GitMergeFileInput ancestor,
+    GitMergeFileInput ours, GitMergeFileInput theirs, GitMergeFileOptions? options = null);
 }

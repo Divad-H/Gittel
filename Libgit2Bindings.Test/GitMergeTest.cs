@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Test.TestData;
+using System.Text;
 
 namespace Libgit2Bindings.Test;
 
@@ -205,5 +206,36 @@ public sealed class GitMergeTest
     Assert.Equal(2, mergeBases.Count);
     Assert.Equal(repoWithTwoBranches.SecondBranchCommitOid, mergeBases[0]);
     Assert.Equal(repoWithTwoBranches.SecondCommitOid, mergeBases[1]);
+  }
+
+
+  [Fact]
+  public void CanMergeFiles()
+  {
+    GitMergeFileInput ancestor = new()
+    {
+      Path = "test.txt",
+      Mode = 0,
+      FileContent = Encoding.UTF8.GetBytes("line1\nline2\nline3\nline4\n"),
+    };
+    GitMergeFileInput ours = new()
+    {
+      Path = "test.txt",
+      Mode = 0,
+      FileContent = Encoding.UTF8.GetBytes("line1\nline2 extended\nline3\nline4\n"),
+    };
+    GitMergeFileInput theirs = new()
+    {
+      Path = "test.txt",
+      Mode = 0,
+      FileContent = Encoding.UTF8.GetBytes("line1\nline2\nline3\nline4 extended\n"),
+    };
+
+    using var libgit2 = new Libgit2();
+    var result = libgit2.MergeFiles(ancestor, ours, theirs);
+
+    Assert.Equal("line1\nline2 extended\nline3\nline4 extended\n", Encoding.UTF8.GetString(result.Content));
+    Assert.True(result.Automergeable);
+    Assert.Equal("test.txt", result.Path);
   }
 }
