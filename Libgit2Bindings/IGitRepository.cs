@@ -233,6 +233,14 @@ public interface IGitRepository : IDisposable
   GitOid GetMergeBaseOctopus(IEnumerable<GitOid> commits);
 
   /// <summary>
+  /// Find merge bases between two commits
+  /// </summary>
+  /// <param name="one">one of the commits</param>
+  /// <param name="two">the other commit</param>
+  /// <returns>the resulting ids</returns>
+  IReadOnlyList<GitOid> GetMergeBases(GitOid one, GitOid two);
+
+  /// <summary>
   /// Create a new action signature with default user and now timestamp.
   /// </summary>
   /// <remarks>

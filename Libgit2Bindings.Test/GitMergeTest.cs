@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Test.TestData;
+﻿using libgit2;
+using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -104,5 +105,41 @@ public sealed class GitMergeTest
       [repoWithTwoBranches.SecondBranchCommitOid, repoWithTwoBranches.SecondCommitOid]);
 
     Assert.Equal(repoWithTwoBranches.FirstCommitOid, mergeBaseOid);
+  }
+
+  [Fact]
+  public void CanGetMergeBases()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var commit = repo.LookupCommit(repoWithTwoBranches.SecondBranchCommitOid);
+    using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    repo.Merge([annotatedCommit], null, null);
+
+    using var thirdBranch = repo.CreateBranch("third-branch", commit, false);
+
+    var mergeCommit1Oid = repo.CreateCommit(
+      $"{IGitReference.LocalBranchPrefix}{thirdBranch.BranchName()}",
+      repoWithTwoBranches.Signature, repoWithTwoBranches.Signature,
+      "Merge commit 1",
+      repoWithTwoBranches.SecondBranchTree,
+      [commit, repo.LookupCommit(repoWithTwoBranches.SecondCommitOid)]);
+    
+    var mergeCommit2Oid = repo.CreateCommit(
+      "HEAD",
+      repoWithTwoBranches.Signature, repoWithTwoBranches.Signature,
+      "Merge commit 2",
+      repoWithTwoBranches.SecondBranchTree,
+      [commit, repo.LookupCommit(repoWithTwoBranches.SecondCommitOid)]);
+
+    repo.CleanupState();
+
+    var mergeBases = repo.GetMergeBases(mergeCommit2Oid, mergeCommit1Oid);
+
+    Assert.Equal(2, mergeBases.Count);
+    Assert.Equal(repoWithTwoBranches.SecondBranchCommitOid, mergeBases[0]);
+    Assert.Equal(repoWithTwoBranches.SecondCommitOid, mergeBases[1]);
   }
 }

@@ -355,6 +355,37 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public IReadOnlyList<GitOid> GetMergeBases(GitOid one, GitOid two)
+  {
+    using var nativeOne = GitOidMapper.ToNative(one);
+    using var nativeTwo = GitOidMapper.ToNative(two);
+    var res = libgit2.merge.GitMergeBases(
+      out var bases, _nativeGitRepository, nativeOne, nativeTwo);
+    CheckLibgit2.Check(res, "Unable to get merge bases");
+    using (bases)
+    {
+      try
+      {
+        List<GitOid> result = new((int)bases.Count);
+        unsafe
+        {
+          var pBase = ((libgit2.GitOidarray.__Internal*)bases.__Instance)->ids;
+          for (UInt64 i = 0; i < bases.Count; i++)
+          {
+            using var nativeOid = libgit2.GitOid.__CreateInstance(pBase);
+            result.Add(GitOidMapper.FromNative(nativeOid));
+            pBase += sizeof(libgit2.GitOid.__Internal);
+          }
+          return result;
+        }
+      }
+      finally
+      {
+        libgit2.oidarray.GitOidarrayDispose(bases);
+      }
+    }
+  }
+
   public IGitSignature DefaultGitSignature()
   {
     var res = libgit2.signature.GitSignatureDefault(out var signature, _nativeGitRepository);
