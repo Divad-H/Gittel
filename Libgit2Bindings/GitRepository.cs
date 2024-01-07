@@ -274,6 +274,23 @@ internal sealed class GitRepository : IGitRepository
     return new GitIndex(index);
   }
 
+  public GitMergeFileResult MergeFilesFromIndex(
+    GitIndexEntry ancestor, GitIndexEntry ours, GitIndexEntry theirs, GitMergeFileOptions? options = null)
+  {
+    using var nativeAncestor = GitIndexEntryMapper.ToNative(ancestor);
+    using var nativeOurs = GitIndexEntryMapper.ToNative(ours);
+    using var nativeTheirs = GitIndexEntryMapper.ToNative(theirs);
+    using var nativeOptions = options?.ToNative();
+    var res = libgit2.merge.GitMergeFileFromIndex(
+      out var result, _nativeGitRepository, nativeAncestor, nativeOurs, nativeTheirs, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to merge files from index");
+    using (result)
+    {
+      using DisposableCollection disposable = new();
+      return result.ToManaged(disposable);
+    }
+  }
+
   public (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysis(
     IEnumerable<IGitAnnotatedCommit> theirHeads)
   {

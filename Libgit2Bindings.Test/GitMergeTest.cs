@@ -238,4 +238,47 @@ public sealed class GitMergeTest
     Assert.True(result.Automergeable);
     Assert.Equal("test.txt", result.Path);
   }
+
+  [Fact]
+  public void CanMergeFilesFromIndex()
+  {
+    using var repo = new EmptyRepo();
+    using var index = repo.Repo.GetIndex();
+    
+    var ancestor = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("line1\nline2\nline3\nline4\n"))
+    };
+    index.Add(ancestor);
+
+    var ours = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("line1\nline2 extended\nline3\nline4\n"))
+    };
+    index.Add(ours);
+
+    var theirs = new GitIndexEntry()
+    {
+      Path = "file.txt",
+      CTime = new(),
+      MTime = new(),
+      Mode = 33188,
+      Id = repo.Repo.CreateBlob(Encoding.UTF8.GetBytes("line1\nline2\nline3\nline4 extended\n"))
+    };
+    index.Add(theirs);
+
+    var result = repo.Repo.MergeFilesFromIndex(ancestor, ours, theirs);
+
+    Assert.Equal("line1\nline2 extended\nline3\nline4 extended\n", Encoding.UTF8.GetString(result.Content));
+    Assert.True(result.Automergeable);
+    Assert.Equal("file.txt", result.Path);
+  }
 }

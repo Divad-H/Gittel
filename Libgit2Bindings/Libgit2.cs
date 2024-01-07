@@ -387,7 +387,10 @@ internal class Libgit2 : ILibgit2, IDisposable
     var res = libgit2.merge.GitMergeFile(
       out var result, nativeAncestor, nativeOurs, nativeTheirs, nativeOptions);
     CheckLibgit2.Check(res, "Unable to merge files");
-    return result.ToManaged(disposable);
+    using (result)
+    {
+      return result.ToManaged(disposable);
+    }
   }
 
   #region IDisposable Support

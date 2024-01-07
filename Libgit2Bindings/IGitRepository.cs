@@ -216,6 +216,18 @@ public interface IGitRepository : IDisposable
     IGitTree? ancestorTree, IGitTree ourTree, IGitTree theirTree, MergeOptions? mergeOptions = null);
 
   /// <summary>
+  /// Merge two files as they exist in the index, using the given common ancestor as the baseline, 
+  /// producing a <see cref="GitMergeFileResult"/> that reflects the merge result.
+  /// </summary>
+  /// <param name="ancestor">The index entry for the ancestor file (stage level 1)</param>
+  /// <param name="ours">The index entry for our file (stage level 2)</param>
+  /// <param name="theirs">The index entry for their file (stage level 3)</param>
+  /// <param name="options">The merge file options or null</param>
+  /// <returns>The merge file results</returns>
+  GitMergeFileResult MergeFilesFromIndex(
+       GitIndexEntry ancestor, GitIndexEntry ours, GitIndexEntry theirs, GitMergeFileOptions? options = null);
+
+  /// <summary>
   /// Analyzes the given branch(es) and determines the opportunities for merging them into the 
   /// HEAD of the repository.
   /// </summary>

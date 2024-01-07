@@ -1,7 +1,4 @@
-﻿using static System.Runtime.InteropServices.JavaScript.JSType;
-using System;
-
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitIndex : IDisposable
 {
