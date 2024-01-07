@@ -1,7 +1,6 @@
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 using System.Runtime.InteropServices;
-using static System.Formats.Asn1.AsnWriter;
 
 namespace Libgit2Bindings;
 
@@ -242,6 +241,21 @@ internal sealed class GitRepository : IGitRepository
     {
       handle.Free();
     }
+  }
+
+  public IGitIndex MergeCommits(
+    IGitCommit ourCommit, IGitCommit theirCommit, MergeOptions? mergeOptions = null)
+  {
+    var managedOurCommit = GittelObjects.DowncastNonNull<GitCommit>(ourCommit);
+    var managedTheirCommit = GittelObjects.DowncastNonNull<GitCommit>(theirCommit);
+
+    using var scope = new DisposableCollection();
+    using var nativeMergeOptions = mergeOptions?.ToNative(scope);
+    var res = libgit2.merge.GitMergeCommits(
+      out var index, _nativeGitRepository, managedOurCommit.NativeGitCommit,
+      managedTheirCommit.NativeGitCommit, nativeMergeOptions);
+    CheckLibgit2.Check(res, "Unable to merge commits");
+    return new GitIndex(index);
   }
 
   public (GitMergeAnalysisResult analysis, GitMergePreference preference) MergeAnalysis(

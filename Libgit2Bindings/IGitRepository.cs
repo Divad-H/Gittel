@@ -192,6 +192,17 @@ public interface IGitRepository : IDisposable
     MergeOptions? mergeOptions = null, CheckoutOptions? checkoutOptions = null);
 
   /// <summary>
+  /// Merge two commits, producing a <see cref="IGitIndex"/> that reflects the result of the merge. 
+  /// The index may be written as-is to the working directory or checked out. If the index is to be 
+  /// converted to a tree, the caller should resolve any conflicts that arose as part of the merge.
+  /// </summary>
+  /// <param name="ourCommit">the commit that reflects the destination tree</param>
+  /// <param name="theirCommit">the commit to merge in to `our_commit`</param>
+  /// <param name="mergeOptions">the merge tree options (or null for defaults)</param>
+  /// <returns>the index result</returns>
+  IGitIndex MergeCommits(IGitCommit ourCommit, IGitCommit theirCommit, MergeOptions? mergeOptions = null);
+
+  /// <summary>
   /// Analyzes the given branch(es) and determines the opportunities for merging them into the 
   /// HEAD of the repository.
   /// </summary>

@@ -34,6 +34,22 @@ public sealed class GitMergeTest
   }
 
   [Fact]
+  public void CanMergeCommitsIntoIndex()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var secondBranchCommit = repo.LookupCommit(repoWithTwoBranches.SecondBranchCommitOid);
+    using var firstBranchCommit = repo.LookupCommit(repoWithTwoBranches.SecondCommitOid);
+
+    using var index = repo.MergeCommits(secondBranchCommit, firstBranchCommit);
+
+    Assert.False(index.HasConflicts());
+
+    Assert.Equal(2u, index.EntryCount);
+  }
+
+  [Fact]
   public void CanAnalyzeMerge()
   {
     using RepoWithTwoBranches repoWithTwoBranches = new();
