@@ -1,6 +1,7 @@
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 using System.Runtime.InteropServices;
+using static System.Formats.Asn1.AsnWriter;
 
 namespace Libgit2Bindings;
 
@@ -321,8 +322,9 @@ internal sealed class GitRepository : IGitRepository
 
   public GitOid GetMergeBase(IEnumerable<GitOid> commits)
   {
+    using DisposableCollection scope = new();
     var nativeCommits = commits
-      .Select(GitOidMapper.ToNative)
+      .Select(c => GitOidMapper.ToNative(c).DisposeWith(scope))
       .ToArray();
 
     var res = libgit2.merge.GitMergeBaseMany(
@@ -339,8 +341,9 @@ internal sealed class GitRepository : IGitRepository
 
   public GitOid GetMergeBaseOctopus(IEnumerable<GitOid> commits)
   {
+    using DisposableCollection scope = new();
     var nativeCommits = commits
-      .Select(GitOidMapper.ToNative)
+      .Select(c => GitOidMapper.ToNative(c).DisposeWith(scope))
       .ToArray();
 
     var res = libgit2.merge.GitMergeBaseOctopus(
@@ -361,6 +364,43 @@ internal sealed class GitRepository : IGitRepository
     using var nativeTwo = GitOidMapper.ToNative(two);
     var res = libgit2.merge.GitMergeBases(
       out var bases, _nativeGitRepository, nativeOne, nativeTwo);
+    CheckLibgit2.Check(res, "Unable to get merge bases");
+    using (bases)
+    {
+      try
+      {
+        List<GitOid> result = new((int)bases.Count);
+        unsafe
+        {
+          var pBase = ((libgit2.GitOidarray.__Internal*)bases.__Instance)->ids;
+          for (UInt64 i = 0; i < bases.Count; i++)
+          {
+            using var nativeOid = libgit2.GitOid.__CreateInstance(pBase);
+            result.Add(GitOidMapper.FromNative(nativeOid));
+            pBase += sizeof(libgit2.GitOid.__Internal);
+          }
+          return result;
+        }
+      }
+      finally
+      {
+        libgit2.oidarray.GitOidarrayDispose(bases);
+      }
+    }
+  }
+
+  public IReadOnlyList<GitOid> GetMergeBases(IEnumerable<GitOid> commits)
+  {
+    using DisposableCollection scope = new();
+    var nativeCommits = commits
+      .Select(c => GitOidMapper.ToNative(c).DisposeWith(scope))
+      .ToArray();
+
+    var res = libgit2.merge.GitMergeBasesMany(
+      out var bases, 
+      _nativeGitRepository,
+      (UIntPtr)nativeCommits.Length,
+      nativeCommits);
     CheckLibgit2.Check(res, "Unable to get merge bases");
     using (bases)
     {
