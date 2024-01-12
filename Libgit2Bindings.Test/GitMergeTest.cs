@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Test.TestData;
+﻿using libgit2;
+using Libgit2Bindings.Test.TestData;
 using System.Text;
 
 namespace Libgit2Bindings.Test;
@@ -15,17 +16,97 @@ public sealed class GitMergeTest
 
     using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
 
-    repo.Merge([annotatedCommit], null, null);
+    repo.Merge([annotatedCommit], new(), new());
 
     using var index = repo.GetIndex();
     Assert.False(index.HasConflicts());
 
+    using var secondCommit = repo.LookupCommit(repoWithTwoBranches.SecondCommitOid);
     var mergeCommitOid = repo.CreateCommit(
       "HEAD",
       repoWithTwoBranches.Signature, repoWithTwoBranches.Signature, 
       "Merge commit",
       repoWithTwoBranches.SecondBranchTree, 
-      [commit, repo.LookupCommit(repoWithTwoBranches.SecondCommitOid)]);
+      [commit, secondCommit]);
+
+    using var mergeCommit = repo.LookupCommit(mergeCommitOid);
+    Assert.Equal(2u, mergeCommit.GetParentCount());
+
+    repo.CleanupState();
+  }
+
+  [Fact]
+  public void CanMergeWithOptions()
+  {
+    using RepoWithTwoBranches repoWithTwoBranches = new();
+    var repo = repoWithTwoBranches.Repo;
+    using var secondBranchFirstCommit = repo.LookupCommit(repoWithTwoBranches.SecondBranchCommitOid);
+    using var secondCommit = repo.LookupCommit(repoWithTwoBranches.SecondCommitOid);
+
+    var fileFullPath = Path.Combine(repoWithTwoBranches.TempDirectory.DirectoryPath, RepoWithOneCommit.Filename);
+    File.WriteAllLines(fileFullPath, ["0", " my content"]);
+
+    using var index = repo.GetIndex();
+
+    index.AddByPath(RepoWithOneCommit.Filename);
+    var treeOid = index.WriteTree();
+    index.Write();
+
+    using var tree = repo.LookupTree(treeOid);
+    var commitOid = repo.CreateCommit(
+    "HEAD",
+    repoWithTwoBranches.Signature, repoWithTwoBranches.Signature,
+      "test-branch second commit",
+      tree,
+      [secondBranchFirstCommit]);
+
+    using var annotatedCommit = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    bool notifyCalled = false;
+    bool progressCalled = false;
+    bool performanceDataCalled = false;
+
+    repo.Merge([annotatedCommit], 
+      new()
+      { 
+        FileFlags = MergeFileFlags.IgnoreWhitespace
+      },
+      new()
+      {
+        NotifyCallback = (why, path, baseline, target, workdir) =>
+        {
+          Assert.Equal(CheckoutNotifyFlags.Updated, why);
+          Assert.Equal(RepoWithOneCommit.Filename, path);
+          Assert.Equal(RepoWithOneCommit.Filename, baseline?.Path);
+          Assert.Equal(RepoWithOneCommit.Filename, target?.Path);
+          Assert.Equal(RepoWithOneCommit.Filename, workdir?.Path);
+          notifyCalled = true;
+          return GitOperationContinuation.Continue;
+        },
+        NotifyFlags = CheckoutNotifyFlags.All,
+        ProgressCallback = (path, completedSteps, totalSteps) =>
+        {
+          progressCalled = true;
+        },
+        PerformanceDataCallback = (data) =>
+        {
+          performanceDataCalled = true;
+        }
+      });
+
+    Assert.True(notifyCalled);
+    Assert.True(progressCalled);
+    Assert.True(performanceDataCalled);
+
+    Assert.False(index.HasConflicts());
+
+    using var secondBranchLastCommit = repo.LookupCommit(commitOid);
+    var mergeCommitOid = repo.CreateCommit(
+      "HEAD",
+      repoWithTwoBranches.Signature, repoWithTwoBranches.Signature,
+      "Merge commit",
+      repoWithTwoBranches.SecondBranchTree,
+      [secondBranchLastCommit, secondCommit]);
 
     using var mergeCommit = repo.LookupCommit(mergeCommitOid);
     Assert.Equal(2u, mergeCommit.GetParentCount());
