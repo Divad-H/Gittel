@@ -17,7 +17,7 @@ public sealed class GitIndexTest
     var file2FullPath = Path.Combine(repo.TempDirectory.DirectoryPath, "file2.txt");
     File.WriteAllLines(file2FullPath, ["content"]);
 
-    index.AddAll(new[] { "*.txt" }, GitIndexAddOption.Default, (path, matched) =>
+    index.AddAll(["*.txt"], GitIndexAddOption.Default, (path, matched) =>
     {
       Assert.Equal("*.txt", matched);
       return path == "file1.txt" ? GitAddToIndexOperation.Add : GitAddToIndexOperation.Skip;
