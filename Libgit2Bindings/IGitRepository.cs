@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface IGitRepository : IDisposable
 {
@@ -808,4 +808,30 @@ public interface IGitRepository : IDisposable
   /// For example: MERGE_HEAD, MERGE_MSG, etc.
   /// </summary>
   void CleanupState();
+
+  /// <summary>
+  /// Add a note for an object
+  /// </summary>
+  /// <param name="noteRef">
+  /// canonical name of the reference to use (optional); defaults to "refs/notes/commits"
+  /// </param>
+  /// <param name="author">signature of the notes commit author</param>
+  /// <param name="committer">signature of the notes commit committer</param>
+  /// <param name="oid">OID of the git object to decorate</param>
+  /// <param name="note">Content of the note to add for object oid</param>
+  /// <param name="force">Overwrite existing note</param>
+  /// <returns>the OID of the note</returns>
+  GitOid CreateNote(string? noteRef, IGitSignature author, IGitSignature committer, GitOid oid, 
+    string note, bool force);
+
+  /// <summary>
+  /// Read the note for an object
+  /// </summary>
+  /// <param name="noteRef">
+  /// canonical name of the reference to use (optional); defaults to "refs/notes/commits"
+  /// </param>
+  /// <param name="oid">OID of the git object to read the note from</param>
+  /// <returns>the read note</returns>
+  IGitNote ReadNote(string? noteRef, GitOid oid);
+
 }

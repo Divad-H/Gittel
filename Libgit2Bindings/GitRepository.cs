@@ -212,8 +212,8 @@ internal sealed class GitRepository : IGitRepository
   }
 
   public void Merge(
-    IEnumerable<IGitAnnotatedCommit> theirHeads, 
-    MergeOptions? mergeOptions = null, 
+    IEnumerable<IGitAnnotatedCommit> theirHeads,
+    MergeOptions? mergeOptions = null,
     CheckoutOptions? checkoutOptions = null)
   {
     using var scope = new DisposableCollection();
@@ -230,10 +230,10 @@ internal sealed class GitRepository : IGitRepository
     try
     {
       var res = libgit2.merge.__Internal.GitMerge(
-        _nativeGitRepository.__Instance, 
-        handle.AddrOfPinnedObject(), 
+        _nativeGitRepository.__Instance,
+        handle.AddrOfPinnedObject(),
         (UIntPtr)nativeTheirHeads.Length,
-        nativeMergeOptions?.__Instance ?? IntPtr.Zero, 
+        nativeMergeOptions?.__Instance ?? IntPtr.Zero,
         nativeCheckoutOptions?.__Instance ?? IntPtr.Zero);
       CheckLibgit2.Check(res, "Unable to merge");
     }
@@ -375,7 +375,7 @@ internal sealed class GitRepository : IGitRepository
       .ToArray();
 
     var res = libgit2.merge.GitMergeBaseMany(
-      out var baseOid, 
+      out var baseOid,
       _nativeGitRepository,
       (UIntPtr)nativeCommits.Length,
       nativeCommits);
@@ -394,7 +394,7 @@ internal sealed class GitRepository : IGitRepository
       .ToArray();
 
     var res = libgit2.merge.GitMergeBaseOctopus(
-      out var baseOid, 
+      out var baseOid,
       _nativeGitRepository,
       (UIntPtr)nativeCommits.Length,
       nativeCommits);
@@ -444,7 +444,7 @@ internal sealed class GitRepository : IGitRepository
       .ToArray();
 
     var res = libgit2.merge.GitMergeBasesMany(
-      out var bases, 
+      out var bases,
       _nativeGitRepository,
       (UIntPtr)nativeCommits.Length,
       nativeCommits);
@@ -921,6 +921,30 @@ internal sealed class GitRepository : IGitRepository
   {
     var res = libgit2.repository.GitRepositoryStateCleanup(_nativeGitRepository);
     CheckLibgit2.Check(res, "Unable to cleanup state");
+  }
+
+  public GitOid CreateNote(string? noteRef, IGitSignature author, IGitSignature committer,
+    GitOid oid, string note, bool force)
+  {
+    var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
+    var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.notes.GitNoteCreate(
+      out var noteOid, _nativeGitRepository, noteRef, managedAuthor.NativeGitSignature,
+      managedCommitter.NativeGitSignature, nativeOid, note, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to create note");
+    using (noteOid)
+    {
+      return GitOidMapper.FromNative(noteOid);
+    }
+  }
+
+  public IGitNote ReadNote(string? noteRef, GitOid oid)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.notes.GitNoteRead(out var nativeNote, _nativeGitRepository, noteRef, nativeOid);
+    CheckLibgit2.Check(res, "Unable to read note");
+    return new GitNote(nativeNote);
   }
 
   #region IDisposable Support
