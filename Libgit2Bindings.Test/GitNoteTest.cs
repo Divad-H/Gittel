@@ -52,4 +52,21 @@ public class GitNoteTest
     Assert.Equal(repo.CommitOid, notes[0].AnnotatedId);
     Assert.Equal("test note", repo.Repo.ReadNoteCommit(commit, repo.CommitOid).Message);
   }
+
+  [Fact]
+  public void CanIterateRepoNotes()
+  {
+    using var repo = new RepoWithOneCommit();
+    var noteOid = repo.Repo.CreateNote(
+      null, repo.Signature, repo.Signature, repo.CommitOid, "test note", true);
+    bool callbackCalled = false;
+    repo.Repo.ForeachNote(null, (GitOid blobId, GitOid annotatedOid) => { 
+      Assert.False(callbackCalled);
+      callbackCalled = true;
+      Assert.Equal(repo.CommitOid, annotatedOid);
+      Assert.Equal(noteOid, blobId);
+      return GitOperationContinuation.Continue;
+    });
+    Assert.True(callbackCalled);
+  }
 }

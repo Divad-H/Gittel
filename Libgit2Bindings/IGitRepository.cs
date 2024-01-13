@@ -860,4 +860,11 @@ public interface IGitRepository : IDisposable
   /// <param name="oid">OID of the git object to read the note from</param>
   /// <returns>the read note</returns>
   IGitNote ReadNoteCommit(IGitCommit commit, GitOid oid);
+
+  /// <summary>
+  /// Loop over all the notes within a specified namespace and issue a callback for each one.
+  /// </summary>
+  /// <param name="noteRef">Reference to read from (optional); defaults to "refs/notes/commits".</param>
+  /// <param name="callback">Callback to invoke per found annotation.</param>
+  void ForeachNote(string? noteRef, GitNoteForeachCallback callback);
 }

@@ -1,3 +1,4 @@
+using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 using System.Runtime.InteropServices;
@@ -974,6 +975,15 @@ internal sealed class GitRepository : IGitRepository
       out var nativeNote, _nativeGitRepository, managedCommit.NativeGitCommit, nativeOid);
     CheckLibgit2.Check(res, "Unable to read note commit");
     return new GitNote(nativeNote);
+  }
+
+  public void ForeachNote(string? noteRef, GitNoteForeachCallback callback)
+  {
+    using var callbackImpl = new GitNotesForeachCallbackImpl(callback);
+
+    var res = libgit2.notes.GitNoteForeach(_nativeGitRepository, noteRef, 
+      GitNotesForeachCallbackImpl.GitNotesForeachCb, callbackImpl.Payload);
+    CheckLibgit2.Check(res, "Unable to foreach note");
   }
 
   #region IDisposable Support
