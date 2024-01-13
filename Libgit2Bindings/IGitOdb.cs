@@ -18,4 +18,11 @@ public interface IGitOdb : IDisposable
   /// <param name="type">type of the data to store</param>
   /// <returns>the OID result of the write</returns>
   GitOid Write(byte[] data, GitObjectType type);
+
+  /// <summary>
+  /// Determine if the given object can be found in the object database.
+  /// </summary>
+  /// <param name="oid">the object to search for.</param>
+  /// <returns>true if the object was found, false otherwise</returns>
+  bool Exists(GitOid oid);
 }
