@@ -34,6 +34,36 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     return res == 1;
   }
 
+  public GitOid? Exists(string shortSha)
+  {
+    if (shortSha.Length % 2 != 0)
+    {
+      shortSha += "0";
+    }
+    var shortId = Convert.FromHexString(shortSha);
+    return Exists(shortId);
+  }
+
+  public GitOid? Exists(byte[] shortId)
+  {
+    GitOid gitOid = GitOidMapper.FromShortId(shortId);
+    using var nativeOid = GitOidMapper.ToNative(gitOid);
+    var res = libgit2.odb.GitOdbExistsPrefix(out var fullOid, NativeGitOdb, nativeOid, (UIntPtr)shortId.Length);
+    using (fullOid)
+    {
+      if (res == 0)
+      {
+        return GitOidMapper.FromNative(fullOid);
+      }  
+      if (res == (int)libgit2.GitErrorCode.GIT_ENOTFOUND)
+      {
+        return null;
+      }
+      CheckLibgit2.Check(res, "Unable to check if object exists");
+      return null;
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

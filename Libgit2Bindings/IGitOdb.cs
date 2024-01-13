@@ -33,11 +33,26 @@ public interface IGitOdb : IDisposable
   /// <param name="flags">flags affecting the lookup (see <see cref="GitOdbLookupFlags"/>)</param>
   /// <returns>true if the object was found, false otherwise</returns>
   bool Exists(GitOid oid, GitOdbLookupFlags flags);
+
+  /// <summary>
+  /// Determine if an object can be found in the object database by an abbreviated object ID.
+  /// </summary>
+  /// <param name="shortSha">A prefix of the id of the object to read.</param>
+  /// <returns>The complete oid if the object was found, null otherwise</returns>
+  GitOid? Exists(string shortSha);
+
+  /// <summary>
+  /// Determine if an object can be found in the object database by an abbreviated object ID.
+  /// </summary>
+  /// <param name="shortId">A prefix of the id of the object to read.</param>
+  /// <returns>The complete oid if the object was found, null otherwise</returns>
+  GitOid? Exists(byte[] shortId);
 }
 
 /// <summary>
 /// Flags controlling the behavior of ODB lookup operations
 /// </summary>
+[Flags]
 public enum GitOdbLookupFlags
 {
   /// <summary>
