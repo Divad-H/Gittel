@@ -208,7 +208,9 @@ internal class FixOutVariablePass : TranslationUnitPass
           && parameter.Type.GetPointee()?.TryGetClass(out Class? @class) == true
           && @class?.Name == "git_buf"
         || function.Name.Contains("git_blob_create")
-          && parameter.Name == "id")
+          && parameter.Name == "id"
+        || function.Name.Contains("git_note_next")
+          && parameter.Name.Contains("_id"))
       {
         parameter.Usage = ParameterUsage.Out;
       }

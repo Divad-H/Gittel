@@ -193,6 +193,32 @@ internal sealed class GitCommit : IGitCommit
     return GitSignature.FromEpochAndOffset(secondsSinceEpoch, offsetMinutesFromUtc);
   }
 
+  public IEnumerable<(GitOid NoteId, GitOid AnnotatedId)> IterateNotes()
+  {
+    var res = libgit2.notes.GitNoteCommitIteratorNew(out var noteIterator, _nativeGitCommit);
+    CheckLibgit2.Check(res, "Unable to get note iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.notes.GitNoteNext(out var noteId, out var annotatedId, noteIterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to get next note");
+        using (noteId) using (annotatedId)
+        {
+          yield return (GitOidMapper.FromNative(noteId), GitOidMapper.FromNative(annotatedId));
+        }
+      }
+    }
+    finally
+    {
+      libgit2.notes.GitNoteIteratorFree(noteIterator);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -39,4 +39,17 @@ public class GitNoteTest
     Assert.Equal(repo.Signature.Email, note.Committer.Email);
     Assert.Equal(noteOid, note.Id);
   }
+
+  [Fact]
+  public void CanIterateCommitNotes()
+  {
+    using var repo = new RepoWithOneCommit();
+    var (commitOid, noteOid) = repo.Repo.CreateNoteCommit(
+      null, repo.Signature, repo.Signature, repo.CommitOid, "test note", true);
+    using var commit = repo.Repo.LookupCommit(commitOid);
+    var notes = commit.IterateNotes().ToList();
+    Assert.Single(notes);
+    Assert.Equal(repo.CommitOid, notes[0].AnnotatedId);
+    Assert.Equal("test note", repo.Repo.ReadNoteCommit(commit, repo.CommitOid).Message);
+  }
 }

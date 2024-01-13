@@ -155,4 +155,10 @@ public interface IGitCommit : IDisposable
   /// Get the owning repository of the commit.
   /// </summary>
   IGitRepository Owner { get; }
+
+  /// <summary>
+  /// Iterate notes from a commit
+  /// </summary>
+  /// <returns>Iteratable notes</returns>
+  IEnumerable<(GitOid NoteId, GitOid AnnotatedId)> IterateNotes();
 }
