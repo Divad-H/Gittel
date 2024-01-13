@@ -26,6 +26,14 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     return res == 1;
   }
 
+  public bool Exists(GitOid oid, GitOdbLookupFlags flags)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var nativeFlags = flags.ToNative();
+    var res = libgit2.odb.GitOdbExistsExt(NativeGitOdb, nativeOid, (uint)nativeFlags);
+    return res == 1;
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

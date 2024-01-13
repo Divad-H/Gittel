@@ -13,4 +13,14 @@ public class GitOidTest
     Assert.True(odb.Exists(oid));
     Assert.False(odb.Exists(new(Enumerable.Repeat((byte)0, 20).ToArray())));
   }
+
+  [Fact]
+  public void CanDetermineIfObjectExsistsWithOptionFlags()
+  {
+    using var repo = new RepoWithOneCommit();
+    var oid = repo.CommitOid;
+    using var odb = repo.Repo.GetOdb();
+    Assert.True(odb.Exists(oid, GitOdbLookupFlags.NoRefresh));
+    Assert.False(odb.Exists(new(Enumerable.Repeat((byte)0, 20).ToArray()), GitOdbLookupFlags.NoRefresh));
+  }
 }

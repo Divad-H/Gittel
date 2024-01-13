@@ -25,4 +25,26 @@ public interface IGitOdb : IDisposable
   /// <param name="oid">the object to search for.</param>
   /// <returns>true if the object was found, false otherwise</returns>
   bool Exists(GitOid oid);
+
+  /// <summary>
+  /// Determine if the given object can be found in the object database, with extended options.
+  /// </summary>
+  /// <param name="oid">the object to search for.</param>
+  /// <param name="flags">flags affecting the lookup (see <see cref="GitOdbLookupFlags"/>)</param>
+  /// <returns>true if the object was found, false otherwise</returns>
+  bool Exists(GitOid oid, GitOdbLookupFlags flags);
+}
+
+/// <summary>
+/// Flags controlling the behavior of ODB lookup operations
+/// </summary>
+public enum GitOdbLookupFlags
+{
+  /// <summary>
+  /// Don't call <see cref="IGitOdb.Refresh"/> if the lookup fails. Useful when doing
+	/// a batch of lookup operations for objects that may legitimately not
+	/// exist. When using this flag, you may wish to manually call
+	/// <see cref="IGitOdb.Refresh"/> before processing a batch of objects.
+  /// </summary>
+  NoRefresh = 1 << 0,
 }
