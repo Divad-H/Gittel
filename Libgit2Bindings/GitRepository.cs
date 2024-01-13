@@ -939,11 +939,40 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public (GitOid CommitOid, GitOid BlobOid) CreateNoteCommit(
+    IGitCommit? parent, IGitSignature author, IGitSignature committer, GitOid oid, 
+    string note, bool force = false)
+  {
+    var managedParent = GittelObjects.Downcast<GitCommit>(parent);
+    var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
+    var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.notes.GitNoteCommitCreate(
+      out var commitOid, out var blobOid, _nativeGitRepository, managedParent?.NativeGitCommit,
+      managedAuthor.NativeGitSignature, managedCommitter.NativeGitSignature, nativeOid, note, force ? 1 : 0);
+    CheckLibgit2.Check(res, "Unable to create note commit");
+    using (commitOid)
+    using (blobOid)
+    {
+      return (GitOidMapper.FromNative(commitOid), GitOidMapper.FromNative(blobOid));
+    }
+  }
+
   public IGitNote ReadNote(string? noteRef, GitOid oid)
   {
     using var nativeOid = GitOidMapper.ToNative(oid);
     var res = libgit2.notes.GitNoteRead(out var nativeNote, _nativeGitRepository, noteRef, nativeOid);
     CheckLibgit2.Check(res, "Unable to read note");
+    return new GitNote(nativeNote);
+  }
+
+  public IGitNote ReadNoteCommit(IGitCommit commit, GitOid oid)
+  {
+    var managedCommit = GittelObjects.DowncastNonNull<GitCommit>(commit);
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.notes.GitNoteCommitRead(
+      out var nativeNote, _nativeGitRepository, managedCommit.NativeGitCommit, nativeOid);
+    CheckLibgit2.Check(res, "Unable to read note commit");
     return new GitNote(nativeNote);
   }
 

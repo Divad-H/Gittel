@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitRepository : IDisposable
 {
@@ -822,7 +822,26 @@ public interface IGitRepository : IDisposable
   /// <param name="force">Overwrite existing note</param>
   /// <returns>the OID of the note</returns>
   GitOid CreateNote(string? noteRef, IGitSignature author, IGitSignature committer, GitOid oid, 
-    string note, bool force);
+    string note, bool force = false);
+
+  /// <summary>
+  /// Add a note for an object from a commit
+  /// </summary>
+  /// <remarks>
+  /// This function will create a notes commit for a given object,
+  /// the commit is a dangling commit, no reference is created.
+  /// </remarks>
+  /// <param name="parent">
+  /// parent note or null if this shall start a new notes tree
+  /// </param>
+  /// <param name="author">signature of the notes commit author</param>
+  /// <param name="committer">signature of the notes commit committer</param>
+  /// <param name="oid">OID of the git object to decorate</param>
+  /// <param name="note">Content of the note to add for object oid</param>
+  /// <param name="force">Overwrite existing note</param>
+  /// <returns>The commit oid and the note oid</returns>
+  (GitOid CommitOid, GitOid BlobOid) CreateNoteCommit(IGitCommit? parent, IGitSignature author, 
+     IGitSignature committer, GitOid oid, string note, bool force = false);
 
   /// <summary>
   /// Read the note for an object
@@ -834,4 +853,11 @@ public interface IGitRepository : IDisposable
   /// <returns>the read note</returns>
   IGitNote ReadNote(string? noteRef, GitOid oid);
 
+  /// <summary>
+  /// Read the note for an object from a note commit
+  /// </summary>
+  /// <param name="commit">the notes commit object</param>
+  /// <param name="oid">OID of the git object to read the note from</param>
+  /// <returns>the read note</returns>
+  IGitNote ReadNoteCommit(IGitCommit commit, GitOid oid);
 }
