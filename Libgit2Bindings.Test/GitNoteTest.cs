@@ -5,7 +5,7 @@ namespace Libgit2Bindings.Test;
 public class GitNoteTest
 {
   [Fact]
-  public void CanCreateNote()
+  public void CanCreateNoteAndRemove()
   {
     using var repo = new RepoWithOneCommit();
     var noteOid = repo.Repo.CreateNote(
@@ -22,10 +22,16 @@ public class GitNoteTest
     Assert.Equal(repo.Signature.Name, note.Committer.Name);
     Assert.Equal(repo.Signature.Email, note.Committer.Email);
     Assert.Equal(noteOid, note.Id);
+
+    repo.Repo.RemoveNote("refs/notes/test",
+      repo.Signature,
+      repo.Signature, 
+      repo.CommitOid);
+    Assert.Throws<Libgit2Exception>(() => repo.Repo.ReadNote("refs/notes/test", repo.CommitOid));
   }
 
   [Fact]
-  public void CanCreateNoteCommit()
+  public void CanCreateNoteCommitAndRemove()
   {
     using var repo = new RepoWithOneCommit();
     var (commitOid, noteOid) = repo.Repo.CreateNoteCommit(
@@ -38,6 +44,11 @@ public class GitNoteTest
     Assert.Equal(repo.Signature.Name, note.Committer.Name);
     Assert.Equal(repo.Signature.Email, note.Committer.Email);
     Assert.Equal(noteOid, note.Id);
+
+    var idAfterRemove = repo.Repo.RemoveNoteCommit(commit, repo.Signature, repo.Signature, repo.CommitOid);
+    using var newCommit = repo.Repo.LookupCommit(idAfterRemove);
+    using var newNote = repo.Repo.ReadNoteCommit(commit, repo.CommitOid);
+    Assert.Equal("test note", newNote.Message);
   }
 
   [Fact]

@@ -862,6 +862,33 @@ public interface IGitRepository : IDisposable
   IGitNote ReadNoteCommit(IGitCommit commit, GitOid oid);
 
   /// <summary>
+  /// Remove the note for an object
+  /// </summary>
+  /// <param name="noteRef">
+  /// canonical name of the reference to use (optional); defaults to "refs/notes/commits"
+  /// </param>
+  /// <param name="author">signature of the notes commit author</param>
+  /// <param name="committer">signature of the notes commit committer</param>
+  /// <param name="oid">OID of the git object to remove the note from</param>
+  void RemoveNote(string? noteRef, IGitSignature author, IGitSignature committer, GitOid oid);
+
+  /// <summary>
+  /// Remove the note for an object
+  /// </summary>
+  /// <param name="notesCommit">the notes commit object</param>
+  /// <param name="author">signature of the notes commit author</param>
+  /// <param name="committer">signature of the notes commit committer</param>
+  /// <param name="oid">OID of the git object to remove the note from</param>
+  /// <returns>
+  /// the new notes commit
+  /// <para/>
+  /// When removing a note a new tree containing all notes sans the note to be removed is created 
+  /// and a new commit pointing to that tree is also created. In the case where the resulting tree 
+  /// is an empty tree a new commit pointing to this empty tree will be returned.
+  /// </returns>
+  GitOid RemoveNoteCommit(IGitCommit notesCommit, IGitSignature author, IGitSignature committer, GitOid oid);
+
+  /// <summary>
   /// Loop over all the notes within a specified namespace and issue a callback for each one.
   /// </summary>
   /// <param name="noteRef">Reference to read from (optional); defaults to "refs/notes/commits".</param>

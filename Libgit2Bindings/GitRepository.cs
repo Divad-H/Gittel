@@ -977,6 +977,33 @@ internal sealed class GitRepository : IGitRepository
     return new GitNote(nativeNote);
   }
 
+  public void RemoveNote(string? noteRef, IGitSignature author, IGitSignature committer, GitOid oid)
+  {
+    var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
+    var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.notes.GitNoteRemove(
+      _nativeGitRepository, noteRef, managedAuthor.NativeGitSignature,
+      managedCommitter.NativeGitSignature, nativeOid);
+    CheckLibgit2.Check(res, "Unable to remove note");
+  }
+
+  public GitOid RemoveNoteCommit(IGitCommit notesCommit, IGitSignature author, IGitSignature committer, GitOid oid)
+  {
+    var managedNotesCommit = GittelObjects.DowncastNonNull<GitCommit>(notesCommit);
+    var managedAuthor = GittelObjects.DowncastNonNull<GitSignature>(author);
+    var managedCommitter = GittelObjects.DowncastNonNull<GitSignature>(committer);
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.notes.GitNoteCommitRemove(
+      out var noteOid, _nativeGitRepository, managedNotesCommit.NativeGitCommit,
+      managedAuthor.NativeGitSignature, managedCommitter.NativeGitSignature, nativeOid);
+    CheckLibgit2.Check(res, "Unable to remove note commit");
+    using (noteOid)
+    {
+      return GitOidMapper.FromNative(noteOid);
+    }
+  }
+
   public void ForeachNote(string? noteRef, GitNoteForeachCallback callback)
   {
     using var callbackImpl = new GitNotesForeachCallbackImpl(callback);
