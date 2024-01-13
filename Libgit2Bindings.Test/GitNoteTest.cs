@@ -80,4 +80,11 @@ public class GitNoteTest
     });
     Assert.True(callbackCalled);
   }
+
+  [Fact]
+  public void CanGetDefaultNoteRef()
+  {
+    using var repo = new EmptyRepo();
+    Assert.Equal("refs/notes/commits", repo.Repo.DefaultNoteRef);
+  }
 }

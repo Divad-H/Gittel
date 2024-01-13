@@ -1013,6 +1013,17 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to foreach note");
   }
 
+  public string DefaultNoteRef
+  {
+    get
+    {
+      var res = libgit2.notes.GitNoteDefaultRef(out var buf, _nativeGitRepository);
+      CheckLibgit2.Check(res, "Unable to get default note ref");
+      using var disposer = buf.GetDisposer();
+      return StringUtil.ToString(buf);
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

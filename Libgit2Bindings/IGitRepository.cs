@@ -894,4 +894,9 @@ public interface IGitRepository : IDisposable
   /// <param name="noteRef">Reference to read from (optional); defaults to "refs/notes/commits".</param>
   /// <param name="callback">Callback to invoke per found annotation.</param>
   void ForeachNote(string? noteRef, GitNoteForeachCallback callback);
+
+  /// <summary>
+  /// Get the default notes reference for a repository
+  /// </summary>
+  string DefaultNoteRef { get; }
 }
