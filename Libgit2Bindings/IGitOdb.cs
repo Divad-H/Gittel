@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface IGitOdb : IDisposable
 {
@@ -46,7 +46,8 @@ public interface IGitOdb : IDisposable
   /// </summary>
   /// <param name="shortId">A prefix of the id of the object to read.</param>
   /// <returns>The complete oid if the object was found, null otherwise</returns>
-  GitOid? Exists(byte[] shortId);
+  GitOid? Exists(byte[] shortId, UInt16 shortIdLength);
+
 }
 
 /// <summary>

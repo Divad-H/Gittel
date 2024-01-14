@@ -393,7 +393,7 @@ public interface IGitRepository : IDisposable
   /// <param name="shortId">identity of the commit to locate. 
   /// If the object is an annotated tag it will be peeled back to the commit.</param>
   /// <returns>the looked up commit</returns>
-  IGitCommit LookupCommitPrefix(byte[] shortId);
+  IGitCommit LookupCommitPrefix(byte[] shortId, UInt16 shortIdLength);
 
   /// <summary>
   /// Lookup a commit object from a repository, given a prefix of its identifier (short id).
@@ -610,14 +610,15 @@ public interface IGitRepository : IDisposable
   /// <summary>
   /// Lookup a blob object from a repository, given a prefix of its identifier (short id).
   /// </summary>
-  /// <param name="id">identity of the blob to locate.</param>
+  /// <param name="shortId">identity of the blob to locate.</param>
+  /// <param name="shortIdLength">Length in hex chars (4 bytes)</param>
   /// <returns>the looked up blob</returns>
-  IGitBlob LookupBlobByPrefix(byte[] shortId);
+  IGitBlob LookupBlobByPrefix(byte[] shortId, UInt16 shortIdLength);
 
   /// <summary>
   /// Lookup a blob object from a repository, given a prefix of its identifier (short id).
   /// </summary>
-  /// <param name="id">identity of the blob to locate.</param>
+  /// <param name="shortSha">identity of the blob to locate.</param>
   /// <returns>the looked up blob</returns>
   IGitBlob LookupBlobByPrefix(string shortSha);
 

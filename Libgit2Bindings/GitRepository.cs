@@ -569,24 +569,25 @@ internal sealed class GitRepository : IGitRepository
     return new GitCommit(commit, this);
   }
 
-  public IGitCommit LookupCommitPrefix(byte[] shortId)
+  public IGitCommit LookupCommitPrefix(byte[] shortId, UInt16 shortIdLength)
   {
     GitOid gitOid = GitOidMapper.FromShortId(shortId);
     using var nativeOid = GitOidMapper.ToNative(gitOid);
     var res = libgit2.commit.GitCommitLookupPrefix(out var commit,
-      _nativeGitRepository, nativeOid, (UIntPtr)shortId.Length);
+      _nativeGitRepository, nativeOid, (UIntPtr)shortIdLength);
     CheckLibgit2.Check(res, "Unable to lookup commit");
     return new GitCommit(commit, this);
   }
 
   public IGitCommit LookupCommitPrefix(string shortSha)
   {
+    UInt16 shortShaLength = (UInt16)shortSha.Length;
     if (shortSha.Length % 2 != 0)
     {
       shortSha += "0";
     }
     var shortId = Convert.FromHexString(shortSha);
-    return LookupCommitPrefix(shortId);
+    return LookupCommitPrefix(shortId, shortShaLength);
   }
 
   public IGitIndex GetIndex()
@@ -757,24 +758,25 @@ internal sealed class GitRepository : IGitRepository
     return new GitIndex(nativeIndex);
   }
 
-  public IGitBlob LookupBlobByPrefix(byte[] shortId)
+  public IGitBlob LookupBlobByPrefix(byte[] shortId, UInt16 shortIdLength)
   {
     var gitOid = GitOidMapper.FromShortId(shortId);
     using var nativeOid = GitOidMapper.ToNative(gitOid);
     var res = libgit2.blob.GitBlobLookupPrefix(
-      out var nativeBlob, _nativeGitRepository, nativeOid, (UIntPtr)shortId.Length);
+      out var nativeBlob, _nativeGitRepository, nativeOid, (UIntPtr)shortIdLength);
     CheckLibgit2.Check(res, "Unable to lookup blob");
     return new GitBlob(nativeBlob);
   }
 
   public IGitBlob LookupBlobByPrefix(string shortSha)
   {
+    var shortShaLength = (UInt16)shortSha.Length;
     if (shortSha.Length % 2 != 0)
     {
       shortSha += "0";
     }
     var shortId = Convert.FromHexString(shortSha);
-    return LookupBlobByPrefix(shortId);
+    return LookupBlobByPrefix(shortId, shortShaLength);
   }
 
   public GitOid CreateBlob(byte[] data)
@@ -836,13 +838,14 @@ internal sealed class GitRepository : IGitRepository
 
   public IGitObject LookupObjectByPrefix(string shortId, GitObjectType type)
   {
+    var shortIdLength = (UInt16)shortId.Length;
     if (shortId.Length % 2 != 0)
     {
       shortId += "0";
     }
     using var nativeShortId = GitOidMapper.ToNative(GitOidMapper.FromShortId(Convert.FromHexString(shortId)));
     var res = libgit2.@object.GitObjectLookupPrefix(
-      out var nativeObject, _nativeGitRepository, nativeShortId, (UIntPtr)shortId.Length / 2, type.ToNative());
+      out var nativeObject, _nativeGitRepository, nativeShortId, (UIntPtr)shortIdLength, type.ToNative());
     CheckLibgit2.Check(res, "Unable to lookup object");
     return new GitObject(nativeObject);
   }

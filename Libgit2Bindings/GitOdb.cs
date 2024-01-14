@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Mappers;
+using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
@@ -36,19 +36,21 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
 
   public GitOid? Exists(string shortSha)
   {
+    UInt16 shortShaLength = (UInt16)shortSha.Length;
     if (shortSha.Length % 2 != 0)
     {
       shortSha += "0";
     }
     var shortId = Convert.FromHexString(shortSha);
-    return Exists(shortId);
+    return Exists(shortId, shortShaLength);
   }
 
-  public GitOid? Exists(byte[] shortId)
+  public GitOid? Exists(byte[] shortId, UInt16 shortIdLength)
   {
     GitOid gitOid = GitOidMapper.FromShortId(shortId);
     using var nativeOid = GitOidMapper.ToNative(gitOid);
-    var res = libgit2.odb.GitOdbExistsPrefix(out var fullOid, NativeGitOdb, nativeOid, (UIntPtr)shortId.Length);
+    var res = libgit2.odb.GitOdbExistsPrefix(
+      out var fullOid, NativeGitOdb, nativeOid, (UIntPtr)shortIdLength);
     using (fullOid)
     {
       if (res == 0)
