@@ -2,7 +2,7 @@
 
 namespace Libgit2Bindings.Test;
 
-public class GitOidTest
+public class GitOdbTest
 {
   [Fact]
   public void CanDetermineIfObjectExsists()
