@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface IGitOdb : IDisposable
 {
@@ -48,6 +48,37 @@ public interface IGitOdb : IDisposable
   /// <returns>The complete oid if the object was found, null otherwise</returns>
   GitOid? Exists(byte[] shortId, UInt16 shortIdLength);
 
+  /// <summary>
+  /// Determine if one or more objects can be found in the object database by their abbreviated 
+  /// object ID and type.
+  /// </summary>
+  /// <remarks>
+  /// For each abbreviated ID that is unique in the database, and of the given type (if specified), 
+  /// the full object ID, object ID length (GIT_OID_SHA1_HEXSIZE) and type will be returned back. 
+  /// For IDs that are not found (or are ambiguous), the array entry will be zeroed.
+  /// <para/>
+  /// Note that since this function operates on multiple objects, the underlying database will not be 
+  /// asked to be reloaded if an object is not found (which is unlike other object database operations.)
+  /// </remarks>
+  /// <param name="shortIds"></param>
+  /// <returns></returns>
+  IReadOnlyList<(GitOid oid, GitObjectType type)> ExpandIds(
+    IEnumerable<(string shortId, GitObjectType type)> shortIds);
+
+  /// <summary>
+  /// Determine if one or more objects can be found in the object database by their abbreviated 
+  /// object ID and type.
+  /// </summary>
+  /// <remarks>
+  /// For each abbreviated ID that is unique in the database, and of the given type (if specified), 
+  /// the full object ID, object ID length (GIT_OID_SHA1_HEXSIZE) and type will be returned back. 
+  /// For IDs that are not found (or are ambiguous), the array entry will be zeroed.
+  /// <para/>
+  /// Note that since this function operates on multiple objects, the underlying database will not be 
+  /// asked to be reloaded if an object is not found (which is unlike other object database operations.)
+  /// </remarks>
+  IReadOnlyList<(GitOid oid, GitObjectType type)> ExpandIds(
+    IEnumerable<(byte[] shortId, UInt16 shortIdLength, GitObjectType type)> shortIds);
 }
 
 /// <summary>

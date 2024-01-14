@@ -6,6 +6,7 @@ internal static class GitObjectTypeMapper
   {
     return nativeGitObjectType switch
     {
+      0 => 0,
       libgit2.GitObjectT.GIT_OBJECT_ANY => GitObjectType.Any,
       libgit2.GitObjectT.GIT_OBJECT_INVALID=> GitObjectType.Invalid,
       libgit2.GitObjectT.GIT_OBJECT_COMMIT => GitObjectType.Commit,
@@ -22,6 +23,7 @@ internal static class GitObjectTypeMapper
   {
     return gitObjectType switch
     {
+      0 => 0,
       GitObjectType.Any => libgit2.GitObjectT.GIT_OBJECT_ANY,
       GitObjectType.Invalid => libgit2.GitObjectT.GIT_OBJECT_INVALID,
       GitObjectType.Commit => libgit2.GitObjectT.GIT_OBJECT_COMMIT,
