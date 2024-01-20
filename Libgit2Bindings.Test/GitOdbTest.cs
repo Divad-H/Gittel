@@ -50,4 +50,20 @@ public class GitOdbTest
     Assert.Equal(GitObjectType.Commit, expandedIds[0].type);
     Assert.Equal(new GitOid(Enumerable.Repeat((byte)0, 20).ToArray()), expandedIds[1].oid);
   }
+
+  [Fact]
+  public void CanIterateObjects()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var odb = repo.Repo.GetOdb();
+    var oids = new List<GitOid>();
+    odb.ForEachOid(oid =>
+    {
+      oids.Add(oid);
+      return GitOperationContinuation.Continue;
+    });
+    Assert.Equal(3, oids.Count);
+    Assert.Contains(repo.CommitOid, oids);
+    Assert.Contains(repo.TreeOid, oids);
+  }
 }

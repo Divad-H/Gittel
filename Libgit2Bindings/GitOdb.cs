@@ -1,4 +1,5 @@
-﻿using Libgit2Bindings.Mappers;
+﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 using System.Runtime.InteropServices;
 
@@ -119,6 +120,15 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
       handle.Free();
     }
   }
+
+  public void ForEachOid(Func<GitOid, GitOperationContinuation> callback)
+  {
+    using var callbackImpl = new ForEachOidCallbackImpl(callback);
+    var res = libgit2.odb.GitOdbForeach(
+      NativeGitOdb, ForEachOidCallbackImpl.GitForEachOidCb, callbackImpl.Payload);
+    CheckLibgit2.Check(res, "Unable to iterate over ODB");
+  }
+
 
   #region IDisposable Support
   private bool _disposedValue;

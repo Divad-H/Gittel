@@ -79,6 +79,16 @@ public interface IGitOdb : IDisposable
   /// </remarks>
   IReadOnlyList<(GitOid oid, GitObjectType type)> ExpandIds(
     IEnumerable<(byte[] shortId, UInt16 shortIdLength, GitObjectType type)> shortIds);
+
+  /// <summary>
+  /// List all objects available in the database
+  /// </summary>
+  /// <remarks>
+  /// The callback will be called for each object available in the database. Note that the objects are 
+  /// likely to be returned in the index order, which would make accessing the objects in that order 
+  /// inefficient.
+  /// </remarks>
+  void ForEachOid(Func<GitOid, GitOperationContinuation> callback);
 }
 
 /// <summary>
