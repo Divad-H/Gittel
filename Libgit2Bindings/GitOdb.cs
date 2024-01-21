@@ -129,6 +129,24 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     CheckLibgit2.Check(res, "Unable to iterate over ODB");
   }
 
+  public UIntPtr GetNumBackends()
+  {
+    return (UIntPtr)libgit2.odb.__Internal.GitOdbNumBackends(NativeGitOdb?.__Instance ?? IntPtr.Zero);
+  }
+
+  public IGitOdbBackend GetBackend(UIntPtr index)
+  {
+    var res = libgit2.odb.GitOdbGetBackend(out var backend, NativeGitOdb, index);
+    CheckLibgit2.Check(res, "Unable to get ODB backend");
+    return new GitOdbBackend(backend, true);
+  }
+
+  public void AddBackend(IGitOdbBackend backend, int priority)
+  {
+    var nativeBackend = GittelObjects.DowncastNonNull<GitOdbBackend>(backend);
+    var res = libgit2.odb.GitOdbAddBackend(NativeGitOdb, nativeBackend.NativeInstance, priority);
+    CheckLibgit2.Check(res, "Unable to add ODB backend");
+  }
 
   #region IDisposable Support
   private bool _disposedValue;
@@ -136,7 +154,7 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
   {
     if (!_disposedValue)
     {
-      libgit2.odb.GitOdbFree(nativeGitOdb);
+      libgit2.odb.GitOdbFree(NativeGitOdb);
       _disposedValue = true;
     }
   }

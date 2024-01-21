@@ -66,4 +66,21 @@ public class GitOdbTest
     Assert.Contains(repo.CommitOid, oids);
     Assert.Contains(repo.TreeOid, oids);
   }
+
+  [Fact]
+  public void CanGetNumBackends()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var odb = repo.Repo.GetOdb();
+    Assert.Equal(2u, odb.GetNumBackends());
+  }
+
+  [Fact]
+  public void CanGetBackend()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var odb = repo.Repo.GetOdb();
+    using var backend = odb.GetBackend(0);
+    Assert.NotNull(backend);
+  }
 }

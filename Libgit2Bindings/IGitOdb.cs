@@ -89,6 +89,29 @@ public interface IGitOdb : IDisposable
   /// inefficient.
   /// </remarks>
   void ForEachOid(Func<GitOid, GitOperationContinuation> callback);
+
+  /// <summary>
+  /// Get the number of ODB backend objects
+  /// </summary>
+  /// <returns>number of backends in the ODB</returns>
+  UIntPtr GetNumBackends();
+
+  /// <summary>
+  /// Lookup an ODB backend object by index
+  /// </summary>
+  /// <param name="index">index into object database backend list</param>
+  /// <returns>ODB backend at pos</returns>
+  IGitOdbBackend GetBackend(UIntPtr index);
+
+  /// <summary>
+  /// Add a custom backend to an existing Object DB
+  /// </summary>
+  /// <remarks>
+  /// The backends are checked in relative ordering, based on the value of the priority parameter.
+  /// </remarks>
+  /// <param name="backend">a <see cref="IGitOdbBackend"/> instance</param>
+  /// <param name="priority">Value for ordering the backends queue</param>
+  void AddBackend(IGitOdbBackend backend, int priority);
 }
 
 /// <summary>
