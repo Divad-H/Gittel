@@ -117,7 +117,8 @@ public interface IGitOdb : IDisposable
   /// Add an on-disk alternate to an existing Object DB.
   /// </summary>
   /// <remarks>
-  /// Note that the added path must point to an objects, not to a full repository, to use it as an alternate store.
+  /// Note that the added path must point to an objects, not to a full repository, to use it as an 
+  /// alternate store.
   /// <para/>
   /// Alternate backends are always checked for objects after all the main backends have been exhausted.
   /// <para/>
@@ -135,19 +136,34 @@ public interface IGitOdb : IDisposable
   /// <param name="oid">identity of the object to read.</param>
   /// <returns>the read object</returns>
   IGitOdbObject Read(GitOid oid);
-}
 
-/// <summary>
-/// Flags controlling the behavior of ODB lookup operations
-/// </summary>
-[Flags]
-public enum GitOdbLookupFlags
-{
   /// <summary>
-  /// Don't call <see cref="IGitOdb.Refresh"/> if the lookup fails. Useful when doing
-	/// a batch of lookup operations for objects that may legitimately not
-	/// exist. When using this flag, you may wish to manually call
-	/// <see cref="IGitOdb.Refresh"/> before processing a batch of objects.
+  /// Refresh the object database to load newly added files.
   /// </summary>
+  /// <remarks>
+  /// If the object databases have changed on disk while the library is running, this function will force 
+  /// a reload of the underlying indexes.
+  /// <para/>
+  /// Use this function when you're confident that an external application has tampered with the ODB.
+  /// <para/>
+  /// NOTE that it is not necessary to call this function at all.The library will automatically attempt 
+  /// to refresh the ODB when a lookup fails, to see if the looked up object exists on disk but hasn't 
+  /// been loaded yet.
+  /// </remarks>
+  void Refresh();
+  }
+
+  /// <summary>
+  /// Flags controlling the behavior of ODB lookup operations
+  /// </summary>
+[Flags]
+  public enum GitOdbLookupFlags
+  {
+    /// <summary>
+    /// Don't call <see cref="IGitOdb.Refresh"/> if the lookup fails. Useful when doing
+    /// a batch of lookup operations for objects that may legitimately not
+    /// exist. When using this flag, you may wish to manually call
+    /// <see cref="IGitOdb.Refresh"/> before processing a batch of objects.
+    /// </summary>
   NoRefresh = 1 << 0,
 }

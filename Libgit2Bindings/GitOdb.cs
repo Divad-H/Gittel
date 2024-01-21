@@ -162,6 +162,12 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     return new GitOdbObject(nativeGitOdbObject);
   }
 
+  public void Refresh()
+  {
+    var res = libgit2.odb.GitOdbRefresh(NativeGitOdb);
+    CheckLibgit2.Check(res, "Unable to refresh ODB");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

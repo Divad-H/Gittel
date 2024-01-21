@@ -108,4 +108,12 @@ public class GitOdbTest
     var data = System.Text.Encoding.UTF8.GetString(obj.Data);
     Assert.Contains("Initial commit", data);
   }
+
+  [Fact]
+  public void CanCallRefresh()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var odb = repo.Repo.GetOdb();
+    odb.Refresh();
+  }
 }
