@@ -1,4 +1,5 @@
 ﻿using Libgit2Bindings.Test.TestData;
+using System.Text;
 
 namespace Libgit2Bindings.Test;
 
@@ -117,7 +118,7 @@ public class GitOdbTest
     using var obj = odb.ReadPrefix(repo.CommitOid.Sha.Substring(0, 7));
     Assert.Equal(repo.CommitOid, obj.Id);
     Assert.Equal(GitObjectType.Commit, obj.Type);
-    var data = System.Text.Encoding.UTF8.GetString(obj.Data);
+    var data = Encoding.UTF8.GetString(obj.Data);
     Assert.Contains("Initial commit", data);
   }
 
@@ -127,5 +128,21 @@ public class GitOdbTest
     using var repo = new RepoWithOneCommit();
     using var odb = repo.Repo.GetOdb();
     odb.Refresh();
+  }
+
+  [Fact]
+  public void CanWriteOdbObjectByStream()
+  {
+    using var repo = new EmptyRepo();
+    using var odb = repo.Repo.GetOdb();
+    var data = Encoding.UTF8.GetBytes("Hello, World!");
+    using var writeStream = odb.OpenWriteStream((UIntPtr)data.Length, GitObjectType.Blob);
+    writeStream.Write(data, data.Length);
+    var oid = writeStream.FinalizeWrite();
+    using var readObject = odb.Read(oid);
+    Assert.Equal(data, readObject.Data);
+    var (size, type) = odb.ReadHeader(oid);
+    Assert.Equal((UIntPtr)data.Length, size);
+    Assert.Equal(GitObjectType.Blob, type);
   }
 }

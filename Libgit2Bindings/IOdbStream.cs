@@ -3,7 +3,7 @@
 /// <summary>
 /// A stream to read and write data to an object database
 /// </summary>
-public interface IOdbStream
+public interface IOdbStream : IDisposable
 {
   /// <summary>
   /// Write at most `len` bytes into `buffer` and advance the stream.
@@ -31,6 +31,6 @@ public interface IOdbStream
   /// <para/>
 	/// - the final number of received bytes differs from the size declared when opening the stream
   /// </remarks>
-  /// <param name="oid">The id of the object</param>
-  void FinalizeWrite(GitOid oid);
+  /// <returns>The id of the object</returns>
+  GitOid FinalizeWrite();
 }

@@ -58,7 +58,7 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
       if (res == 0)
       {
         return GitOidMapper.FromNative(fullOid);
-      }  
+      }
       if (res == (int)libgit2.GitErrorCode.GIT_ENOTFOUND)
       {
         return null;
@@ -71,7 +71,7 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
   public IReadOnlyList<(GitOid oid, GitObjectType type)> ExpandIds(
     IEnumerable<(string shortId, GitObjectType type)> shortIds)
   {
-    return ExpandIds(shortIds.Select(x => 
+    return ExpandIds(shortIds.Select(x =>
     {
       var shortSha = x.shortId;
       UInt16 shortShaLength = (UInt16)shortSha.Length;
@@ -154,6 +154,16 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     CheckLibgit2.Check(res, "Unable to add ODB disk alternate");
   }
 
+  public (nuint size, GitObjectType type) ReadHeader(GitOid oid)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    UInt64 size = 0;
+    libgit2.GitObjectT type = 0;
+    var res = libgit2.odb.GitOdbReadHeader(out size, out type, NativeGitOdb, nativeOid);
+    CheckLibgit2.Check(res, "Unable to read ODB object header");
+    return ((nuint)size, type.ToManaged());
+  }
+
   public IGitOdbObject Read(GitOid oid)
   {
     using var nativeOid = GitOidMapper.ToNative(oid);
@@ -187,6 +197,25 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
   {
     var res = libgit2.odb.GitOdbRefresh(NativeGitOdb);
     CheckLibgit2.Check(res, "Unable to refresh ODB");
+  }
+
+  public IOdbStream OpenWriteStream(UIntPtr size, GitObjectType type)
+  {
+    var res = libgit2.odb.GitOdbOpenWstream(
+      out var nativeGitOdbStream, NativeGitOdb, size, type.ToNative());
+    CheckLibgit2.Check(res, "Unable to open ODB stream");
+    return new OdbStream(nativeGitOdbStream);
+  }
+
+  public (IOdbStream stream, UIntPtr size, GitObjectType type) OpenReadStream(GitOid oid)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    UInt64 size = 0;
+    libgit2.GitObjectT type = 0;
+    var res = libgit2.odb.GitOdbOpenRstream(
+      out var nativeGitOdbStream, ref size, ref type, NativeGitOdb, nativeOid);
+    CheckLibgit2.Check(res, "Unable to open ODB stream");
+    return (new OdbStream(nativeGitOdbStream), (UIntPtr)size, type.ToManaged());
   }
 
   #region IDisposable Support

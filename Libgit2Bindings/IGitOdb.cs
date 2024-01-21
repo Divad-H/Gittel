@@ -128,6 +128,19 @@ public interface IGitOdb : IDisposable
   void AddAlternativeOnDisk(string path);
 
   /// <summary>
+  /// Read the header of an object from the database, without reading its full contents.
+  /// </summary>
+  /// <remarks>
+  /// The header includes the length and the type of an object.
+  /// <para/>
+  /// Note that most backends do not support reading only the header of an object, so the whole 
+  /// object will be read and then the header will be returned.
+  /// </remarks>
+  /// <param name="oid">identity of the object to read.</param>
+  /// <returns>The length and type of the object</returns>
+  (UIntPtr size, GitObjectType type) ReadHeader(GitOid oid);
+
+  /// <summary>
   /// Read an object from the database.
   /// </summary>
   /// <remarks>
@@ -172,6 +185,33 @@ public interface IGitOdb : IDisposable
   /// been loaded yet.
   /// </remarks>
   void Refresh();
+
+  /// <summary>
+  /// Open a stream to write an object into the ODB
+  /// </summary>
+  /// <remarks>
+  /// The type and final length of the object must be specified when opening the stream.
+  /// <para/>
+  /// The returned stream will be of type GIT_STREAM_WRONLY, and it won't be effective until 
+  /// <see cref="IOdbStream.FinalizeWrite"/> is called and returns without an error
+  /// </remarks>
+  /// <param name="size">final size of the object that will be written</param>
+  /// <param name="type">type of the object that will be written</param>
+  /// <returns>the stream</returns>
+  IOdbStream OpenWriteStream(UIntPtr size, GitObjectType type);
+
+  /// <summary>
+  /// Open a stream to read an object from the ODB
+  /// </summary>
+  /// <remarks>
+  /// Note that most backends do not support streaming reads because they store their objects as 
+  /// compressed/delta'ed blobs.
+  /// <para/>
+  /// It's recommended to use <see cref="Read(GitOid)"/> instead, which is assured to work on all backends.
+  /// </remarks>
+  /// <param name="oid">oid of the object the stream will read from</param>
+  /// <returns>the stream, the length of the object and the type of the object</returns>
+  (IOdbStream stream, UIntPtr size, GitObjectType type) OpenReadStream(GitOid oid);
 }
 
   /// <summary>
