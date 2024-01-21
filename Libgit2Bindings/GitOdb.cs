@@ -154,6 +154,14 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     CheckLibgit2.Check(res, "Unable to add ODB disk alternate");
   }
 
+  public IGitOdbObject Read(GitOid oid)
+  {
+    using var nativeOid = GitOidMapper.ToNative(oid);
+    var res = libgit2.odb.GitOdbRead(out var nativeGitOdbObject, NativeGitOdb, nativeOid);
+    CheckLibgit2.Check(res, "Unable to read ODB object");
+    return new GitOdbObject(nativeGitOdbObject);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
@@ -176,5 +184,4 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     GC.SuppressFinalize(this);
   }
   #endregion
-
 }

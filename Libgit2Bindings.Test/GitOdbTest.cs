@@ -96,4 +96,16 @@ public class GitOdbTest
     Assert.Equal(4u, odb.GetNumBackends());
     odb.Exists(otherRepoWithObjects.CommitOid);
   }
+
+  [Fact]
+  public void CanReadOdbObject()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var odb = repo.Repo.GetOdb();
+    using var obj = odb.Read(repo.CommitOid);
+    Assert.Equal(repo.CommitOid, obj.Id);
+    Assert.Equal(GitObjectType.Commit, obj.Type);
+    var data = System.Text.Encoding.UTF8.GetString(obj.Data);
+    Assert.Contains("Initial commit", data);
+  }
 }

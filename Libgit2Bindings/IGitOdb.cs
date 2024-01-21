@@ -125,6 +125,16 @@ public interface IGitOdb : IDisposable
   /// </remarks>
   /// <param name="path">path to the objects folder for the alternate</param>
   void AddAlternativeOnDisk(string path);
+
+  /// <summary>
+  /// Read an object from the database.
+  /// </summary>
+  /// <remarks>
+  /// This method queries all available ODB backends trying to read the given OID.
+  /// </remarks>
+  /// <param name="oid">identity of the object to read.</param>
+  /// <returns>the read object</returns>
+  IGitOdbObject Read(GitOid oid);
 }
 
 /// <summary>
