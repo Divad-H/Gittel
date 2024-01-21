@@ -112,6 +112,19 @@ public interface IGitOdb : IDisposable
   /// <param name="backend">a <see cref="IGitOdbBackend"/> instance</param>
   /// <param name="priority">Value for ordering the backends queue</param>
   void AddBackend(IGitOdbBackend backend, int priority);
+
+  /// <summary>
+  /// Add an on-disk alternate to an existing Object DB.
+  /// </summary>
+  /// <remarks>
+  /// Note that the added path must point to an objects, not to a full repository, to use it as an alternate store.
+  /// <para/>
+  /// Alternate backends are always checked for objects after all the main backends have been exhausted.
+  /// <para/>
+  /// Writing is disabled on alternate backends.
+  /// </remarks>
+  /// <param name="path">path to the objects folder for the alternate</param>
+  void AddAlternativeOnDisk(string path);
 }
 
 /// <summary>

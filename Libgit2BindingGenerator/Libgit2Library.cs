@@ -33,6 +33,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitIndexerOptionsVersion", "GIT_INDEXER_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitMergeFileInputVersion", "GIT_MERGE_FILE_INPUT_VERSION");
     ctx.GenerateEnumFromMacros("GitMergeFileOptionsVersion", "GIT_MERGE_FILE_OPTIONS_VERSION");
+    ctx.GenerateEnumFromMacros("GitOdbBackendVersion", "GIT_ODB_BACKEND_VERSION");
   }
 
   public void Setup(Driver driver)
@@ -44,6 +45,7 @@ internal class Libgit2Library : ILibrary
     module.Headers.Add(@"git2.h");
     module.Headers.Add(@"git2\sys\errors.h");
     module.Headers.Add(@"git2\sys\transport.h");
+    module.Headers.Add(@"git2\sys\odb_backend.h");
 
     module.LibraryDirs.Add(@"..\..\..\..\libgit2\build\Debug");
     module.Libraries.Add("git2.lib");

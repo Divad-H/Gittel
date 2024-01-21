@@ -148,6 +148,12 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     CheckLibgit2.Check(res, "Unable to add ODB backend");
   }
 
+  public void AddAlternativeOnDisk(string path)
+  {
+    var res = libgit2.odb.GitOdbAddDiskAlternate(NativeGitOdb, path);
+    CheckLibgit2.Check(res, "Unable to add ODB disk alternate");
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

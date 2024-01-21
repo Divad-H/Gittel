@@ -83,4 +83,17 @@ public class GitOdbTest
     using var backend = odb.GetBackend(0);
     Assert.NotNull(backend);
   }
+
+  [Fact]
+  public void CanAddAlternativeOnDisk()
+  {
+    using var repo = new EmptyRepo();
+    using var otherRepoWithObjects = new RepoWithOneCommit();
+
+    using var odb = repo.Repo.GetOdb();
+    odb.AddAlternativeOnDisk(Path.Combine(otherRepoWithObjects.TempDirectory.DirectoryPath, ".git", "objects"));
+
+    Assert.Equal(4u, odb.GetNumBackends());
+    odb.Exists(otherRepoWithObjects.CommitOid);
+  }
 }
