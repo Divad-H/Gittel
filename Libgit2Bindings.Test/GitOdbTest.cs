@@ -110,6 +110,18 @@ public class GitOdbTest
   }
 
   [Fact]
+  public void CanReadOdbObjectByPrefix()
+  {
+    using var repo = new RepoWithOneCommit();
+    using var odb = repo.Repo.GetOdb();
+    using var obj = odb.ReadPrefix(repo.CommitOid.Sha.Substring(0, 7));
+    Assert.Equal(repo.CommitOid, obj.Id);
+    Assert.Equal(GitObjectType.Commit, obj.Type);
+    var data = System.Text.Encoding.UTF8.GetString(obj.Data);
+    Assert.Contains("Initial commit", data);
+  }
+
+  [Fact]
   public void CanCallRefresh()
   {
     using var repo = new RepoWithOneCommit();

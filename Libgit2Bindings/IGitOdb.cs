@@ -138,6 +138,27 @@ public interface IGitOdb : IDisposable
   IGitOdbObject Read(GitOid oid);
 
   /// <summary>
+  /// Read an object from the database, given a prefix of its identifier.
+  /// </summary>
+  /// <remarks>
+  /// This method queries all available ODB backends trying to match the 'len' first hexadecimal 
+  /// characters of the 'shortId'. The remaining (GIT_OID_SHA1_HEXSIZE-len)*4 bits of 'shortId' 
+  /// must be 0s. 'len' must be at least GIT_OID_MINPREFIXLEN, and the prefix must be long enough 
+  /// to identify a unique object in all the backends; the method will fail otherwise.
+  /// </remarks>
+  /// <param name="shortId">a prefix of the id of the object to read.</param>
+  /// <param name="length">the length of the prefix</param>
+  /// <returns>the read object</returns>
+  IGitOdbObject ReadPrefix(byte[] shortId, UIntPtr length);
+
+  /// <summary>
+  /// Read an object from the database, given a prefix of its identifier.
+  /// </summary>
+  /// <param name="shortSha"></param>
+  /// <returns>the read object</returns>
+  IGitOdbObject ReadPrefix(string shortSha);
+
+  /// <summary>
   /// Refresh the object database to load newly added files.
   /// </summary>
   /// <remarks>
@@ -151,7 +172,7 @@ public interface IGitOdb : IDisposable
   /// been loaded yet.
   /// </remarks>
   void Refresh();
-  }
+}
 
   /// <summary>
   /// Flags controlling the behavior of ODB lookup operations

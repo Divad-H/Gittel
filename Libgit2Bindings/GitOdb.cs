@@ -162,6 +162,27 @@ internal class GitOdb(libgit2.GitOdb nativeGitOdb) : IGitOdb
     return new GitOdbObject(nativeGitOdbObject);
   }
 
+  public IGitOdbObject ReadPrefix(byte[] shortId, nuint length)
+  {
+    GitOid gitOid = GitOidMapper.FromShortId(shortId);
+    using var nativeOid = GitOidMapper.ToNative(gitOid);
+    var res = libgit2.odb.GitOdbReadPrefix(
+      out var nativeGitOdbObject, NativeGitOdb, nativeOid, (UIntPtr)length);
+    CheckLibgit2.Check(res, "Unable to read ODB object");
+    return new GitOdbObject(nativeGitOdbObject);
+  }
+
+  public IGitOdbObject ReadPrefix(string shortSha)
+  {
+    UInt16 shortShaLength = (UInt16)shortSha.Length;
+    if (shortSha.Length % 2 != 0)
+    {
+      shortSha += "0";
+    }
+    var shortId = Convert.FromHexString(shortSha);
+    return ReadPrefix(shortId, shortShaLength);
+  }
+
   public void Refresh()
   {
     var res = libgit2.odb.GitOdbRefresh(NativeGitOdb);
