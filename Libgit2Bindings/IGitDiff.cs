@@ -152,6 +152,20 @@ public interface IGitDiff : IDisposable
   /// </param>
   /// <returns></returns>
   GitOid PatchId(GitDiffPatchIdOptions? options = null);
+
+  /// <summary>
+  /// Return a patch for an entry in the diff list.
+  /// </summary>
+  /// <remarks>
+  /// The <see cref="IGitPatch"/> is a newly created object contains the text diffs for the delta. 
+  /// You can use the patch object to loop over all the hunks and lines in the diff of the one delta.
+  /// <para/>
+  /// For an unchanged file or a binary file, no <see cref="IGitPatch"/> will be created, null will be
+  /// returned, and the binary flag will be set true in the <see cref="GitDiffDelta"/> structure.
+  /// </remarks>
+  /// <param name="index">Index into diff list</param>
+  /// <returns>the delta patch object</returns>
+  IGitPatch? ToPatch(UIntPtr index);
 }
 
 

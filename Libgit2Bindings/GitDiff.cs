@@ -102,8 +102,6 @@ internal class GitDiff : IGitDiff
     IGitDiff.HunkCallback? hunkCallback = null,
     IGitDiff.LineCallback? lineCallback = null)
   {
-    using DisposableCollection disposables = new();
-
     using var callbacks = new GitDiffCallbacks(
       fileCallback, binaryCallback, hunkCallback, lineCallback);
 
@@ -144,6 +142,13 @@ internal class GitDiff : IGitDiff
     {
       return GitOidMapper.FromNative(patchId);
     }
+  }
+
+  public IGitPatch? ToPatch(UIntPtr index)
+  {
+    var res = libgit2.patch.GitPatchFromDiff(out var patch, NativeGitDiff, index);
+    CheckLibgit2.Check(res, "Failed to get patch from diff");
+    return new GitPatch(patch);
   }
 
   #region IDisposable Support
