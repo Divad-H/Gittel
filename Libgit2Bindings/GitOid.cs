@@ -15,6 +15,8 @@ public sealed record GitOid(byte[] Id)
 
   public string Sha => Convert.ToHexString(Id).ToLowerInvariant();
 
+  public bool IsZero => Id.All(b => b == 0);
+
   public bool Equals(GitOid? other)
   {
     if (other is null)
