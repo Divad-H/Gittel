@@ -238,19 +238,36 @@ public interface ILibgit2
   /// <param name="oldBlob">Blob for old side of diff, or null for empty blob</param>
   /// <param name="oldAsPath">Treat old blob as if it had this filename; can be null</param>
   /// <param name="newBlob">Blob for new side of diff, or null for empty blob</param>
-  /// <param name="newBufferAsPath">Treat new blob as if it had this filename; can be null</param>
+  /// <param name="newBlobAsPath">Treat new blob as if it had this filename; can be null</param>
   /// <param name="options">Options for diff, or null for default options</param>
   /// <param name="fileCallback">Callback for "file"; made once if there is a diff; can be null</param>
   /// <param name="binaryCallback">Callback for binary files; can be null</param>
   /// <param name="hunkCallback">Callback for each hunk in diff; can be null</param>
   /// <param name="lineCallback">Callback for each line in diff; can be null</param>
   void DiffBlobs(IGitBlob? oldBlob, string? oldAsPath, 
-    IGitBlob? newBlob, string? newBufferAsPath = null, 
+    IGitBlob? newBlob, string? newBlobAsPath = null, 
     GitDiffOptions? options = null,
     IGitDiff.FileCallback? fileCallback = null,
     IGitDiff.BinaryCallback? binaryCallback = null,
     IGitDiff.HunkCallback? hunkCallback = null,
     IGitDiff.LineCallback? lineCallback = null);
+
+  /// <summary>
+  /// Directly generate a patch from the difference between two blobs.
+  /// </summary>
+  /// <remarks>
+  /// This is just like <see cref="DiffBlobs"/> except it generates a patch object for the difference 
+  /// instead of directly making callbacks.
+  /// </remarks>
+  /// <param name="oldBlob">Blob for old side of diff, or null for empty blob</param>
+  /// <param name="oldAsPath">Treat old blob as if it had this filename; can be null</param>
+  /// <param name="newBlob">Blob for new side of diff, or null for empty blob</param>
+  /// <param name="newBlobAsPath">Treat new blob as if it had this filename; can be null</param>
+  /// <param name="options">Options for diff, or null for default options</param>
+  /// <returns>The generated patch</returns>
+  IGitPatch PatchFromBlobs(IGitBlob? oldBlob, string? oldAsPath, 
+    IGitBlob? newBlob, string? newBlobAsPath = null, 
+    GitDiffOptions? options = null);
 
   /// <summary>
   /// Directly run a diff between two buffers.

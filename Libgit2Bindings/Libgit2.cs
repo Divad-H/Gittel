@@ -247,7 +247,7 @@ internal class Libgit2 : ILibgit2, IDisposable
 
     var res = libgit2.diff.GitDiffBlobs(
       managedOldBlob?.NativeGitBlob, oldAsPath, 
-      managedNewBlob?.NativeGitBlob, newBufferAsPath, 
+      managedNewBlob?.NativeGitBlob, newBlobAsPath, 
       nativeOptions,
       fileCallback is null ? null : GitDiffCallbacks.GitDiffFileCb,
       binaryCallback is null ? null : GitDiffCallbacks.GitDiffBinaryCb,
@@ -255,6 +255,24 @@ internal class Libgit2 : ILibgit2, IDisposable
       lineCallback is null ? null : GitDiffCallbacks.GitDiffLineCb,
       callbacks.Payload);
     CheckLibgit2.Check(res, "Unable to diff blobs");
+  }
+
+  public IGitPatch PatchFromBlobs(
+    IGitBlob? oldBlob, string? oldAsPath, 
+    IGitBlob? newBlob, string? newBlobAsPath = null, 
+    GitDiffOptions? options = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative(disposable);
+
+    using var managedOldBlob = GittelObjects.Downcast<GitBlob>(oldBlob);
+    using var managedNewBlob = GittelObjects.Downcast<GitBlob>(newBlob);
+
+    var res = libgit2.patch.GitPatchFromBlobs(
+      out var patch, managedOldBlob?.NativeGitBlob, oldAsPath, 
+      managedNewBlob?.NativeGitBlob, newBlobAsPath, nativeOptions);
+    CheckLibgit2.Check(res, "Unable to create patch from blobs");
+    return new GitPatch(patch);
   }
 
   public void DiffBuffers(
