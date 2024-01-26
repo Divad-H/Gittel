@@ -1,4 +1,4 @@
-﻿using Libgit2Bindings.Callbacks;
+using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
@@ -209,8 +209,28 @@ internal class Libgit2 : ILibgit2, IDisposable
     CheckLibgit2.Check(res, "Unable to diff blob to buffer");
   }
 
+  public IGitPatch PatchFromBlobAndBuffer(
+    IGitBlob? oldBlob, string? oldAsPath, 
+    byte[]? newBuffer, string? newBufferAsPath = null, 
+    GitDiffOptions? options = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative(disposable);
+
+    using var managedBlob = GittelObjects.Downcast<GitBlob>(oldBlob);
+
+    using var newNativeBuffer = newBuffer is not null ? new PinnedBuffer(newBuffer) : null;
+
+    var res = libgit2.patch.GitPatchFromBlobAndBuffer(
+      out var patch, managedBlob?.NativeGitBlob, oldAsPath, 
+      newNativeBuffer?.Pointer ?? IntPtr.Zero, (UIntPtr)(newNativeBuffer?.Length ?? 0), newBufferAsPath, 
+      nativeOptions);
+    CheckLibgit2.Check(res, "Unable to create patch from blob and buffer");
+    return new GitPatch(patch);
+  }
+
   public void DiffBlobs(IGitBlob? oldBlob, string? oldAsPath, 
-    IGitBlob? newBlob, string? newBufferAsPath = null, 
+    IGitBlob? newBlob, string? newBlobAsPath = null, 
     GitDiffOptions? options = null,
     IGitDiff.FileCallback? fileCallback = null, 
     IGitDiff.BinaryCallback? binaryCallback = null, 

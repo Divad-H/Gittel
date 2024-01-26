@@ -1,4 +1,4 @@
-﻿namespace Libgit2Bindings;
+namespace Libgit2Bindings;
 
 public interface ILibgit2
 {
@@ -201,6 +201,22 @@ public interface ILibgit2
     IGitDiff.BinaryCallback? binaryCallback = null,
     IGitDiff.HunkCallback? hunkCallback = null,
     IGitDiff.LineCallback? lineCallback = null);
+
+  /// <summary>
+  /// Directly generate a patch from the difference between a blob and a buffer.
+  /// </summary>
+  /// <remarks>
+  /// This is just like <see cref="DiffBlobToBuffer"/> except it generates a patch object for 
+  /// the difference instead of directly making callbacks.
+  /// </remarks>
+  /// <param name="oldBlob">Blob for old side of diff, or null for empty blob</param>
+  /// <param name="oldAsPath">Treat old blob as if it had this filename; can be null</param>
+  /// <param name="newBuffer">Raw data for new side of diff, or null for empty</param>
+  /// <param name="newBufferAsPath">Treat buffer as if it had this filename; can be null</param>
+  /// <param name="options">Options for diff, or null for default options</param>
+  /// <returns>The generated patch</returns>
+  IGitPatch PatchFromBlobAndBuffer(IGitBlob? oldBlob, string? oldAsPath, byte[]? newBuffer, 
+    string? newBufferAsPath = null, GitDiffOptions? options = null);
 
   /// <summary>
   /// Directly run a diff between two blobs.
