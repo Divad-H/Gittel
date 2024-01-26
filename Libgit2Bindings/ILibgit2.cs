@@ -1,4 +1,4 @@
-namespace Libgit2Bindings;
+﻿namespace Libgit2Bindings;
 
 public interface ILibgit2
 {
@@ -277,10 +277,10 @@ public interface ILibgit2
   /// so the <see cref="GitDiffFile"/> parameters to the callbacks will be faked a la 
   /// the rules for <see cref="DiffBlobs"/>
   /// </remarks>
-  /// <param name="oldBlob">Raw data for old side of diff, or null for empty</param>
+  /// <param name="oldBuffer">Raw data for old side of diff, or null for empty</param>
   /// <param name="oldAsPath">Treat old as if it had this filename; can be null</param>
-  /// <param name="newBlob">Raw data for new side of diff, or null for empty</param>
-  /// <param name="newBufferAsPath">Treat new as if it had this filename; can be null</param>
+  /// <param name="newBuffer">Raw data for new side of diff, or null for empty</param>
+  /// <param name="newAsPath">Treat new as if it had this filename; can be null</param>
   /// <param name="options">Options for diff, or null for default options</param>
   /// <param name="fileCallback">Callback for "file"; made once if there is a diff; can be null</param>
   /// <param name="binaryCallback">Callback for binary files; can be null</param>
@@ -292,6 +292,22 @@ public interface ILibgit2
     IGitDiff.BinaryCallback? binaryCallback = null,
     IGitDiff.HunkCallback? hunkCallback = null,
     IGitDiff.LineCallback? lineCallback = null);
+
+  /// <summary>
+  /// Directly generate a patch from the difference between two buffers.
+  /// </summary>
+  /// <remarks>
+  /// This is just like <see cref="DiffBuffers"/> except it generates a patch object for the 
+  /// difference instead of directly making callbacks.
+  /// </remarks>
+  /// <param name="oldBuffer">Raw data for old side of diff, or null for empty</param>
+  /// <param name="oldAsPath">Treat old as if it had this filename; can be null</param>
+  /// <param name="newBuffer">Raw data for new side of diff, or null for empty</param>
+  /// <param name="newAsPath">Treat new as if it had this filename; can be null</param>
+  /// <param name="options">Options for diff, or null for default options</param>
+  /// <returns>The generated patch</returns>
+  IGitPatch PatchFromBuffers(byte[]? oldBuffer, string? oldAsPath, byte[]? newBuffer, string? newAsPath,
+    GitDiffOptions? options = null);
 
   /// <summary>
   /// Read the contents of a git patch file into a <see cref="IGitDiff"/> object.

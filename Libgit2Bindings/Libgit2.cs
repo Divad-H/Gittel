@@ -1,4 +1,4 @@
-using Libgit2Bindings.Callbacks;
+﻿using Libgit2Bindings.Callbacks;
 using Libgit2Bindings.Mappers;
 using Libgit2Bindings.Util;
 
@@ -300,6 +300,26 @@ internal class Libgit2 : ILibgit2, IDisposable
       hunkCallback is null ? null : GitDiffCallbacks.GitDiffHunkCb,
       lineCallback is null ? null : GitDiffCallbacks.GitDiffLineCb,
       callbacks.Payload);
+  }
+
+  public IGitPatch PatchFromBuffers(
+    byte[]? oldBuffer, string? oldAsPath, 
+    byte[]? newBuffer, string? newAsPath, 
+    GitDiffOptions? options = null)
+  {
+    using DisposableCollection disposable = new();
+    using var nativeOptions = options?.ToNative(disposable);
+
+    using var oldNativeBuffer = oldBuffer is not null ? new PinnedBuffer(oldBuffer) : null;
+    using var newNativeBuffer = newBuffer is not null ? new PinnedBuffer(newBuffer) : null;
+
+    var res = libgit2.patch.GitPatchFromBuffers(
+      out var patch, 
+      oldNativeBuffer?.Pointer ?? IntPtr.Zero, (UIntPtr)(oldNativeBuffer?.Length ?? 0), oldAsPath,
+      newNativeBuffer?.Pointer ?? IntPtr.Zero, (UIntPtr)(newNativeBuffer?.Length ?? 0), newAsPath,
+      nativeOptions);
+    CheckLibgit2.Check(res, "Unable to create patch from buffers");
+    return new GitPatch(patch);
   }
 
   public IGitDiff DiffFromPatch(byte[] patch)
