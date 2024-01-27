@@ -1,4 +1,4 @@
-using Libgit2Bindings.Util;
+﻿using Libgit2Bindings.Util;
 
 namespace Libgit2Bindings;
 
@@ -47,6 +47,16 @@ internal sealed class GitPathspec : IGitPathspec
     CheckLibgit2.Check(res, "Unable to match tree");
     return new GitPathspecMatchList(nativeGitPathspecMatchList);
   }
+
+  public IGitPathspecMathList MatchDiff(IGitDiff diff, GitPathspecFlags flags)
+  {
+    var managedDiff = GittelObjects.DowncastNonNull<GitDiff>(diff);
+    var res = libgit2.pathspec.GitPathspecMatchDiff(
+      out var nativeGitPathspecMatchList, managedDiff.NativeGitDiff, (UInt32)flags, NativeGitPathspec);
+    CheckLibgit2.Check(res, "Unable to match diff");
+    return new GitPathspecMatchList(nativeGitPathspecMatchList);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

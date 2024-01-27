@@ -1,4 +1,4 @@
-using Libgit2Bindings.Test.TestData;
+﻿using Libgit2Bindings.Test.TestData;
 
 namespace Libgit2Bindings.Test;
 
@@ -51,5 +51,17 @@ public sealed class GitPathspecTest
   public void CanMatchTree()
   {
     RunTest((pathspec, repo, flags) => pathspec.MatchTree(repo.Tree, flags));
+  }
+
+  [Fact]
+  public void CanMatchDiff()
+  {
+    using var libgit2 = new Libgit2();
+    using var pathspec = libgit2.NewGitPathspec(["test.*"]);
+
+    using var diff = GitDiffTest.CreateDiff(libgit2);
+    using var matches = pathspec.MatchDiff(diff, GitPathspecFlags.Default);
+    Assert.Equal((nuint)1, matches.Entrycount);
+    Assert.Equal("test.txt", matches.DiffEntry(0)?.NewFile?.Path);
   }
 }
