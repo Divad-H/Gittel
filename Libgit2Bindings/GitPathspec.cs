@@ -29,6 +29,15 @@ internal sealed class GitPathspec : IGitPathspec
     CheckLibgit2.Check(res, "Unable to match workdir");
     return new GitPathspecMatchList(nativeGitPathspecMatchList);
   }
+
+  public IGitPathspecMathList MatchIndex(IGitIndex index, GitPathspecFlags flags)
+  {
+    var managedIndex = GittelObjects.DowncastNonNull<GitIndex>(index);
+    var res = libgit2.pathspec.GitPathspecMatchIndex(
+      out var nativeGitPathspecMatchList, managedIndex.NativeGitIndex, (UInt32)flags, NativeGitPathspec);
+    CheckLibgit2.Check(res, "Unable to match index");
+    return new GitPathspecMatchList(nativeGitPathspecMatchList);
+  }
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

@@ -35,4 +35,15 @@ public sealed class GitPathspecTest
   {
     RunTest((pathspec, repo, flags) => pathspec.MatchWorkdir(repo.Repo, flags));
   }
+
+  [Fact]
+  public void CanMatchIndex()
+  {
+    RunTest(
+      (pathspec, repo, flags) =>
+      {
+        using var index = repo.Repo.GetIndex();
+        return pathspec.MatchIndex(index, flags);
+      });
+  }
 }
