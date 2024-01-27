@@ -46,4 +46,10 @@ public sealed class GitPathspecTest
         return pathspec.MatchIndex(index, flags);
       });
   }
+
+  [Fact]
+  public void CanMatchTree()
+  {
+    RunTest((pathspec, repo, flags) => pathspec.MatchTree(repo.Tree, flags));
+  }
 }

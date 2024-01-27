@@ -38,6 +38,15 @@ internal sealed class GitPathspec : IGitPathspec
     CheckLibgit2.Check(res, "Unable to match index");
     return new GitPathspecMatchList(nativeGitPathspecMatchList);
   }
+
+  public IGitPathspecMathList MatchTree(IGitTree tree, GitPathspecFlags flags)
+  {
+    var managedTree = GittelObjects.DowncastNonNull<GitTree>(tree);
+    var res = libgit2.pathspec.GitPathspecMatchTree(
+      out var nativeGitPathspecMatchList, managedTree.NativeGitTree, (UInt32)flags, NativeGitPathspec);
+    CheckLibgit2.Check(res, "Unable to match tree");
+    return new GitPathspecMatchList(nativeGitPathspecMatchList);
+  }
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
