@@ -54,7 +54,7 @@ internal sealed class GitPathspec : IGitPathspec
     var res = libgit2.pathspec.GitPathspecMatchDiff(
       out var nativeGitPathspecMatchList, managedDiff.NativeGitDiff, (UInt32)flags, NativeGitPathspec);
     CheckLibgit2.Check(res, "Unable to match diff");
-    return new GitPathspecMatchList(nativeGitPathspecMatchList);
+    return new GitPathspecMatchList(nativeGitPathspecMatchList, true);
   }
 
   #region IDisposable Support
