@@ -414,4 +414,11 @@ public interface ILibgit2
   /// <returns>The file merge result</returns>
   GitMergeFileResult MergeFiles(GitMergeFileInput ancestor,
     GitMergeFileInput ours, GitMergeFileInput theirs, GitMergeFileOptions? options = null);
+
+  /// <summary>
+  /// Compile a pathspec
+  /// </summary>
+  /// <param name="pathspecs">The paths to match</param>
+  /// <returns>The compiled pathspec</returns>
+  IGitPathspec NewGitPathspec(IReadOnlyCollection<string> pathspecs);
 }

@@ -451,6 +451,14 @@ internal class Libgit2 : ILibgit2, IDisposable
     }
   }
 
+  public IGitPathspec NewGitPathspec(IReadOnlyCollection<string> pathspecs)
+  {
+    using var strArray = new GitStrArrayImpl(pathspecs);
+    var res = libgit2.pathspec.GitPathspecNew(out var pathspec, strArray.NativeStrArray);
+    CheckLibgit2.Check(res, "Unable to create pathspec");
+    return new GitPathspec(pathspec);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

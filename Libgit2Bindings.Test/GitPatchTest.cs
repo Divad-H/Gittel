@@ -5,9 +5,7 @@ namespace Libgit2Bindings.Test;
 
 public sealed class GitPatchTest
 {
-
-
-  private void RunTest(Func<EmptyRepo, string, string, IGitPatch> createPatch)
+  private static void RunTest(Func<EmptyRepo, string, string, IGitPatch> createPatch)
   {
     using var repo = new EmptyRepo();
 
