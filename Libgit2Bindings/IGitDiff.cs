@@ -1,15 +1,28 @@
 ﻿namespace Libgit2Bindings;
 
+/// <summary>
+/// The diff object that contains all individual file deltas.
+/// <para/>
+/// A diff represents the cumulative list of differences between two snapshots of a repository
+/// (possibly filtered by a set of file name patterns).
+/// <para/>
+/// Calculating diffs is generally done in two phases: building a list of diffs then traversing it.
+/// This makes is easier to share logic across the various types of diffs (tree vs tree, workdir vs 
+/// index, etc.), and also allows you to insert optional diff post-processing phases, such as rename 
+/// detection, in between the steps.When you are done with a diff object.
+/// This is an opaque structure which will be allocated by one of the diff generator functions 
+/// (such as <see cref="IGitRepository.DiffTreeToTree"/>).
+/// </summary>
 public interface IGitDiff : IDisposable
 {
   public delegate GitOperationContinuation FileCallback(
-     GitDiffDelta delta, float progress);
+    GitDiffDelta delta, float progress);
   public delegate GitOperationContinuation BinaryCallback(
-     GitDiffDelta delta, GitDiffBinary binary);
+    GitDiffDelta delta, GitDiffBinary binary);
   public delegate GitOperationContinuation HunkCallback(
-     GitDiffDelta delta, GitDiffHunk hunk);
+    GitDiffDelta delta, GitDiffHunk hunk);
   public delegate GitOperationContinuation LineCallback(
-     GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line);
+    GitDiffDelta delta, GitDiffHunk hunk, GitDiffLine line);
 
   /// <summary>
   /// Return the diff delta for an entry in the diff list.
