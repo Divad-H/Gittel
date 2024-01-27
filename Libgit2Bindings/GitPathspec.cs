@@ -1,4 +1,6 @@
-﻿namespace Libgit2Bindings;
+using Libgit2Bindings.Util;
+
+namespace Libgit2Bindings;
 
 internal sealed class GitPathspec : IGitPathspec
 {
@@ -19,6 +21,14 @@ internal sealed class GitPathspec : IGitPathspec
     return res == 1;
   }
 
+  public IGitPathspecMathList MatchWorkdir(IGitRepository repo, GitPathspecFlags flags)
+  {
+    var managedRepo = GittelObjects.DowncastNonNull<GitRepository>(repo);
+    var res = libgit2.pathspec.GitPathspecMatchWorkdir(
+      out var nativeGitPathspecMatchList, managedRepo.NativeGitRepository, (UInt32)flags, NativeGitPathspec);
+    CheckLibgit2.Check(res, "Unable to match workdir");
+    return new GitPathspecMatchList(nativeGitPathspecMatchList);
+  }
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

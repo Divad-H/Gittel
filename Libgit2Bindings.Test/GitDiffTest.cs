@@ -6,7 +6,7 @@ namespace Libgit2Bindings.Test;
 
 public class GitDiffTest
 {
-  static IGitDiff CreateDiff(ILibgit2 libgit2)
+  static internal IGitDiff CreateDiff(ILibgit2 libgit2)
   {
     var patch =
       "diff --git a/test.txt b/test.txt" + Environment.NewLine +

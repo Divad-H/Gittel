@@ -52,4 +52,52 @@ public interface IGitPathspec : IDisposable
   /// <param name="path">The pathname to attempt to match</param>
   /// <returns>True if the path mathes the spec, false otherwise</returns>
   bool MatchesPath(GitPathspecFlags flags, string path);
+
+  /// <summary>
+  /// Match a pathspec against the working directory of a repository.
+  /// </summary>
+  /// <remarks>
+  /// This matches the pathspec against the current files in the working directory of the repository. 
+  /// <para/>
+  /// It is an error to invoke this on a bare repo. This handles git ignores (i.e. ignored files will 
+  /// not be considered to match the pathspec unless the file is tracked in the index).
+  /// </remarks>
+  /// <param name="repo">The repository in which to match; bare repo is an error</param>
+  /// <param name="flags">combination of <see cref="GitPathspecFlags"/> options to control match</param>
+  /// <returns>list of all matched filenames</returns>
+  IGitPathspecMathList MatchWorkdir(IGitRepository repo, GitPathspecFlags flags);
+
+  /// <summary>
+  /// Match a pathspec against entries in an index.
+  /// </summary>
+  /// <remarks>
+  /// This matches the pathspec against the files in the repository index.
+  /// </remarks>
+  /// <param name="index">The index to match against</param>
+  /// <param name="flags">combination of <see cref="GitPathspecFlags"/> options to control match</param>
+  /// <returns>list of all matched filenames</returns>
+  IGitPathspecMathList MatchIndex(IGitIndex index, GitPathspecFlags flags);
+
+
+  /// <summary>
+  /// Match a pathspec against files in a tree.
+  /// </summary>
+  /// <remarks>
+  /// This matches the pathspec against the files in the given tree.
+  /// </remarks>
+  /// <param name="tree">The root-level tree to match against</param>
+  /// <param name="flags">combination of <see cref="GitPathspecFlags"/> options to control match</param>
+  /// <returns>list of all matched filenames</returns>
+  IGitPathspecMathList MatchTree(IGitTree tree, GitPathspecFlags flags);
+
+  /// <summary>
+  /// Match a pathspec against files in a diff list.
+  /// </summary>
+  /// <remarks>
+  /// This matches the pathspec against the files in the given diff list.
+  /// </remarks>
+  /// <param name="diff">A generated diff list</param>
+  /// <param name="flags">combination of <see cref="GitPathspecFlags"/> options to control match</param>
+  /// <returns>list of all matched filenames</returns>
+  IGitPathspecMathList MatchDiff(IGitDiff diff, GitPathspecFlags flags);
 }
