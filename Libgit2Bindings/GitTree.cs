@@ -2,9 +2,10 @@
 
 namespace Libgit2Bindings;
 
-internal class GitTree(libgit2.GitTree nativeGitTree) : IGitTree
+internal class GitTree(libgit2.GitTree nativeGitTree, bool ownsNativeInstance = true) : IGitTree
 {
   private readonly libgit2.GitTree _nativeGitTree = nativeGitTree;
+  private readonly bool _ownsNativeInstance = ownsNativeInstance;
   public libgit2.GitTree NativeGitTree => _nativeGitTree;
 
   public GitOid GetId()
@@ -19,7 +20,10 @@ internal class GitTree(libgit2.GitTree nativeGitTree) : IGitTree
   {
     if (!_disposedValue)
     {
-      libgit2.tree.GitTreeFree(_nativeGitTree);
+      if (_ownsNativeInstance)
+      {
+        libgit2.tree.GitTreeFree(_nativeGitTree);
+      }
       _disposedValue = true;
     }
   }

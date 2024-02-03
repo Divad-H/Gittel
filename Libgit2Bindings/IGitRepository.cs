@@ -900,4 +900,17 @@ public interface IGitRepository : IDisposable
   /// Get the default notes reference for a repository
   /// </summary>
   string DefaultNoteRef { get; }
+
+  /// <summary>
+  /// Initializes a rebase operation to rebase the changes in branch relative to upstream onto another branch. 
+  /// To begin the rebase process, call <see cref="IGitRebase.Next"/>.
+  /// </summary>
+  /// <param name="branch">The terminal commit to rebase, or null to rebase the current branch</param>
+  /// <param name="upstream">The commit to begin rebasing from, or null to rebase all reachable commits</param>
+  /// <param name="onto">The branch to rebase onto, or null to rebase onto the given upstream</param>
+  /// <param name="options">Options to specify how rebase is performed, or null</param>
+  /// <returns>the rebase object</returns>
+  IGitRebase StartRebase(
+    IGitAnnotatedCommit? branch, IGitAnnotatedCommit? upstream, IGitAnnotatedCommit? onto, 
+    GitRebaseOptions? options);
 }

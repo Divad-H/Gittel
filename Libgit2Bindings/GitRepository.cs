@@ -1027,6 +1027,30 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public IGitRebase StartRebase(
+    IGitAnnotatedCommit? branch, IGitAnnotatedCommit? upstream, 
+    IGitAnnotatedCommit? onto, GitRebaseOptions? options)
+  {
+    var managedBranch = GittelObjects.Downcast<GitAnnotatedCommit>(branch);
+    var managedUpstream = GittelObjects.Downcast<GitAnnotatedCommit>(upstream);
+    var managedOnto = GittelObjects.Downcast<GitAnnotatedCommit>(onto);
+    var disposables = new DisposableCollection();
+    try
+    {
+      var nativeOptions = options?.ToNative(disposables).DisposeWith(disposables);
+      var res = libgit2.rebase.GitRebaseInit(
+        out var nativeRebase, _nativeGitRepository, managedBranch?.NativeAnnotatedCommit,
+        managedUpstream?.NativeAnnotatedCommit, managedOnto?.NativeAnnotatedCommit, nativeOptions);
+      CheckLibgit2.Check(res, "Unable to start rebase");
+      return new GitRebase(nativeRebase, disposables);
+    }
+    catch(Exception)
+    {
+      disposables.Dispose();
+      throw;
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)

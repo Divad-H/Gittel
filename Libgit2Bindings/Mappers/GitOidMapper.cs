@@ -17,7 +17,7 @@ internal static class GitOidMapper
     return new(nativeOid.Id);
   }
 
-  public unsafe static libgit2.GitOid ToNative(GitOid oid)
+  public unsafe static libgit2.GitOid ToNative(this GitOid oid)
   {
     var data = new libgit2.GitOid.__Internal();
     Marshal.Copy(oid.Id, 0, (IntPtr)data.id, oid.Id.Length);
