@@ -343,8 +343,8 @@ public class GitCommitTest
 
     using var commit = repo.Repo.LookupCommit(repo.CommitOid);
 
-    var owner = commit.Owner;
+    using var owner = commit.Owner;
 
-    Assert.Equal(repo.Repo, owner);
+    Assert.Equal(repo.Repo.GetPath(), owner.GetPath());
   }
 }

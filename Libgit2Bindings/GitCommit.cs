@@ -8,13 +8,15 @@ internal sealed class GitCommit : IGitCommit
 {
   private readonly libgit2.GitCommit _nativeGitCommit;
   public libgit2.GitCommit NativeGitCommit => _nativeGitCommit;
+  private readonly bool _ownsNativeInstance;
 
-  public IGitRepository Owner { get; }
+  public IGitRepository Owner 
+    => new GitRepository(libgit2.commit.GitCommitOwner(_nativeGitCommit), false);
 
-  public GitCommit(libgit2.GitCommit nativeGitCommit, IGitRepository owner)
+  public GitCommit(libgit2.GitCommit nativeGitCommit, bool ownsNativeInstance = true)
   {
     _nativeGitCommit = nativeGitCommit;
-    Owner = owner;
+    _ownsNativeInstance = ownsNativeInstance;
   }
 
   public GitOid Amend(string? updateRef, IGitSignature? author, IGitSignature? committer, 
@@ -156,7 +158,7 @@ internal sealed class GitCommit : IGitCommit
   {
     var res = libgit2.commit.GitCommitParent(out var nativeGitCommit, _nativeGitCommit, n);
     CheckLibgit2.Check(res, "Unable to get parent");
-    return new GitCommit(nativeGitCommit, Owner);
+    return new GitCommit(nativeGitCommit);
   }
 
   public uint GetParentCount()
@@ -178,7 +180,7 @@ internal sealed class GitCommit : IGitCommit
   {
     var res = libgit2.commit.GitCommitNthGenAncestor(out var nativeGitCommit, _nativeGitCommit, n);
     CheckLibgit2.Check(res, "Unable to get nth ancestor");
-    return new GitCommit(nativeGitCommit, Owner);
+    return new GitCommit(nativeGitCommit);
   }
 
   public string GetRawHeader()
@@ -225,7 +227,10 @@ internal sealed class GitCommit : IGitCommit
   {
     if (!_disposedValue)
     {
-      libgit2.commit.GitCommitFree(_nativeGitCommit);
+      if (_ownsNativeInstance)
+      {
+        libgit2.commit.GitCommitFree(_nativeGitCommit);
+      }
       _disposedValue = true;
     }
   }
