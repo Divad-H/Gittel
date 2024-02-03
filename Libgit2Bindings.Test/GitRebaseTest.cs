@@ -119,4 +119,27 @@ public sealed class GitRebaseTest
 
     rebase.Finish(repoWithTwoBranches.Signature);
   }
+
+  [Fact]
+  public void CanAbortRebase()
+  {
+    using var repoWithTwoBranches = new RepoWithTwoBranches();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var branch = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondBranchCommitOid);
+    using var onto = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    using var rebase = repo.StartRebase(branch, null, onto, null);
+    var operation = rebase.Next();
+    Assert.NotNull(operation);
+    Assert.Equal(repoWithTwoBranches.SecondBranchCommitOid, operation.Id);
+    Assert.Equal(GitRebaseOperationType.Pick, operation.Type);
+
+    var commitId = rebase.Commit(null, repoWithTwoBranches.Signature);
+
+    operation = rebase.Next();
+    Assert.Null(operation);
+
+    rebase.Abort();
+  }
 }

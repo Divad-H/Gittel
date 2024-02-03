@@ -46,4 +46,10 @@ public interface IGitRebase : IDisposable
   /// </summary>
   /// <param name="signature">The identity that is finishing the rebase (optional)</param>
   void Finish(IGitSignature? signature = null);
+
+  /// <summary>
+  /// Aborts a rebase that is currently in progress, resetting the repository and working directory to their 
+  /// state before rebase began.
+  /// </summary>
+  void Abort();
 }

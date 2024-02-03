@@ -6,6 +6,19 @@ namespace Libgit2Bindings;
 internal sealed class GitRebase : IGitRebase
 {
   public libgit2.GitRebase NativeGitRebase { get; }
+
+  public GitOid OriginalHeadId 
+    => GitOidMapper.FromNative(libgit2.rebase.GitRebaseOrigHeadId(NativeGitRebase));
+
+  public string? OriginalHeadName 
+    => libgit2.rebase.GitRebaseOrigHeadName(NativeGitRebase);
+
+  public GitOid OntoId 
+    => GitOidMapper.FromNative(libgit2.rebase.GitRebaseOntoId(NativeGitRebase));
+
+  public string? OntoName 
+    => libgit2.rebase.GitRebaseOntoName(NativeGitRebase);
+
   private readonly DisposableCollection _disposables;
 
   public GitRebase(libgit2.GitRebase nativeGitRebase, DisposableCollection disposables)
@@ -44,6 +57,12 @@ internal sealed class GitRebase : IGitRebase
     var managedSignature = GittelObjects.Downcast<GitSignature>(signature);
     var res = libgit2.rebase.GitRebaseFinish(NativeGitRebase, managedSignature?.NativeGitSignature);
     CheckLibgit2.Check(res, "Unable to finish rebase");
+  }
+
+  public void Abort()
+  {
+    var res = libgit2.rebase.GitRebaseAbort(NativeGitRebase);
+    CheckLibgit2.Check(res, "Unable to abort rebase");
   }
 
   #region IDisposable Support
