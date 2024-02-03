@@ -34,6 +34,7 @@ internal class Libgit2Library : ILibrary
     ctx.GenerateEnumFromMacros("GitMergeFileInputVersion", "GIT_MERGE_FILE_INPUT_VERSION");
     ctx.GenerateEnumFromMacros("GitMergeFileOptionsVersion", "GIT_MERGE_FILE_OPTIONS_VERSION");
     ctx.GenerateEnumFromMacros("GitOdbBackendVersion", "GIT_ODB_BACKEND_VERSION");
+    ctx.GenerateEnumFromMacros("GitRebaseOptionsVersion", "GIT_REBASE_OPTIONS_VERSION");
   }
 
   public void Setup(Driver driver)
@@ -212,7 +213,9 @@ internal class FixOutVariablePass : TranslationUnitPass
         || function.Name.Contains("git_blob_create")
           && parameter.Name == "id"
         || function.Name.Contains("git_note_next")
-          && parameter.Name.Contains("_id"))
+          && parameter.Name.Contains("_id")
+        || function.Name.Contains("git_rebase_commit")
+          && parameter.Name.Contains("id"))
       {
         parameter.Usage = ParameterUsage.Out;
       }
