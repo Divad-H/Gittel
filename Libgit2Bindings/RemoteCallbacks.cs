@@ -6,6 +6,13 @@ public enum GitOperationContinuation
   Cancel,
 }
 
+public enum GitOperationContinuationWithPassthrough
+{
+  Continue,
+  Cancel,
+  Passthrough,
+}
+
 public enum RemoteCompletionType
 {
   Download,
@@ -45,7 +52,7 @@ public static class CallbackResults
   /// <summary>
   /// A user-configured callback refused to act
   /// </summary>
-  public const int Passthrough = -30;
+  public const int Passthrough = (int)libgit2.GitErrorCode.GIT_PASSTHROUGH;
 }
 
 /// <summary>

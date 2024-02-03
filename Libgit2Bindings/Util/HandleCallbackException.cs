@@ -42,4 +42,19 @@ internal static class HandleCallbackException
 
     return func.ExecuteInTryCatch(callbackName);
   }
+
+  public static int ExecuteInTryCatch(this Func<GitOperationContinuationWithPassthrough> action, string callbackName)
+  {
+    Func<int> func = () =>
+    {
+      var res = action();
+      if (res == GitOperationContinuationWithPassthrough.Continue)
+        return (int)libgit2.GitErrorCode.GIT_OK;
+      if (res == GitOperationContinuationWithPassthrough.Passthrough)
+        return (int)libgit2.GitErrorCode.GIT_PASSTHROUGH;
+      return (int)libgit2.GitErrorCode.GIT_EUSER;
+    };
+
+    return func.ExecuteInTryCatch(callbackName);
+  }
 }
