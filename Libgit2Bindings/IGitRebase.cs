@@ -3,6 +3,26 @@
 public interface IGitRebase : IDisposable
 {
   /// <summary>
+  /// Gets the original HEAD id for merge rebases.
+  /// </summary>
+  GitOid OriginalHeadId { get; }
+
+  /// <summary>
+  /// Gets the original HEAD ref name for merge rebases.
+  /// </summary>
+  string? OriginalHeadName { get; }
+
+  /// <summary>
+  /// Gets the onto id for merge rebases.
+  /// </summary>
+  GitOid OntoId { get; }
+
+  /// <summary>
+  /// Gets the onto ref name for merge rebases.
+  /// </summary>
+  string? OntoName { get; }
+
+  /// <summary>
   /// Performs the next rebase operation and returns the information about it. If the operation 
   /// is one that applies a patch (which is any operation except <see cref="GitRebaseOperationType.Exec"/>) 
   /// then the patch will be applied and the index and working directory will be updated with the changes. 

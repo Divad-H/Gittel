@@ -67,4 +67,56 @@ public sealed class GitRebaseTest
 
     rebase.Finish(repoWithTwoBranches.Signature);
   }
+
+  [Fact]
+  public void CanOpenRebaseWithCreateCommitCallback()
+  {
+    using var repoWithTwoBranches = new RepoWithTwoBranches();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var branch = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondBranchCommitOid);
+    using var onto = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    using var rebaseOrig = repo.StartRebase(branch, null, onto, null);
+
+    GitOid? createdId = null;
+    using var rebase = repo.OpenRebase(new()
+    {
+      CommitCreateCallback = (out GitOid? createdCommitId,
+        IGitSignature author, IGitSignature committer, string message,
+        IGitTree tree, IReadOnlyCollection<IGitCommit> parents) =>
+      {
+        createdId = repo.CreateCommit(
+          "HEAD",
+          repoWithTwoBranches.Signature, repoWithTwoBranches.Signature,
+          message,
+          tree,
+          parents);
+        createdCommitId = createdId;
+        return GitOperationContinuationWithPassthrough.Continue;
+      }
+    });
+
+    Assert.NotNull(rebaseOrig.OriginalHeadId);
+    Assert.Equal(rebaseOrig.OriginalHeadId, rebase.OriginalHeadId);
+    Assert.Equal(rebaseOrig.OriginalHeadName, rebase.OriginalHeadName);
+    Assert.NotNull(rebaseOrig.OntoId);
+    Assert.Equal(rebaseOrig.OntoId, rebase.OntoId);
+    Assert.NotNull(rebaseOrig.OntoName);
+    Assert.Equal(rebaseOrig.OntoName, rebase.OntoName);
+
+    var operation = rebase.Next();
+    Assert.NotNull(operation);
+    Assert.Equal(repoWithTwoBranches.SecondBranchCommitOid, operation.Id);
+    Assert.Equal(GitRebaseOperationType.Pick, operation.Type);
+
+    var commitId = rebase.Commit(null, repoWithTwoBranches.Signature);
+    Assert.NotNull(commitId);
+    Assert.Equal(createdId, commitId);
+
+    operation = rebase.Next();
+    Assert.Null(operation);
+
+    rebase.Finish(repoWithTwoBranches.Signature);
+  }
 }

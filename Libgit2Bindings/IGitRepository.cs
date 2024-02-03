@@ -913,4 +913,12 @@ public interface IGitRepository : IDisposable
   IGitRebase StartRebase(
     IGitAnnotatedCommit? branch, IGitAnnotatedCommit? upstream, IGitAnnotatedCommit? onto, 
     GitRebaseOptions? options);
+
+  /// <summary>
+  /// Opens an existing rebase that was previously started by either an invocation of <see cref="StartRebase"/> 
+  /// or by another client.
+  /// </summary>
+  /// <param name="options">Options to specify how rebase is performed</param>
+  /// <returns>the rebase object</returns>
+  IGitRebase OpenRebase(GitRebaseOptions? options);
 }

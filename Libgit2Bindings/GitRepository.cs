@@ -1051,6 +1051,23 @@ internal sealed class GitRepository : IGitRepository
     }
   }
 
+  public IGitRebase OpenRebase(GitRebaseOptions? options)
+  {
+    var disposables = new DisposableCollection();
+    try
+    {
+      var nativeOptions = options?.ToNative(disposables).DisposeWith(disposables);
+      var res = libgit2.rebase.GitRebaseOpen(out var nativeRebase, _nativeGitRepository, nativeOptions);
+      CheckLibgit2.Check(res, "Unable to start rebase");
+      return new GitRebase(nativeRebase, disposables);
+    }
+    catch (Exception)
+    {
+      disposables.Dispose();
+      throw;
+    }
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
