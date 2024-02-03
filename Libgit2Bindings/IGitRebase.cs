@@ -52,4 +52,12 @@ public interface IGitRebase : IDisposable
   /// state before rebase began.
   /// </summary>
   void Abort();
+
+  /// <summary>
+  /// Gets the index produced by the last operation, which is the result of <see cref="Next"/> and which 
+  /// will be committed by the next invocation of <see cref="Commit"/>. This is useful for resolving 
+  /// conflicts in an in-memory rebase before committing them.
+  /// </summary>
+  /// <returns>index of the last operation.</returns>
+  IGitIndex GetInMemoryIndex();
 }

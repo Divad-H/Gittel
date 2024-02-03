@@ -142,4 +142,34 @@ public sealed class GitRebaseTest
 
     rebase.Abort();
   }
+
+  [Fact]
+  public void CanGetInMemoryIndex()
+  {
+    using var repoWithTwoBranches = new RepoWithTwoBranches();
+    var repo = repoWithTwoBranches.Repo;
+
+    using var branch = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondBranchCommitOid);
+    using var onto = repo.AnnotatedCommitLookup(repoWithTwoBranches.SecondCommitOid);
+
+    using var rebase = repo.StartRebase(branch, null, onto, new()
+    {
+      InMemory = true
+    });
+    var operation = rebase.Next();
+    Assert.NotNull(operation);
+    Assert.Equal(repoWithTwoBranches.SecondBranchCommitOid, operation.Id);
+    Assert.Equal(GitRebaseOperationType.Pick, operation.Type);
+
+    var commitId = rebase.Commit(null, repoWithTwoBranches.Signature);
+
+    using var index = rebase.GetInMemoryIndex();
+    Assert.NotNull(index);
+    Assert.False(index.HasConflicts());
+
+    operation = rebase.Next();
+    Assert.Null(operation);
+
+    rebase.Abort();
+  }
 }

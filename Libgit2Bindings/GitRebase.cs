@@ -65,6 +65,13 @@ internal sealed class GitRebase : IGitRebase
     CheckLibgit2.Check(res, "Unable to abort rebase");
   }
 
+  public IGitIndex GetInMemoryIndex()
+  {
+    var res = libgit2.rebase.GitRebaseInmemoryIndex(out var index, NativeGitRebase);
+    CheckLibgit2.Check(res, "Unable to get in-memory index");
+    return new GitIndex(index);
+  }
+
   #region IDisposable Support
   private bool _disposedValue;
   private void Dispose(bool disposing)
