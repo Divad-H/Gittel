@@ -60,4 +60,28 @@ public interface IGitRebase : IDisposable
   /// </summary>
   /// <returns>index of the last operation.</returns>
   IGitIndex GetInMemoryIndex();
+
+  /// <summary>
+  /// Gets the rebase operation specified by the given index.
+  /// </summary>
+  /// <param name="index">The index of the rebase operation to retrieve</param>
+  /// <returns>The rebase operation or null if the index was out of bounds</returns>
+  GitRebaseOperation? GetOperation(nuint index);
+
+  /// <summary>
+  /// Indicates that a rebase operation is not (yet) in progress.
+  /// </summary>
+  static readonly nuint NoRebaseOperationIndex = nuint.MaxValue;
+
+  /// <summary>
+  /// Gets the index of the rebase operation that is currently being applied. If the first operation 
+  /// has not yet been applied (because you have called init but not yet next) then this returns 
+  /// <see cref="NoRebaseOperationIndex"/>.
+  /// </summary>
+  nuint CurrentOperationIndex { get; }
+
+  /// <summary>
+  /// Gets the count of rebase operations that are to be applied in total.
+  /// </summary>
+  nuint OperationEntryCount { get; }
 }

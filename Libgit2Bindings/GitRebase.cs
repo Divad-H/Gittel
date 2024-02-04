@@ -19,6 +19,12 @@ internal sealed class GitRebase : IGitRebase
   public string? OntoName 
     => libgit2.rebase.GitRebaseOntoName(NativeGitRebase);
 
+  public nuint CurrentOperationIndex 
+    => (nuint)libgit2.rebase.GitRebaseOperationCurrent(NativeGitRebase);
+
+  public nuint OperationEntryCount 
+    => (nuint)libgit2.rebase.GitRebaseOperationEntrycount(NativeGitRebase);
+
   private readonly DisposableCollection _disposables;
 
   public GitRebase(libgit2.GitRebase nativeGitRebase, DisposableCollection disposables)
@@ -70,6 +76,12 @@ internal sealed class GitRebase : IGitRebase
     var res = libgit2.rebase.GitRebaseInmemoryIndex(out var index, NativeGitRebase);
     CheckLibgit2.Check(res, "Unable to get in-memory index");
     return new GitIndex(index);
+  }
+
+  public GitRebaseOperation? GetOperation(nuint index)
+  {
+    var operation = libgit2.rebase.GitRebaseOperationByindex(NativeGitRebase, (UIntPtr)index);
+    return operation is null ? null : GitRebaseOperationMapper.FromNative(operation);
   }
 
   #region IDisposable Support

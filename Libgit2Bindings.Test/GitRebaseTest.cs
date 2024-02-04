@@ -156,10 +156,20 @@ public sealed class GitRebaseTest
     {
       InMemory = true
     });
+
+    Assert.Equal(IGitRebase.NoRebaseOperationIndex, rebase.CurrentOperationIndex);
+
     var operation = rebase.Next();
     Assert.NotNull(operation);
     Assert.Equal(repoWithTwoBranches.SecondBranchCommitOid, operation.Id);
     Assert.Equal(GitRebaseOperationType.Pick, operation.Type);
+
+    Assert.Equal(0, (int)rebase.CurrentOperationIndex);
+    Assert.Equal(1, (int)rebase.OperationEntryCount);
+    var readOperation = rebase.GetOperation(0);
+    Assert.NotNull(readOperation);
+    Assert.Equal(operation.Id, readOperation.Id);
+    Assert.Equal(operation.Type, readOperation.Type);
 
     var commitId = rebase.Commit(null, repoWithTwoBranches.Signature);
 
