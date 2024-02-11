@@ -166,6 +166,38 @@ public interface ILibgit2
   bool BranchNameIsValid(string branchName);
 
   /// <summary>
+  /// Ensure the reference name is well-formed.
+  /// </summary>
+  /// <remarks>
+  /// Valid reference names must follow one of two patterns:
+  /// <para/>
+  /// 1. Top-level names must contain only capital letters and underscores, and must begin and end 
+  /// with a letter. (e.g. "HEAD", "ORIG_HEAD").
+  /// <para/>
+  /// 2. Names prefixed with "refs/" can be almost anything.You must avoid the characters '~', '^', 
+  /// ':', '\', '?', '[', and '*', and the sequences ".." and "@{" which have special meaning to revparse.
+  /// </remarks>
+  /// <param name="referenceName">name to be checked.</param>
+  /// <returns></returns>
+  bool ReferenceNameIsValid(string referenceName);
+
+  /// <summary>
+  /// Normalize reference name and check validity.
+  /// </summary>
+  /// <remarks>
+  /// This will normalize the reference name by removing any leading slash '/' characters and collapsing 
+  /// runs of adjacent slashes between name components into a single slash.
+  /// <para/>
+  /// Once normalized, if the reference name is valid, it will be returned.
+  /// </remarks>
+  /// <param name="referenceName">Reference name to be checked.</param>
+  /// <param name="format">
+  /// Flags to constrain name validation rules - see the <see cref="GitReferenceFormat"/> enum.
+  /// </param>
+  /// <returns>The normalized name</returns>
+  string NormalizeReferenceName(string referenceName, GitReferenceFormat format);
+
+  /// <summary>
   /// Determine if the given <see cref="GitObjectType"/> is a valid loose object type.
   /// </summary>
   /// <param name="type">object type to test.</param>

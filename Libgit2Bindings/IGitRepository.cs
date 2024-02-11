@@ -14,6 +14,269 @@ public interface IGitRepository : IDisposable
   void SetHead(string refName);
 
   /// <summary>
+  /// Create a new direct reference.
+  /// </summary>
+  /// <remarks>
+  /// A direct reference (also called an object id reference) refers directly to a specific object id 
+  /// (a.k.a. OID or SHA) in the repository. The id permanently refers to the object (although the 
+  /// reference itself can be moved). For example, in libgit2 the direct ref "refs/tags/v0.17.0" 
+  /// refers to OID 5b9fac39d8a76b9139667c26a63e6b3f204b3977.
+  /// <para/>
+  /// The direct reference will be created in the repository and written to the disk.
+  /// <para/>
+  /// Valid reference names must follow one of two patterns:
+  /// <para/>
+  /// Top-level names must contain only capital letters and underscores, and must begin and end with 
+  /// a letter. (e.g. "HEAD", "ORIG_HEAD"). 2. Names prefixed with "refs/" can be almost anything. You 
+  /// must avoid the characters '~', '^', ':', '\', '?', '[', and '*', and the sequences ".." and "@{" 
+  /// which have special meaning to revparse.
+  /// <para/>
+  /// This function will return an error if a reference already exists with the given name unless force 
+  /// is true, in which case it will be overwritten.
+  /// <para/>
+  /// The message for the reflog will be ignored if the reference does not belong in the standard set 
+  /// (HEAD, branches and remote-tracking branches) and it does not have a reflog.
+  /// </remarks>
+  /// <param name="name">The name of the reference</param>
+  /// <param name="id">The object id pointed to by the reference.</param>
+  /// <param name="force">Overwrite existing references</param>
+  /// <param name="logMessage">The one line long message to be appended to the reflog</param>
+  /// <returns>the newly created reference</returns>
+  IGitReference CreateReference(string name, GitOid id, bool force, string? logMessage);
+
+  /// <summary>
+  /// Conditionally create new direct reference
+  /// </summary>
+  /// <remarks>
+  /// A direct reference (also called an object id reference) refers directly to a specific object 
+  /// id (a.k.a. OID or SHA) in the repository. The id permanently refers to the object (although 
+  /// the reference itself can be moved). For example, in libgit2 the direct ref "refs/tags/v0.17.0" 
+  /// refers to OID 5b9fac39d8a76b9139667c26a63e6b3f204b3977.
+  /// <para/>
+  /// The direct reference will be created in the repository and written to the disk. 
+  /// <para/>
+  /// Valid reference names must follow one of two patterns:
+  /// <para/>
+  /// Top-level names must contain only capital letters and underscores, and must begin and end with 
+  /// a letter. (e.g. "HEAD", "ORIG_HEAD"). 2. Names prefixed with "refs/" can be almost anything.
+  /// You must avoid the characters '~', '^', ':', '\', '?', '[', and '*', and the sequences ".." 
+  /// and "@{" which have special meaning to revparse.
+  /// <para/>
+  /// This function will return an error if a reference already exists with the given name unless force 
+  /// is true, in which case it will be overwritten.
+  /// <para/>
+  /// The message for the reflog will be ignored if the reference does not belong in the standard 
+  /// set (HEAD, branches and remote-tracking branches) and it does not have a reflog.
+  /// <para/>
+  /// It will throw if the reference's value at the time of updating does not match the one passed 
+  /// through currentId (i.e. if the ref has changed since the user read it).
+  /// </remarks>
+  /// <param name="name">The name of the reference</param>
+  /// <param name="id">The object id pointed to by the reference.</param>
+  /// <param name="force">Overwrite existing references</param>
+  /// <param name="currentId">The expected value of the reference at the time of update</param>
+  /// <param name="logMessage">The one line long message to be appended to the reflog</param>
+  /// <returns>the newly created reference</returns>
+  IGitReference CreateMatchingReference(string name, GitOid id, bool force, GitOid currentId, string? logMessage);
+
+  /// <summary>
+  /// Create a new symbolic reference.
+  /// </summary>
+  /// <remarks>
+  /// A symbolic reference is a reference name that refers to another reference name. If the other name 
+  /// moves, the symbolic name will move, too. As a simple example, the "HEAD" reference might refer to 
+  /// "refs/heads/master" while on the "master" branch of a repository.
+  /// <para/>
+  /// The symbolic reference will be created in the repository and written to the disk.
+  /// <para/>
+  /// Valid reference names must follow one of two patterns:
+  /// <para/>
+  /// Top-level names must contain only capital letters and underscores, and must begin and end with a 
+  /// letter. (e.g. "HEAD", "ORIG_HEAD"). 2. Names prefixed with "refs/" can be almost anything.You 
+  /// must avoid the characters '~', '^', ':', '\', '?', '[', and '*', and the sequences ".." and "@{" 
+  /// which have special meaning to revparse.
+  /// <para/>
+  /// This function will return an error if a reference already exists with the given name unless force 
+  /// is true, in which case it will be overwritten.
+  /// <para/>
+  /// The message for the reflog will be ignored if the reference does not belong in the standard set 
+  /// (HEAD, branches and remote-tracking branches) and it does not have a reflog.
+  /// </remarks>
+  /// <param name="name">The name of the reference</param>
+  /// <param name="target">The target of the reference</param>
+  /// <param name="force">Overwrite existing references</param>
+  /// <param name="logMessage">The one line long message to be appended to the reflog</param>
+  /// <returns>The newly created reference</returns>
+  IGitReference CreateSymbolicReference(string name, string target, bool force, string? logMessage);
+
+  /// <summary>
+  /// Create a new symbolic reference.
+  /// </summary>
+  /// <remarks>
+  /// A symbolic reference is a reference name that refers to another reference name. If the other name 
+  /// moves, the symbolic name will move, too. As a simple example, the "HEAD" reference might refer to 
+  /// "refs/heads/master" while on the "master" branch of a repository.
+  /// <para/>
+  /// The symbolic reference will be created in the repository and written to the disk.
+  /// <para/>
+  /// Valid reference names must follow one of two patterns:
+  /// <para/>
+  /// Top-level names must contain only capital letters and underscores, and must begin and end with a 
+  /// letter. (e.g. "HEAD", "ORIG_HEAD"). 2. Names prefixed with "refs/" can be almost anything.You 
+  /// must avoid the characters '~', '^', ':', '\', '?', '[', and '*', and the sequences ".." and "@{" 
+  /// which have special meaning to revparse.
+  /// <para/>
+  /// This function will return an error if a reference already exists with the given name unless force 
+  /// is true, in which case it will be overwritten.
+  /// <para/>
+  /// The message for the reflog will be ignored if the reference does not belong in the standard set 
+  /// (HEAD, branches and remote-tracking branches) and it does not have a reflog.
+  /// <para/>
+  /// It will throw if the reference's value at the time of updating does not match the one passed 
+  /// through currentTarget (i.e. if the ref has changed since the user read it).
+  /// </remarks>
+  /// <param name="name">The name of the reference</param>
+  /// <param name="target">The target of the reference</param>
+  /// <param name="force">Overwrite existing references</param>
+  /// <param name="currentTarget">The expected value of the reference at the time of update</param>
+  /// <param name="logMessage">The one line long message to be appended to the reflog</param>
+  /// <returns>The newly created reference</returns>
+  IGitReference CreateMatchingSymbolicReference(
+    string name, string target, bool force, string? currentTarget, string? logMessage);
+
+  /// <summary>
+  /// Lookup a reference by DWIMing its short name
+  /// </summary>
+  /// <remarks>
+  /// Apply the git precedence rules to the given shorthand to determine which reference the user is referring to.
+  /// </remarks>
+  /// <param name="shorthand">the short name for the reference</param>
+  /// <returns>the reference</returns>
+  IGitReference LookupReferenceDwim(string shorthand);
+
+  /// <summary>
+  /// Lookup a reference by name in a repository.
+  /// </summary>
+  /// <remarks>The name will be checked for validity.</remarks>
+  /// <param name="name">the long name for the reference (e.g. HEAD, refs/heads/master, refs/tags/v0.1.0, ...)</param>
+  /// <returns>the looked-up reference</returns>
+  IGitReference LookupReference(string name);
+
+  /// <summary>
+  /// Lookup a reference by name and resolve immediately to OID.
+  /// </summary>
+  /// <remarks>
+  /// This function provides a quick way to resolve a reference name straight through to the object 
+  /// id that it refers to.
+  /// <para/>
+  /// The name will be checked for validity.
+  /// </remarks>
+  /// <param name="name">
+  /// The long name for the reference (e.g. HEAD, refs/heads/master, refs/tags/v0.1.0, ...)
+  /// </param>
+  /// <returns>The oid</returns>
+  GitOid ReferenceNameToOid(string name);
+
+  /// <summary>
+  /// Ensure there is a reflog for a particular reference.
+  /// </summary>
+  /// <remarks>
+  /// Make sure that successive updates to the reference will append to its log.
+  /// </remarks>
+  /// <param name="refName">the reference's name</param>
+  void EnsureReferenceHasLog(string refName);
+
+  /// <summary>
+  /// Check if a reflog exists for the specified reference.
+  /// </summary>
+  /// <param name="refName">the reference's name</param>
+  /// <returns>false when no reflog can be found, true when it exists</returns>
+  bool ReferenceHasLog(string refName);
+
+  /// <summary>
+  /// Perform a callback on each reference in the repository.
+  /// </summary>
+  /// <param name="callback">Function which will be called for every listed ref</param>
+  void ForEachReference(Func<IGitReference, GitOperationContinuation> callback);
+
+  /// <summary>
+  /// Create an iterable for the repo's references
+  /// </summary>
+  /// <remarks>
+  /// Note that the references will be owned by the repository and should be disposed when no longer needed.
+  /// </remarks>
+  /// <returns>The IEnumerable to iterate over references</returns>
+  IEnumerable<IGitReference> EnumerateReferences();
+
+  /// <summary>
+  /// Create an iterable for the repo's references that match the specified glob
+  /// </summary>
+  /// <remarks>
+  /// Note that the references will be owned by the repository and should be disposed when no longer needed.
+  /// </remarks>
+  /// <param name="glob">the glob to match against the reference names</param>
+  /// <returns>The IEnumerable to iterate over references</returns>
+  IEnumerable<IGitReference> EnumerateReferences(string glob);
+
+  /// <summary>
+  /// Create an iterable for the repo's reference names
+  /// </summary>
+  /// <remarks>
+  /// This function is provided for convenience in case only the names are interesting as it 
+  /// avoids the allocation of the <see cref="IGitReference"/>
+  /// </remarks>
+  /// <returns>The IEnumerable to iterate over reference names</returns>
+  IEnumerable<string> EnumerateReferenceNames();
+
+  /// <summary>
+  /// Create an iterable for the repo's reference names that match the specified glob
+  /// </summary>
+  /// <remarks>
+  /// This function is provided for convenience in case only the names are interesting as it 
+  /// avoids the allocation of the <see cref="IGitReference"/>
+  /// </remarks>
+  /// <param name="glob">the glob to match against the reference names</param>
+  /// <returns>The IEnumerable to iterate over reference names</returns>
+  IEnumerable<string> EnumerateReferenceNames(string glob);
+
+  /// <summary>
+  /// Fill a list with all the references that can be found in a repository.
+  /// </summary>
+  /// <returns>the reference names</returns>
+  IReadOnlyCollection<string> ReferenceList();
+
+  /// <summary>
+  /// Perform a callback on each reference in the repository whose name matches the given pattern.
+  /// </summary>
+  /// <remarks>
+  /// his function acts like <see cref="ForEachReference(Func{IGitReference, GitOperationContinuation})"/> 
+  /// with an additional pattern match being applied to the reference name before issuing the callback 
+  /// function. See that function for more information.
+  /// <para/>
+  /// The pattern is matched using fnmatch or "glob" style where a '*' matches any sequence of letters, 
+  /// a '?' matches any letter, and square brackets can be used to define character ranges(such as "[0-9]" 
+  /// for digits).
+  /// </remarks>
+  /// <param name="glob">Pattern to match (fnmatch-style) against reference name.</param>
+  /// <param name="callback">Function which will be called for every listed ref</param>
+  void ForEachReferenceName(string glob, Func<string, GitOperationContinuation> callback);
+
+  /// <summary>
+  /// Perform a callback on the fully-qualified name of each reference.
+  /// </summary>
+  /// <param name="callback">Function which will be called for every listed ref name</param>
+  void ForEachReferenceName(Func<string, GitOperationContinuation> callback);
+
+  /// <summary>
+  /// Delete an existing reference by name
+  /// </summary>
+  /// <remarks>
+  /// This method removes the named reference from the repository without looking at its old value.
+  /// </remarks>
+  /// <param name="name">The reference to remove</param>
+  void RemoveReference(string name);
+
+  /// <summary>
   /// Get the path of this repository
   /// </summary>
   /// <returns>The path of the repository</returns>

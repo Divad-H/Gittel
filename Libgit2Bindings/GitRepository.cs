@@ -35,6 +35,232 @@ internal sealed class GitRepository : IGitRepository
     CheckLibgit2.Check(res, "Unable to set HEAD");
   }
 
+  public IGitReference CreateReference(string name, GitOid id, bool force, string logMessage)
+  {
+    using var nativeOid = GitOidMapper.ToNative(id);
+    var res = libgit2.refs.GitReferenceCreate(
+      out var reference, _nativeGitRepository, name, nativeOid, force ? 1 : 0, logMessage);
+    CheckLibgit2.Check(res, "Unable to create reference");
+    return new GitReference(reference);
+  }
+
+  public IGitReference CreateMatchingReference(
+    string name, GitOid id, bool force, GitOid currentId, string logMessage)
+  {
+    using var nativeOid = GitOidMapper.ToNative(id);
+    using var nativeCurrentOid = GitOidMapper.ToNative(currentId);
+    var res = libgit2.refs.GitReferenceCreateMatching(
+      out var reference, _nativeGitRepository, name, nativeOid, force ? 1 : 0, nativeCurrentOid, logMessage);
+    CheckLibgit2.Check(res, "Unable to create matching reference");
+    return new GitReference(reference);
+  }
+
+  public IGitReference LookupReferenceDwim(string shorthand)
+  {
+    var res = libgit2.refs.GitReferenceDwim(out var reference, _nativeGitRepository, shorthand);
+    CheckLibgit2.Check(res, "Unable to lookup reference");
+    return new GitReference(reference);
+  }
+
+  public IGitReference LookupReference(string name)
+  {
+    var res = libgit2.refs.GitReferenceLookup(out var reference, _nativeGitRepository, name);
+    CheckLibgit2.Check(res, "Unable to lookup reference");
+    return new GitReference(reference);
+  }
+
+  public void EnsureReferenceHasLog(string refName)
+  {
+    var res = libgit2.refs.GitReferenceEnsureLog(_nativeGitRepository, refName);
+    CheckLibgit2.Check(res, "Unable to ensure reference has log");
+  }
+
+  public bool ReferenceHasLog(string refName)
+  {
+    var res = libgit2.refs.GitReferenceHasLog(_nativeGitRepository, refName);
+    if (res < 0)
+    {
+      CheckLibgit2.Check(res, "Unable to check if reference has log");
+    }
+    return res == 1;
+  }
+
+  public void ForEachReference(Func<IGitReference, GitOperationContinuation> callback)
+  {
+    using var callbackImpl = new GitReferenaceForEachCallbackImpl(callback);
+    var res = libgit2.refs.GitReferenceForeach(
+      _nativeGitRepository, GitReferenaceForEachCallbackImpl.GitReferenceForEachCb, callbackImpl.Payload);
+    CheckLibgit2.Check(res, "Unable to iterate over references");
+  }
+
+  public void ForEachReferenceName(string glob, Func<string, GitOperationContinuation> callback)
+  {
+    using var callbackImpl = new GitReferenceForEachNameCallbackImpl(callback);
+    var res = libgit2.refs.GitReferenceForeachGlob(
+      _nativeGitRepository, glob, GitReferenceForEachNameCallbackImpl.GitReferenceForEachNameCb, 
+      callbackImpl.Payload);
+    CheckLibgit2.Check(res, "Unable to iterate over references");
+  }
+
+  public void ForEachReferenceName(Func<string, GitOperationContinuation> callback)
+  {
+    using var callbackImpl = new GitReferenceForEachNameCallbackImpl(callback);
+    var res = libgit2.refs.GitReferenceForeachName(
+      _nativeGitRepository, GitReferenceForEachNameCallbackImpl.GitReferenceForEachNameCb, 
+      callbackImpl.Payload);
+    CheckLibgit2.Check(res, "Unable to iterate over references");
+  }
+
+  public IEnumerable<IGitReference> EnumerateReferences()
+  {
+    var res = libgit2.refs.GitReferenceIteratorNew(out var iterator, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to create reference iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.refs.GitReferenceNext(out var reference, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to iterate over references");
+        yield return new GitReference(reference);
+      }
+    }
+    finally
+    {
+      libgit2.refs.GitReferenceIteratorFree(iterator);
+    }
+  }
+
+  public IEnumerable<IGitReference> EnumerateReferences(string glob)
+  {
+    var res = libgit2.refs.GitReferenceIteratorGlobNew(out var iterator, _nativeGitRepository, glob);
+    CheckLibgit2.Check(res, "Unable to create reference iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.refs.GitReferenceNext(out var reference, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to iterate over references");
+        yield return new GitReference(reference);
+      }
+    }
+    finally
+    {
+      libgit2.refs.GitReferenceIteratorFree(iterator);
+    }
+  }
+
+  public IEnumerable<string> EnumerateReferenceNames()
+  {
+    var res = libgit2.refs.GitReferenceIteratorNew(out var iterator, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to create reference iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.refs.GitReferenceNextName(out var name, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to iterate over references");
+        yield return name;
+      }
+    }
+    finally
+    {
+      libgit2.refs.GitReferenceIteratorFree(iterator);
+    }
+  }
+
+  public IEnumerable<string> EnumerateReferenceNames(string glob)
+  {
+    var res = libgit2.refs.GitReferenceIteratorGlobNew(out var iterator, _nativeGitRepository, glob);
+    CheckLibgit2.Check(res, "Unable to create reference iterator");
+    try
+    {
+      while (true)
+      {
+        res = libgit2.refs.GitReferenceNextName(out var name, iterator);
+        if (res == (int)libgit2.GitErrorCode.GIT_ITEROVER)
+        {
+          break;
+        }
+        CheckLibgit2.Check(res, "Unable to iterate over references");
+        yield return name;
+      }
+    }
+    finally
+    {
+      libgit2.refs.GitReferenceIteratorFree(iterator);
+    }
+  }
+
+  public IReadOnlyCollection<string> ReferenceList()
+  {
+    using var strArray = new libgit2.GitStrarray();
+    var res = libgit2.refs.GitReferenceList(strArray, _nativeGitRepository);
+    CheckLibgit2.Check(res, "Unable to list references");
+    try
+    {
+      List<string> result = new((int)strArray.Count);
+      unsafe
+      {
+        var pStr = *(sbyte**)((libgit2.GitStrarray.__Internal*)strArray.__Instance)->strings;
+        for (UIntPtr i = 0; i < strArray.Count; i++)
+        {
+          result.Add(StringUtil.ToString(pStr));
+          pStr += sizeof(IntPtr);
+        }
+        return result;
+      }
+    }
+    finally
+    {
+      libgit2.strarray.GitStrarrayDispose(strArray);
+    }
+  }
+
+  public GitOid ReferenceNameToOid(string name)
+  {
+    var res = libgit2.refs.GitReferenceNameToId(out var oid, _nativeGitRepository, name);
+    CheckLibgit2.Check(res, "Unable to convert reference name to OID");
+    using (oid)
+    {
+      return GitOidMapper.FromNative(oid);
+    }
+  }
+
+  public void RemoveReference(string name)
+  {
+    var res = libgit2.refs.GitReferenceRemove(_nativeGitRepository, name);
+    CheckLibgit2.Check(res, "Unable to remove reference");
+  }
+
+  public IGitReference CreateSymbolicReference(string name, string target, bool force, string logMessage)
+  {
+    var res = libgit2.refs.GitReferenceSymbolicCreate(
+      out var reference, _nativeGitRepository, name, target, force ? 1 : 0, logMessage);
+    CheckLibgit2.Check(res, "Unable to create symbolic reference");
+    return new GitReference(reference);
+  }
+
+  public IGitReference CreateMatchingSymbolicReference(
+    string name, string target, bool force, string? currentTarget, string logMessage)
+  {
+    var res = libgit2.refs.GitReferenceSymbolicCreateMatching(
+      out var reference, _nativeGitRepository, name, target, force ? 1 : 0, currentTarget, logMessage);
+    CheckLibgit2.Check(res, "Unable to create matching symbolic reference");
+    return new GitReference(reference);
+  }
+
   public string GetPath()
   {
     return libgit2.repository.GitRepositoryPath(_nativeGitRepository);
@@ -49,7 +275,7 @@ internal sealed class GitRepository : IGitRepository
   {
     return libgit2.repository.GitRepositoryCommondir(_nativeGitRepository);
   }
-
+   
   public void CheckoutHead(CheckoutOptions? options = null)
   {
     using var scope = new DisposableCollection();

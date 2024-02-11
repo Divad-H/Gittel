@@ -166,6 +166,41 @@ internal class Libgit2 : ILibgit2, IDisposable
     return valid != 0;
   }
 
+  public bool ReferenceNameIsValid(string referenceName)
+  {
+    int valid = 0;
+    var res = libgit2.refs.GitReferenceNameIsValid(ref valid, referenceName);
+    CheckLibgit2.Check(res, "Unable to check if reference name is valid");
+    return valid != 0;
+  }
+
+  public string NormalizeReferenceName(string referenceName, GitReferenceFormat format)
+  {
+    nuint bufSize = 1024;
+    int res;
+    do
+    {
+      byte[] buffer = new byte[bufSize];
+      using var result = new PinnedBuffer(buffer);
+      unsafe
+      {
+        res = libgit2.refs.GitReferenceNormalizeName(
+          (sbyte*)result.Pointer, bufSize, referenceName, (UInt32)format);
+      }
+      if (res == (int)libgit2.GitErrorCode.GIT_EBUFS)
+      {
+        bufSize *= 2;
+        continue;
+      }
+      CheckLibgit2.Check(res, "Unable to normalize reference name");
+      unsafe
+      {
+        return StringUtil.ToString((sbyte*)result.Pointer);
+      }
+    } while(res == (int)libgit2.GitErrorCode.GIT_EBUFS);
+    throw new Libgit2Exception("Unable to normalize reference name", -1);
+  }
+
   public bool GitObjectTypeIsLoose(GitObjectType type)
   {
     return libgit2.@object.GitObjectTypeisloose(type.ToNative()) != 0;

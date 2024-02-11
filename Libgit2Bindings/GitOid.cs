@@ -36,4 +36,6 @@ public sealed record GitOid(byte[] Id)
   {
     return new System.Numerics.BigInteger(Id).GetHashCode();
   }
+
+  public static GitOid Zero => new(new byte[Size]);
 }
